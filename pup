@@ -61,6 +61,9 @@ if [[ "$1" =~ ^py$|^python$ ]]; then
     \e[1m\e[4mUsage\e[0m: pup $1{version} [ADDITIONAL PACKAGES]\n
     For example:\n
     \tpup py3.12 jupyter jupyter-collaboration>=2\n
+    \e[4mNote\e[0m:\n
+    \tthis command is meant to be used once during the first base layer setup;\n
+    \tbeyond that, use 'pixi add'\n
     \n"
     echo -e $USAGE
     read -ei "" -p $'\e[0;33minstall which python version (blank = latest)? \e[0m' PYVER
