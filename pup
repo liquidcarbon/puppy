@@ -20,6 +20,13 @@ log() {
     done
 }
 
+install_init_pixi_if_not_exists() {
+    if ! command -v pixi &> /dev/null; then
+        curl -fsSL https://pixi.sh/install.sh | bash
+    fi
+    [[ -f pixi.toml ]] || pixi init . 
+}
+
 
 #### init ####
 
@@ -31,47 +38,45 @@ if [ -z "$1" ]; then
     pup py\n
     \tinteractively install base python to current folder\n
     \tif you know what you need:\n
-    \tpup py3.12 jupyter jupyter-collaboration\n
+    \tpup py3.12 jupyter \"jupyter-collaboration>=2\"\n
     \t(additional arguments go into 'pixi add')\n
     \n"
     echo -e $USAGE
     log_command "$0 $*"
     log woof!
-    if [ "$(readlink -f "$SYMLINK")" != "$SYMLINK_TARGET" ]; then
+
+    SYMLINK_CURRENT=$(readlink -f "$SYMLINK")
+    if [ "$SYMLINK_CURRENT" != "$SYMLINK_TARGET" ]; then
         mkdir -p ~/.local/bin
-        ln -s "$(pwd)"/pup $SYMLINK 2>/dev/null
-        log "🐶=$(ls -1 "$SYMLINK")"
+        ln -s --force "$(pwd)"/pup $SYMLINK
+        log "🐶 = $(pup which)"
     fi
     exit 0
 fi
 
 #### py|python ####
 
-if [[ "$1" =~ ^py3.* |^py=3.* |^python |^python3.* |^python=3.* |^python$|^py$ ]]; then
+if [[ "$1" =~ ^py$|^python$ ]]; then
     USAGE="\n
-    \e[1m\e[4mUsage\e[0m: pup $1{version} [ADDITIONAL PACKAGES]
-    "
-    log_command "$0 $*"
-    if ! command -v pixi &> /dev/null; then
-        # install Pixi
-        curl -fsSL https://pixi.sh/install.sh | bash
-    fi
-    [[ -f pixi.toml ]] || pixi init .
+    \e[1m\e[4mUsage\e[0m: pup $1{version} [ADDITIONAL PACKAGES]\n
+    Use double quotes around desired package versions, for example:\n
+    \tpup py3.12 jupyter \"jupyter-collaboration>=2\"\n
+    \n"
+    echo -e $USAGE
+    read -ei "" -p $'\e[0;33minstall which python version (blank = latest)? \e[0m' PYVER
+    PACKAGES=${@:2}
+    read -ei "${PACKAGES:-\"notebook>=7\"}" -p $'\e[0;33many additional packages? \e[0m' PACKAGES
+    install_init_pixi_if_not_exists
+    COMMAND="pixi add uv python${PYVER:+=$PYVER} $PACKAGES"
+    log "🐶 asked for: '$COMMAND'"
+    $COMMAND
+    exit 0
+fi
 
-    COMMAND="pixi add uv"
-    PY=${1/=}
-    case $PY in
-        py|python)
-            echo -e $USAGE
-            echo -e "interactive installation"
-            read -ei "" -p "What python version? " PYVER
-            COMMAND+=" python" ;;
-        py3*)
-            COMMAND+=" python=${PY#py}" ;;
-        python3*)
-            COMMAND+=" python=${PY#python}" ;;
-    esac
-    COMMAND+=" ${@:2}"
+if [[ "$1" =~ ^py3.*$ ]]; then
+    log_command "$0 $*"
+    install_init_pixi_if_not_exists
+    COMMAND="pixi add uv python=${1#py} ${@:2}"
     log "🐶 asked for: '$COMMAND'"
     $COMMAND
     exit 0
@@ -118,7 +123,7 @@ fi
 #### which ####
 
 if [ "$1" == "which" ]; then
-    which pup
+    echo $(ls "$SYMLINK") -\> $(readlink -f $SYMLINK)
     exit 0
 fi
 
