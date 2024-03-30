@@ -59,13 +59,13 @@ fi
 if [[ "$1" =~ ^py$|^python$ ]]; then
     USAGE="\n
     \e[1m\e[4mUsage\e[0m: pup $1{version} [ADDITIONAL PACKAGES]\n
-    Use double quotes around desired package versions, for example:\n
-    \tpup py3.12 jupyter \"jupyter-collaboration>=2\"\n
+    For example:\n
+    \tpup py3.12 jupyter jupyter-collaboration>=2\n
     \n"
     echo -e $USAGE
     read -ei "" -p $'\e[0;33minstall which python version (blank = latest)? \e[0m' PYVER
     PACKAGES=${@:2}
-    read -ei "${PACKAGES:-\"notebook>=7\"}" -p $'\e[0;33many additional packages? \e[0m' PACKAGES
+    read -ei "${PACKAGES:-notebook>=7}" -p $'\e[0;33many additional packages? \e[0m' PACKAGES
     install_init_pixi_if_not_exists
     COMMAND="pixi add uv python${PYVER:+=$PYVER} $PACKAGES"
     log "🐶 asked for: '$COMMAND'"
