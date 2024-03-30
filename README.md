@@ -29,7 +29,7 @@ pup py3.11
 
 4. Summon uv to install stuff into your **base environment**
 ```bash
-pup fetch . duckdb pandas
+pup fetch . duckdb pandas  # install also works, fetch is alias for install
 ```
 
 5. Installs packages with `uv` into a **new environment** called `viz`, nested in the same folder

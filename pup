@@ -1,0 +1,127 @@
+#!/bin/bash
+
+LOG=.woof.log
+SYMLINK=~/.local/bin/pup
+SYMLINK_TARGET="$(pwd)/pup"
+
+
+#### log ####
+
+log_command() {
+    ts=$(date +'%FT%T')
+    echo "# $ts" >> "$LOG"
+    echo "$1" >> "$LOG"
+}
+
+log() {
+    ts=$(date +'%FT%T')
+    for arg in "$@"; do
+        echo "# $ts - $arg" | tee -a "$LOG"
+    done
+}
+
+
+#### init ####
+
+if [ -z "$1" ]; then
+    USAGE="\n
+    \e[1m\e[4mUsage\e[0m: (each subcommand shows more help)\n
+    pup\n
+    \tinitialize and link 🐶 to PATH\n
+    pup py\n
+    \tinteractively install base python to current folder\n
+    \tif you know what you need:\n
+    \tpup py3.12 jupyter jupyter-collaboration\n
+    \t(additional arguments go into 'pixi add')\n
+    \n"
+    echo -e $USAGE
+    log_command "$0 $*"
+    log woof!
+    if [ "$(readlink -f "$SYMLINK")" != "$SYMLINK_TARGET" ]; then
+        mkdir -p ~/.local/bin
+        ln -s "$(pwd)"/pup $SYMLINK 2>/dev/null
+        log "🐶=$(ls -1 "$SYMLINK")"
+    fi
+    exit 0
+fi
+
+#### py|python ####
+
+if [[ "$1" =~ ^py3.* |^py=3.* |^python |^python3.* |^python=3.* |^python$|^py$ ]]; then
+    USAGE="\n
+    \e[1m\e[4mUsage\e[0m: pup $1{version} [ADDITIONAL PACKAGES]
+    "
+    log_command "$0 $*"
+    if ! command -v pixi &> /dev/null; then
+        # install Pixi
+        curl -fsSL https://pixi.sh/install.sh | bash
+    fi
+    [[ -f pixi.toml ]] || pixi init .
+
+    COMMAND="pixi add uv"
+    PY=${1/=}
+    case $PY in
+        py|python)
+            echo -e $USAGE
+            echo -e "interactive installation"
+            read -ei "" -p "What python version? " PYVER
+            COMMAND+=" python" ;;
+        py3*)
+            COMMAND+=" python=${PY#py}" ;;
+        python3*)
+            COMMAND+=" python=${PY#python}" ;;
+    esac
+    COMMAND+=" ${@:2}"
+    log "🐶 asked for: '$COMMAND'"
+    $COMMAND
+    exit 0
+fi
+
+
+#### fetch|install ####
+if [[ "$1" =~ ^fetch$|^install$ ]]; then
+    USAGE="\e[1m\e[4mUsage\e[0m: pup $1 [WHERE] [WHAT] [OPTIONS]"
+    if [ -z "$2" ]; then
+        echo -e $USAGE
+        read -ei "." -p "Fetch packages where? " WHERE
+        read -ei "" -p "What packages? " WHAT
+        read -ei "" -p "Options to pass to 'uv pip install'? " OPTIONS
+        echo "🐶 fetch $WHERE $WHAT $OPTIONS"
+    fi
+    if [ $# -eq 2 ]; then
+        echo "`🐶 fetch` needs more arguments"
+        echo -e $USAGE
+    fi
+    exit 0
+fi
+
+#### new ####
+
+if [ "$1" == "new" ]; then
+    log_command "$0 $*"
+    pixi run uv venv -p $(pixi run which python) "$2"/.venv
+    log "pup & uv created new environment in $2"
+fi
+
+if [ "$1" == "newkernel" ]; then
+    log_command "$0 $*"
+    pup new $2
+    source "$2"/.venv/bin/activate
+    uv pip install ipykernel
+    uv pip list
+    python -m ipykernel install --user --name $2
+    deactivate
+    pixi run jupyter kernelspec list
+fi
+
+
+#### which ####
+
+if [ "$1" == "which" ]; then
+    which pup
+    exit 0
+fi
+
+
+#### unknown command ####
+echo -e "🐶 does not know 'pup $*'\nrun 'pup' to list commands"
