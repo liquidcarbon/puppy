@@ -94,12 +94,25 @@ if [[ "$1" =~ ^fetch$|^install$ ]]; then
         read -ei "." -p "Fetch packages where? " WHERE
         read -ei "" -p "What packages? " WHAT
         read -ei "" -p "Options to pass to 'uv pip install'? " OPTIONS
-        echo "🐶 fetch $WHERE $WHAT $OPTIONS"
+        COMMAND="pup fetch $WHERE $WHAT $OPTIONS"
+        log "🐶 asked for: '$COMMAND'"
+        $COMMAND
+        exit 0
     fi
     if [ $# -eq 2 ]; then
         echo "`🐶 fetch` needs more arguments"
         echo -e $USAGE
     fi
+    if [ $# -gt 2 ] && [ "$2" = "." ]; then
+        COMMAND="pixi run uv pip install $WHAT $OPTIONS"
+    fi
+    if [ -n "$(pixi run jupyter kernelspec)" ] && [ 0 > 0 ]; then
+        COMMAND="pup newkernel $2 && what"
+    else
+        COMMAND="pup new $2 && what"
+    fi
+    log "🐶 asked for: '$COMMAND'"
+    # $COMMAND
     exit 0
 fi
 
@@ -111,12 +124,15 @@ if [ "$1" == "new" ]; then
     log "pup & uv created new environment in $2"
 fi
 
+
+#### newkernel ####
+
 if [ "$1" == "newkernel" ]; then
     log_command "$0 $*"
     pup new $2
     source "$2"/.venv/bin/activate
     uv pip install ipykernel
-    uv pip list
+    # uv pip list
     python -m ipykernel install --user --name $2
     deactivate
     pixi run jupyter kernelspec list
