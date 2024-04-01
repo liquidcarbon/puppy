@@ -27,19 +27,18 @@ pup py3.11
 > [!TIP] 
 > this is your base layer, packages you need globally go here, e.g. `pup py3.11 jupyter jupyter-collaboration` (works via `pixi add`)
 
-4. Summon uv to install stuff into your **base environment**
+4. Summon uv to install packages into a chosen environment with `pup fetch` (same as `pup install`).  Note the extra argument for `[WHERE]` to install. - to install into **base environment**:
 ```bash
-pup fetch . duckdb pandas  # install also works, fetch is alias for install
+pup fetch . duckdb pandas  # pup fetch [WHERE] [WHAT] [OPTIONS]
 ```
-
-5. Installs packages with `uv` into a **new environment** called `viz`, nested in the same folder
+- to install into a **new environment** called `viz`, nested in the same folder:
 ```bash
 pup fetch viz altair bokeh matplotlib seaborn
 ```
 > [!NOTE]
 > if there is Jupyter in the base layer, `pup` will make you a kernel with a matching name
 
-6. Launch your main use case via configurable [Pixi tasks](https://pixi.sh/latest/advanced/advanced_tasks/)
+5. Launch your main use case via configurable [Pixi tasks](https://pixi.sh/latest/advanced/advanced_tasks/)
 ```bash
 pup play
 ```
@@ -48,5 +47,5 @@ pup play
 - run any other script, similar to [Docker CMD](https://docs.docker.com/reference/dockerfile/#cmd) except you can have more than one.
 
 ## Future
-- `pup build` (compile, freeze, list)
+- `pup build` (via compile, freeze, etc.)
 - `pup swim` (build Dockerfiles)

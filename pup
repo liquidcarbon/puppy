@@ -54,6 +54,7 @@ if [ -z "$1" ]; then
     exit 0
 fi
 
+
 #### py|python ####
 
 if [[ "$1" =~ ^py$|^python$ ]]; then
@@ -106,7 +107,11 @@ if [[ "$1" =~ ^fetch$|^install$ ]]; then
     if [ $# -gt 2 ] && [ "$2" = "." ]; then
         COMMAND="pixi run uv pip install $WHAT $OPTIONS"
     fi
-    if [ -n "$(pixi run jupyter kernelspec)" ] && [ 0 > 0 ]; then
+    if [ $# -gt 2 ] && [ "$2" != "." ]; then
+        pup new $2
+        COMMAND="pixi run uv pip install -p $(pixi run which python) $WHAT $OPTIONS"
+    fi
+    if [ -n "$(pixi run jupyter kernelspec &> /dev/null)" ]; then
         COMMAND="pup newkernel $2 && what"
     else
         COMMAND="pup new $2 && what"
@@ -122,21 +127,23 @@ if [ "$1" == "new" ]; then
     log_command "$0 $*"
     pixi run uv venv -p $(pixi run which python) "$2"/.venv
     log "pup & uv created new environment in $2"
+    exit 0
 fi
 
 
 #### newkernel ####
 
-if [ "$1" == "newkernel" ]; then
-    log_command "$0 $*"
-    pup new $2
-    source "$2"/.venv/bin/activate
-    uv pip install ipykernel
-    # uv pip list
-    python -m ipykernel install --user --name $2
-    deactivate
-    pixi run jupyter kernelspec list
-fi
+# if [ "$1" == "newkernel" ]; then
+#     log_command "$0 $*"
+#     pup new $2
+#     source "$2"/.venv/bin/activate
+#     uv pip install ipykernel
+#     # uv pip list
+#     python -m ipykernel install --user --name $2
+#     deactivate
+#     pixi run jupyter kernelspec list
+#     exit 0
+# fi
 
 
 #### which ####
