@@ -46,7 +46,8 @@ if [ -z "$1" ]; then
     log woof!
 
     SYMLINK_CURRENT=$(readlink -f "$SYMLINK")
-    if [ "$SYMLINK_CURRENT" != "$SYMLINK_TARGET" ]; then
+    if [ "$SYMLINK_CURRENT" != "$SYMLINK_TARGET" ] && [ -f "./pup" ]; then
+        echo boo
         mkdir -p ~/.local/bin
         ln -s --force "$(pwd)"/pup $SYMLINK
         log "🐶 = $(pup which)"
