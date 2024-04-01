@@ -30,8 +30,8 @@ USAGE_MAIN="\n
 \e[0;33mpup kernel\e[0m\n
 \tinteractively create Jupyter kernel linked to 🐶's environment\n
 \tif you know what you need:\n
-\tpup kernel . pup3.11 \"pup3.11-home\"\n
-\tpup kernel databases pup3.11 \"pup3.11-databases\"\n
+\tpup kernel . pup3.11-home\n
+\tpup kernel dataenv pup3.11-data\n
 \e[0;33mpup play\e[0m\n
 \truns PIXI_DEFAULT_TASK (default: 'jupyter notebook')\n
 \e[0;33mpup whereami\e[0m\n
@@ -140,10 +140,6 @@ if [[ "$1" =~ ^fetch$|^install$ ]]; then
         pup new $2
         PYTHON="$(pup home)/$2/.venv/bin/python"
     fi
-    # if [ -n "$(pixi run jupyter kernelspec 2>/dev/null)" ]; then
-    #     COMMAND+=" ipykernel"
-    #     COMMAND+=" && $PYTHON -m ipykernel install --user --name pup-$2"
-    # fi
     COMMAND="pixi run uv pip install -p $PYTHON ${@:3}"
     log "🐶 asked for: '$COMMAND'"
     $COMMAND
@@ -153,14 +149,13 @@ fi
 
 #### kernel ####
 if [ "$1" == "kernel" ]; then
-    USAGE="\e[1m\e[4mUsage\e[0m: pup $1 [WHERE] [KERNEL_NAME] [\"DISPLAY_NAME\"]"
+    USAGE="\e[1m\e[4mUsage\e[0m: pup $1 [WHERE] [KERNEL_NAME]"
     if [ -z "$2" ]; then
         echo -e $USAGE
         read -ei "." -p "Install kernel for which environment? " WHERE
         PYVER=$(pixi run python -V); PYVER=${PYVER#Python }
         read -ei "pup$PYVER-$WHERE" -p "Unique kernel name? (allowed characters: [a-zA-Z0-9.-_]) " KERNEL_NAME
-        read -ei "\"pup$PYVER-$WHERE\"" -p "Display name? " DISPLAY_NAME
-        COMMAND="pup kernel $WHERE $KERNEL_NAME $DISPLAY_NAME"
+        COMMAND="pup kernel $WHERE $KERNEL_NAME"
         log "🐶 asked for: '$COMMAND'"
         $COMMAND
         exit 0
@@ -176,7 +171,7 @@ if [ "$1" == "kernel" ]; then
         PYTHON="$(pup home)/$2/.venv/bin/python"
     fi
     pup fetch $2 ipykernel
-    COMMAND="$PYTHON -m ipykernel install --user --name $3 --display-name $4"
+    COMMAND="$PYTHON -m ipykernel install --user --name $3"
     log "🐶 asked for: '$COMMAND'"
     $COMMAND
     exit 0
@@ -190,7 +185,7 @@ if [ "$1" == "new" ]; then
         pixi run uv venv -p "$(pixi run which python)" $VENV_PATH
         log "pup & uv created new environment in $2"
     else
-        echo "found existing uv virtual environment $2"
+        log "found existing uv virtual environment $2"
     fi
     exit 0
 fi
