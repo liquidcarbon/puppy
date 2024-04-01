@@ -1,5 +1,5 @@
 # Puppy
-Your new best friend is quite fond of snakes and will guide you from zero python to complex environments, with a little help from some powerful friends.
+Your new best friend will help you set up python, with a little help from some powerful friends.
 
 <img src="https://github.com/liquidcarbon/puppy/assets/47034358/da604ebd-4ce3-4e5d-b88b-ef46de7367fc" width="270">
 
@@ -10,6 +10,8 @@ There is one simple script called `pup`.  It's a cute little wrapper around **[p
 ### [LOL WHY](https://github.com/liquidcarbon/puppy/discussions/1)?
 
 ## Get started
+
+To start, you need only `curl`; pup and friends will handle the rest.
 
 1. Clone this repo to a folder to house all your future python needs
 > [!TIP] 

@@ -1,63 +1,90 @@
 #!/bin/bash
+VERSION="pup v0 @ Apr 1 2024"
+
+
+####################
+#### Parameters ####
+####################
 
 LOG=.woof.log
-SYMLINK=~/.local/bin/pup
-SYMLINK_TARGET="$(pwd)/pup"
+PIXI_DEFAULT_TASK="jupyter notebook --ip=0.0.0.0 --port=8880"
+SYMLINK_ON_PATH=~/.local/bin/pup
+USAGE_MAIN="\n
+\e[1m\e[4mUsage\e[0m: (each subcommand shows more help)\n
+\e[0;33mpup\e[0m\n
+\tinitialize and link 🐶 to PATH\n
+\e[0;33mpup py\e[0m\n
+\tinteractively install base python to current folder\n
+\tif you know what you need:\n
+\tpup py3.12 jupyter jupyter-collaboration>=2\n
+\t(additional arguments go into 'pixi add')\n
+\e[0;33mpup fetch\e[0m\n
+\tinteractively install packages with uv into specified virtual env\n
+\tif you know what you need:\n
+\tpup fetch . duckdb\n
+\tpup fetch newviz altair seaborn\n
+\e[0;33mpup install\e[0m\n
+\tsame as pup fetch\n
+\e[0;33mpup home\e[0m\n
+\tshow 🐶's home folder\n
+\e[0;33mpup kernel\e[0m\n
+\tinteractively create Jupyter kernel linked to 🐶's environment\n
+\tif you know what you need:\n
+\tpup kernel . pup3.11 \"pup3.11-home\"\n
+\tpup kernel databases pup3.11 \"pup3.11-databases\"\n
+\e[0;33mpup play\e[0m\n
+\truns PIXI_DEFAULT_TASK (default: 'jupyter notebook')\n
+\e[0;33mpup whereami\e[0m\n
+\tin case you got lost: log of 🐶's commands thus far\n
+\e[0;33mpup which\e[0m\n
+\tshow 🐶's current symlink\n
+\n"
 
 
-#### log ####
+###################
+#### Functions ####
+###################
 
 log_command() {
     ts=$(date +'%FT%T')
-    echo "# $ts" >> "$LOG"
-    echo "$1" >> "$LOG"
+    echo "# $ts" >> "$(pup home)/$LOG"
+    echo "$1" >> "$(pup home)/$LOG"
 }
 
 log() {
     ts=$(date +'%FT%T')
     for arg in "$@"; do
-        echo "# $ts - $arg" | tee -a "$LOG"
+        echo "# $ts - $arg" | tee -a "$(pup home)/$LOG"
     done
 }
 
-install_init_pixi_if_not_exists() {
-    if ! command -v pixi &> /dev/null; then
-        curl -fsSL https://pixi.sh/install.sh | bash
-    fi
-    [[ -f pixi.toml ]] || pixi init . 
-}
 
+#######################
+#### CORE COMMANDS ####
+#######################
 
-#### init ####
-
+#### init (no args) ####
 if [ -z "$1" ]; then
-    USAGE="\n
-    \e[1m\e[4mUsage\e[0m: (each subcommand shows more help)\n
-    pup\n
-    \tinitialize and link 🐶 to PATH\n
-    pup py\n
-    \tinteractively install base python to current folder\n
-    \tif you know what you need:\n
-    \tpup py3.12 jupyter \"jupyter-collaboration>=2\"\n
-    \t(additional arguments go into 'pixi add')\n
-    \n"
-    echo -e $USAGE
+    # init pup and show usage
+    echo -e $USAGE_MAIN
+
+    # link
+    SYMLINK_CURRENT=$(readlink -f "$SYMLINK_ON_PATH")
+    if [ "$SYMLINK_CURRENT" != "$(pwd)/pup" ] && [ -f "./pup" ]; then
+        mkdir -p ~/.local/bin
+        ln -s --force "$(pwd)"/pup $SYMLINK_ON_PATH
+    fi
     log_command "$0 $*"
     log woof!
+    log "🐶 = $(pup which)"
 
-    SYMLINK_CURRENT=$(readlink -f "$SYMLINK")
-    if [ "$SYMLINK_CURRENT" != "$SYMLINK_TARGET" ] && [ -f "./pup" ]; then
-        echo boo
-        mkdir -p ~/.local/bin
-        ln -s --force "$(pwd)"/pup $SYMLINK
-        log "🐶 = $(pup which)"
-    fi
+    # initialize Pixi project in 'pup home'
+    pup pixi init
     exit 0
 fi
 
 
 #### py|python ####
-
 if [[ "$1" =~ ^py$|^python$ ]]; then
     USAGE="\n
     \e[1m\e[4mUsage\e[0m: pup $1{version} [ADDITIONAL PACKAGES]\n
@@ -71,7 +98,7 @@ if [[ "$1" =~ ^py$|^python$ ]]; then
     read -ei "" -p $'\e[0;33minstall which python version (blank = latest)? \e[0m' PYVER
     PACKAGES=${@:2}
     read -ei "${PACKAGES:-notebook>=7}" -p $'\e[0;33many additional packages? \e[0m' PACKAGES
-    install_init_pixi_if_not_exists
+    pup pixi init
     COMMAND="pixi add uv python${PYVER:+=$PYVER} $PACKAGES"
     log "🐶 asked for: '$COMMAND'"
     $COMMAND
@@ -80,10 +107,11 @@ fi
 
 if [[ "$1" =~ ^py3.*$ ]]; then
     log_command "$0 $*"
-    install_init_pixi_if_not_exists
+    pup pixi init
     COMMAND="pixi add uv python=${1#py} ${@:2}"
     log "🐶 asked for: '$COMMAND'"
     $COMMAND
+    log "✨ $(pixi run python -VV)"
     exit 0
 fi
 
@@ -106,54 +134,132 @@ if [[ "$1" =~ ^fetch$|^install$ ]]; then
         echo -e $USAGE
     fi
     if [ $# -gt 2 ] && [ "$2" = "." ]; then
-        COMMAND="pixi run uv pip install $WHAT $OPTIONS"
+        PYTHON=$(pixi run which python)
     fi
     if [ $# -gt 2 ] && [ "$2" != "." ]; then
         pup new $2
-        COMMAND="pixi run uv pip install -p $(pixi run which python) $WHAT $OPTIONS"
+        PYTHON="$(pup home)/$2/.venv/bin/python"
     fi
-    if [ -n "$(pixi run jupyter kernelspec &> /dev/null)" ]; then
-        COMMAND="pup newkernel $2 && what"
-    else
-        COMMAND="pup new $2 && what"
-    fi
+    # if [ -n "$(pixi run jupyter kernelspec 2>/dev/null)" ]; then
+    #     COMMAND+=" ipykernel"
+    #     COMMAND+=" && $PYTHON -m ipykernel install --user --name pup-$2"
+    # fi
+    COMMAND="pixi run uv pip install -p $PYTHON ${@:3}"
     log "🐶 asked for: '$COMMAND'"
-    # $COMMAND
+    $COMMAND
+    exit 0
+fi
+
+
+#### kernel ####
+if [ "$1" == "kernel" ]; then
+    USAGE="\e[1m\e[4mUsage\e[0m: pup $1 [WHERE] [KERNEL_NAME] [\"DISPLAY_NAME\"]"
+    if [ -z "$2" ]; then
+        echo -e $USAGE
+        read -ei "." -p "Install kernel for which environment? " WHERE
+        PYVER=$(pixi run python -V); PYVER=${PYVER#Python }
+        read -ei "pup$PYVER-$WHERE" -p "Unique kernel name? (allowed characters: [a-zA-Z0-9.-_]) " KERNEL_NAME
+        read -ei "\"pup$PYVER-$WHERE\"" -p "Display name? " DISPLAY_NAME
+        COMMAND="pup kernel $WHERE $KERNEL_NAME $DISPLAY_NAME"
+        log "🐶 asked for: '$COMMAND'"
+        $COMMAND
+        exit 0
+    fi
+    if [ $# -eq 2 ]; then
+        echo "`🐶 kernel` needs more arguments"
+        echo -e $USAGE
+    fi
+    if [ $# -gt 2 ] && [ "$2" = "." ]; then
+        PYTHON=$(pixi run which python)
+    fi
+    if [ $# -gt 2 ] && [ "$2" != "." ]; then
+        PYTHON="$(pup home)/$2/.venv/bin/python"
+    fi
+    pup fetch $2 ipykernel
+    COMMAND="$PYTHON -m ipykernel install --user --name $3 --display-name $4"
+    log "🐶 asked for: '$COMMAND'"
+    $COMMAND
     exit 0
 fi
 
 #### new ####
-
 if [ "$1" == "new" ]; then
     log_command "$0 $*"
-    pixi run uv venv -p $(pixi run which python) "$2"/.venv
-    log "pup & uv created new environment in $2"
+    VENV_PATH="$(pup home)/$2/.venv"
+    if [ ! -d "$VENV_PATH" ]; then
+        pixi run uv venv -p "$(pixi run which python)" $VENV_PATH
+        log "pup & uv created new environment in $2"
+    else
+        echo "found existing uv virtual environment $2"
+    fi
     exit 0
 fi
 
 
-#### newkernel ####
+#### play ####
+if [ "$1" == "play" ]; then
+    pixi run start
+    exit 0
+fi
 
-# if [ "$1" == "newkernel" ]; then
-#     log_command "$0 $*"
-#     pup new $2
-#     source "$2"/.venv/bin/activate
-#     uv pip install ipykernel
-#     # uv pip list
-#     python -m ipykernel install --user --name $2
-#     deactivate
-#     pixi run jupyter kernelspec list
-#     exit 0
-# fi
+
+#########################
+#### HELPER COMMANDS ####
+#########################
+
+#### home ####
+if [ "$1" == "home" ]; then
+    if [ -L "$0" ]; then
+        dirname $(readlink -f $SYMLINK_ON_PATH)
+    else
+        realpath $(dirname $0)
+    fi
+    exit 0
+fi
+
+
+#### pixi ####
+if [ "$1" == "pixi" ]; then
+    if [ "$2" == "init" ]; then
+        # install and init Pixi project in pup's home dir
+        if ! command -v pixi &> /dev/null; then
+            curl -fsSL https://pixi.sh/install.sh | bash
+        fi
+        PUPHOME=$(pup home)
+        if [[ ! -f "$PUPHOME"/pixi.toml ]]; then
+            pixi init "$PUPHOME"
+            pixi task add start "$(pup home)/.pixi/envs/default/bin/$PIXI_DEFAULT_TASK"
+        fi
+        exit 0
+    fi
+    if [ "$2" == "rm" ]; then
+        # remove pixi files
+        rm -r "$(pup home)"/.pixi "$(pup home)"/pixi*
+        exit 0
+    fi
+fi
+
+
+#### version ####
+if [ "$1" == "version" ]; then
+    echo $VERSION
+    exit 0
+fi
 
 
 #### which ####
-
 if [ "$1" == "which" ]; then
-    echo $(ls "$SYMLINK") -\> $(readlink -f $SYMLINK)
+    echo $(ls "$SYMLINK_ON_PATH") -\> $(readlink -f $SYMLINK_ON_PATH)
+    exit 0
+fi
+
+
+#### whereami ####
+if [ "$1" == "whereami" ]; then
+    cat "$(pup home)/$LOG"
     exit 0
 fi
 
 
 #### unknown command ####
-echo -e "🐶 does not know 'pup $*'\nrun 'pup' to list commands"
+echo -e "\e[0;33m🐶 does not know 'pup $*'\e[0m\nrun 'pup' to list known commands"
