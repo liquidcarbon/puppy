@@ -80,7 +80,7 @@ Only 7 commands and less than 1 minute:
 
 Here's what happened:
 
-```bash
+```
 a@AK-Desktop-6600:~/code/puppy$ ./pup
 
  Usage: (each subcommand shows more help)
@@ -111,8 +111,8 @@ a@AK-Desktop-6600:~/code/puppy$ ./pup
         in case you got lost: log of 🐶's commands thus far
  pup which
         show 🐶's current symlink
- 
-
+```
+```
 # 2024-04-01T03:17:09 - woof!
 # 2024-04-01T03:17:09 - 🐶 = /home/a/.local/bin/pup -> /home/a/code/puppy/pup
 ✔ Initialized project in /home/a/code/puppy
@@ -158,7 +158,6 @@ Installed 24 packages in 58ms
  + six==1.16.0
  + toolz==0.12.1
  + tzdata==2024.1
-(reverse-i-search)`kern': jupyter ^Crnelspec remove pup-viz pup-vizz
 a@AK-Desktop-6600:~/code/puppy$ pup kernel
 Usage: pup kernel [WHERE] [KERNEL_NAME]
 Install kernel for which environment? .
@@ -213,5 +212,6 @@ a@AK-Desktop-6600:~/code/puppy$ pup play
 ## Future
 - `pup build` (via compile, freeze, etc.)
 - `pup swim` (build Dockerfiles)
+- `winpup`
 
-Thanks for checking out this repo.  Feedback, discussion, and ⭐s are welcome!
+Thanks for checking out this repo.  Hope you try it out and like it!  Feedback, discussion, and ⭐s are welcome!
