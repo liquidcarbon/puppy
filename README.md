@@ -29,7 +29,8 @@ pup py3.11
 > [!TIP] 
 > this is your base layer, packages you need globally go here, e.g. `pup py3.11 jupyter jupyter-collaboration` (works via `pixi add`)
 
-4. Summon uv to install packages into a chosen environment with `pup fetch` (same as `pup install`).  Note the extra argument for `[WHERE]` to install. - to install into **base environment**:
+4. Summon uv to install packages into a chosen environment with `pup fetch` (same as `pup install`).  Note the extra argument for `[WHERE]` to install.
+- to install into **base environment**:
 ```bash
 pup fetch . duckdb pandas  # pup fetch [WHERE] [WHAT] [OPTIONS]
 ```
@@ -38,7 +39,7 @@ pup fetch . duckdb pandas  # pup fetch [WHERE] [WHAT] [OPTIONS]
 pup fetch viz altair bokeh matplotlib seaborn
 ```
 > [!NOTE]
-> if there is Jupyter in the base layer, `pup` will make you a kernel with a matching name
+> if there is Jupyter in the base layer, `pup kernel` will make you a kernel with a matching name
 
 5. Launch your main use case via configurable [Pixi tasks](https://pixi.sh/latest/advanced/advanced_tasks/)
 ```bash
