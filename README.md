@@ -49,6 +49,11 @@ pup play
 - launch Gradio / FastAPI / Panel app
 - run any other script, similar to [Docker CMD](https://docs.docker.com/reference/dockerfile/#cmd) except you can have more than one.
 
+## Docker
+
+Here's a [HuggingFace Spaces app](https://huggingface.co/spaces/liquidcarbon/pup-fileserver) that shows the folder structure you build with `pup`.
+
+
 ## Detailed example with outputs
 
 How long does it take to
@@ -211,7 +216,7 @@ a@AK-Desktop-6600:~/code/puppy$ pup play
 
 ## Future
 - `pup build` (via compile, freeze, etc.)
-- `pup swim` (build Dockerfiles)
+- `pup swim` (build [Dockerfiles](https://huggingface.co/spaces/liquidcarbon/pup-fileserver))
 - `winpup`
 
 Thanks for checking out this repo.  Hope you try it out and like it!  Feedback, discussion, and ⭐s are welcome!
