@@ -14,12 +14,12 @@ There is one simple script called `pup`.  It's a cute little wrapper around **[p
 To start, you need only `curl`; pup and friends will handle the rest.
 
 1. Clone this repo to a folder to house all your future python needs
-> [!TIP] 
+> [!NOTE] 
 > everything in this folder is completely isolated from previous python tools you may have, except for Pixi; to clean up, just delete the folder
 
 2. Register `pup` on `PATH`
 ```bash
-./pup  # if you don't want to pollute PATH, skip this and run below with "./pup" instead of "pup"
+./pup  # symlink named `pup` is created in a folder on PATH - nothing is actually written to PATH
 ``` 
 
 3. Summon Pixi to install uv, the specified python version, and any system tools or conda/mamba packages
@@ -38,7 +38,7 @@ pup fetch . duckdb pandas  # pup fetch [WHERE] [WHAT] [OPTIONS]
 ```bash
 pup fetch viz altair bokeh matplotlib seaborn
 ```
-> [!NOTE]
+> [!TIP]
 > if there is Jupyter in the base layer, `pup kernel` will make you a kernel with a matching name
 
 5. Launch your main use case via configurable [Pixi tasks](https://pixi.sh/latest/advanced/advanced_tasks/)
