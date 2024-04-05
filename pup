@@ -222,9 +222,10 @@ if [ "$1" == "pixi" ]; then
             export SHELL=bash
             curl -fsSL https://pixi.sh/install.sh | bash
         fi
-        PUPHOME=$(pup home)
-        if [[ ! -f "$PUPHOME"/pixi.toml ]]; then
-            pixi init "$PUPHOME"
+        log "✨ $(pixi -V) found"
+        if ! [ -f "$(pup home)/pixi.toml" ] && ! [ -f "$(pup home)/pyproject.toml" ]; then
+            touch pyproject.toml
+            pixi init "$(pup home)"
             pixi task add start "$(pup home)/.pixi/envs/default/bin/$PIXI_DEFAULT_TASK"
         fi
         exit 0
