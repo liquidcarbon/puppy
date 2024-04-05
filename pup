@@ -1,5 +1,5 @@
-#!/bin/bash
-VERSION="pup v0 @ Apr 1 2024"
+#!/usr/bin/bash
+VERSION="pup v0 @ Apr 5 2024"  # pixi 0.18.0 | uv 0.1.29 | debian:latest
 
 
 ####################
@@ -8,7 +8,7 @@ VERSION="pup v0 @ Apr 1 2024"
 
 LOG=.woof.log
 PIXI_DEFAULT_TASK="jupyter notebook --ip=0.0.0.0 --port=8880"
-SYMLINK_ON_PATH=~/.local/bin/pup
+SYMLINK_ON_PATH=$HOME/.local/bin/pup
 USAGE_MAIN="\n
 \e[1m\e[4mUsage\e[0m: (each subcommand shows more help)\n
 \e[0;33mpup\e[0m\n
@@ -71,8 +71,9 @@ if [ -z "$1" ]; then
     # link
     SYMLINK_CURRENT=$(readlink -f "$SYMLINK_ON_PATH")
     if [ "$SYMLINK_CURRENT" != "$(pwd)/pup" ] && [ -f "./pup" ]; then
-        mkdir -p ~/.local/bin
-        ln -s --force "$(pwd)"/pup $SYMLINK_ON_PATH
+        SYMLINK_PATH_FOLDER=${SYMLINK_ON_PATH%/*}
+        mkdir -p $SYMLINK_PATH_FOLDER
+        ln -s -f "$(pwd)"/pup $SYMLINK_ON_PATH  # -f overwrites previous link
     fi
     log_command "$0 $*"
     log woof!
@@ -218,6 +219,7 @@ if [ "$1" == "pixi" ]; then
     if [ "$2" == "init" ]; then
         # install and init Pixi project in pup's home dir
         if ! command -v pixi &> /dev/null; then
+            export SHELL=bash
             curl -fsSL https://pixi.sh/install.sh | bash
         fi
         PUPHOME=$(pup home)
