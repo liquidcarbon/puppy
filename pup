@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION="pup v0 @ Apr 5 2024"  # pixi 0.18.0 | uv 0.1.29 | debian:latest
+VERSION="pup v0 @ Apr 14 2024"  # pixi 0.19.1 | uv 0.1.31 | debian:latest
 
 
 ####################
@@ -224,8 +224,7 @@ if [ "$1" == "pixi" ]; then
         fi
         log "✨ $(pixi -V) found"
         if ! [ -f "$(pup home)/pixi.toml" ] && ! [ -f "$(pup home)/pyproject.toml" ]; then
-            touch pyproject.toml
-            pixi init "$(pup home)"
+            curl -s https://raw.githubusercontent.com/liquidcarbon/puppy/main/pyproject.toml -o pyproject.toml
             pixi task add start "$(pup home)/.pixi/envs/default/bin/$PIXI_DEFAULT_TASK"
         fi
         exit 0
