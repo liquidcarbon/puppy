@@ -217,6 +217,7 @@ a@AK-Desktop-6600:~/code/puppy$ pup play
 ## Future
 - `pup build` (via compile, freeze, etc.)
 - `pup swim` (build [Dockerfiles](https://huggingface.co/spaces/liquidcarbon/pup-fileserver))
-- `winpup`
+- `winpup` - will appear on a separate branch.  Rather than being clever with bash scripts that would need to be translated to Powershell and maintained in parity to Bash, I'm changing `pup` into a minimal script, which will pull a python-based CLI to handle the rest.
+
 
 Thanks for checking out this repo.  Hope you try it out and like it!  Feedback, discussion, and ⭐s are welcome!
