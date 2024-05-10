@@ -74,16 +74,16 @@ pixi_init() {
 }
 
 get_python() {
-  if [ -z "$1" ]; then
+  if [ -n "$1" ]; then
+    PY_VERSION="$1"
+    INSTALL=1  # if a version is passed as argument, update/reinstall
+  else
     if ! command -v .pixi/envs/default/bin/python &> /dev/null; then
       read -ei "3.12" -p "Enter desired base Python version (supported: 3.10|3.11|3.12; blank=latest): " PY_VERSION
-      INSTALL=1  # if no python, prompt and install
+      INSTALL=1  # if no argument and no python, prompt and install
     else
       echo "python lives here!"
     fi
-  else
-    PY_VERSION="$1"
-    INSTALL=1  # if python exists but a version is passed as argument, update/reinstall
   fi
   # echo $PY_VERSION
   [[ -z "$INSTALL" ]] && pixi add python ${PY_VERSION:+=$PY_VERSION} uv click || pixi run python -VV
