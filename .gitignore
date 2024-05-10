@@ -1,5 +1,10 @@
 /*
 !.*
+.gitattributes
 pixi.lock
 pixi.toml
 woof.log
+
+# pixi environments
+.pixi
+*.egg-info

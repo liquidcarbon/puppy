@@ -56,6 +56,7 @@
 
 DEFAULT_PY_VERSION="3.12"
 PIXI_INSTALL_URL="https://pixi.sh/install.sh"
+PIXI_PUP_HOME=$(pwd)
 PUP_EXECUTABLE="pup.py"
 PUP_URL="https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.py"
 
@@ -68,11 +69,19 @@ get_pixi() {
 }
 
 pixi_init() {
-  if ! [ -f "pixi.toml" ] && ! [ -f "pyproject.toml" ]; then
-    pixi init .
-  else
-    echo "✨ here be pixies"
-  fi
+  DIR="$PIXI_PUP_HOME"
+  FOUND_PIXI_OR_PUP=0
+  while [ "$DIR" != "/" ]; do
+    echo 👀 for pups and pixies in "$DIR" ...
+    if [ -f "$DIR/pixi.toml" ] || [ -f "$DIR/pup.py" ]; then
+      echo "✨ here be pixies: $DIR"
+      FOUND_PIXI_OR_PUP=1
+      break
+    fi
+    DIR=$(dirname $DIR)
+  done
+  [[ $FOUND_PIXI_OR_PUP -eq 0 ]] && pixi init . || PIXI_PUP_HOME="$DIR"
+  echo $PIXI_PUP_HOME
 }
 
 get_python_uv_click() {
@@ -81,7 +90,7 @@ get_python_uv_click() {
     PY_VERSION="$1"
     INSTALL=1  
   else
-    if ! command -v .pixi/envs/default/bin/python &> /dev/null; then
+    if ! command -v "$PIXI_PUP_HOME"/.pixi/envs/default/bin/python &> /dev/null; then
     # if no argument and no python, prompt w/default for non-interactive shell & install
       read -ei "$DEFAULT_PY_VERSION" -p \
         "Enter desired base Python version (supported: 3.10|3.11|3.12; blank=latest): " PY_VERSION
@@ -104,18 +113,20 @@ get_python_uv_click() {
 }
 
 get_pup() {
-  if ! [ -f "$PUP_EXECUTABLE" ]; then
-    echo "$SHEBANG" > "$PUP_EXECUTABLE"
-    curl -fsSL $PUP_URL >> "$PUP_EXECUTABLE"
+  PUP_PATH="$PIXI_PUP_HOME/$PUP_EXECUTABLE"
+  if ! [ -f "$PUP_PATH" ]; then
+    echo "$SHEBANG" > "$PUP_PATH"
+    curl -fsSL $PUP_URL >> "$PUP_PATH"
   else
-    if ! head -n 1 "$PUP_EXECUTABLE" | grep -q "$SHEBANG"; then
+    if ! head -n 1 "$PUP_PATH" | grep -q "$SHEBANG"; then
       echo "shebang!"
-      sed -i "1i $SHEBANG" "$PUP_EXECUTABLE"
+      sed -i "1i $SHEBANG" "$PUP_PATH"
     fi
   fi
-  if ! [ -x "$PUP_EXECUTABLE" ]; then
-    chmod +x "$PUP_EXECUTABLE"
+  if ! [ -x "$PUP_PATH" ]; then
+    chmod +x "$PUP_PATH"
   fi
+  echo "🐶 woof!"
 }
 
 
@@ -124,8 +135,10 @@ pixi_init
 get_python_uv_click "$1"
 get_pup
 
-# pup() {
-#   PUP_EXECUTABLE=$(readlink -f "$PUP_EXECUTABLE")
-#   "$PUP_EXECUTABLE" "$@"
-# }
-# export -f pup
+# you source this file instead of running it, alias "pup" becomes available
+# `source pup.sh` or `. pup.sh` or
+# `. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh)`
+pup() {
+  # PUP_EXECUTABLE=$(readlink -f "$PUP_EXECUTABLE")
+  "$PUP_PATH" "$@"
+}
