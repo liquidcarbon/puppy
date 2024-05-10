@@ -1,3 +1,4 @@
+#!/home/a/Desktop/puppy/.pixi/envs/default/bin/python
 import click
 import platform
 import subprocess
@@ -62,24 +63,17 @@ def uv_install(where, what):
         what = click.prompt(UserInput.FETCH_WHAT).split()
     what = " ".join(what)
     log(f"pup fetch {where} {what}")
-    if not (PUP_HOME / where).exists():
+    
+    py_path = PUP_HOME / where / ".venv" / VENV_PYTHON_SUBPATH
+    if not (PUP_HOME / where).exists() or not py_path.exists():
         if click.confirm(UserInput.FETCH_NEW_VENV.format(where)):
             new_venv.callback(where=where)
         else:
             return
-    py_path = PUP_HOME / where / ".venv" / VENV_PYTHON_SUBPATH
+    
     cmd = f"""{PUP_UV} pip install {what} -p {py_path}"""
     tee(cmd)
     subprocess.run(cmd.split())
-
-@main.command(name="init")
-def pup_init():
-    """Set pup alias to current this pup.py."""
-    if PLATFORM == "Windows":
-        pass
-    else:
-        cmd = """echo setting pup alias; pup() { $(readlink -f) "$@"; }"""
-    subprocess.run(cmd)
 
 @main.command(name="new")
 @click.argument('where', nargs=1, required=False)
@@ -88,13 +82,13 @@ def new_venv(where):
     if where is None:
         where = click.prompt(UserInput.NEW_VENV_FOLDER)
     if where == ".":
-        tee("cannot create virtual environment in pup's home folder")
+        tee("use pixi to isntall packages in pup's home folder")
         return
     if (PUP_HOME / where).exists():
         if not click.confirm(UserInput.NEW_VENV_OVERWRITE.format(where)):
             return
     log(f"pup new {where}")
-    cmd = f"{PUP_UV} venv {where}/.venv"
+    cmd = f"{PUP_UV} venv {PUP_HOME / where}/.venv"
     tee(cmd)
     subprocess.run(cmd, shell=True)
 
