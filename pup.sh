@@ -138,7 +138,4 @@ get_pup
 # you source this file instead of running it, alias "pup" becomes available
 # `source pup.sh` or `. pup.sh` or
 # `. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh)`
-pup() {
-  # PUP_EXECUTABLE=$(readlink -f "$PUP_EXECUTABLE")
-  "$PUP_PATH" "$@"
-}
+pup() { "$PUP_PATH" "$@"; }
