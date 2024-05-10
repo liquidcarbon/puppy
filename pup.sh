@@ -79,14 +79,14 @@ get_python() {
       read -ei "3.12" -p "Enter desired base Python version (supported: 3.10|3.11|3.12; blank=latest): " PY_VERSION
       INSTALL=1  # if no python, prompt and install
     else
-      echo "python lives here! no changes made"
+      echo "python lives here!"
     fi
   else
     PY_VERSION="$1"
     INSTALL=1  # if python exists but a version is passed as argument, update/reinstall
   fi
   # echo $PY_VERSION
-  [[ -z "INSTALL" ]] && pixi add python ${PY_VERSION:+=$PY_VERSION} uv click || pixi run python -VV
+  [[ -z "$INSTALL" ]] && pixi add python ${PY_VERSION:+=$PY_VERSION} uv click || pixi run python -VV
 }
 
 get_pixi
