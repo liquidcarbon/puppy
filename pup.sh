@@ -53,4 +53,36 @@
 # ────────────────────────────
 # Illustration of pup/py homes
 
+
+PIXI_INSTALL_URL="https://pixi.sh/install.sh"
+
+get_pixi() {
+  if ! command -v pixi &> /dev/null; then
+    curl -fsSL $PIXI_INSTALL_URL | bash
+  else
+    echo "✨ $(pixi -V) found"
+  fi
+}
+
+pixi_init() {
+  if ! [ -f "$(pup home)/pixi.toml" ] && ! [ -f "$(pup home)/pyproject.toml" ]; then
+    pixi init .
+  else
+    echo "found existing python base in the current folder"
+    pixi run python -VV
+  fi
+}
 echo $1
+
+get_python() {
+  if [ -z "$1" ]; then
+    read -ei "3.12" -p "Enter desired base Python version (supported: 3.10|3.11|3.12; blank=latest): " PY_VERSION
+  else
+    PY_VERSION="$1"
+  fi
+  echo $PY_VERSION
+}
+
+get_pixi()
+pixi_init()
+get_python()
