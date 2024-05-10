@@ -12,7 +12,7 @@ PUP_HOME = Path(__file__).parent
 PUP_LOG = PUP_HOME / "woof.log"
 PUP_LOG_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 PUP_PIXI_ENV = PUP_HOME / ".pixi/envs/default"
-PUP_UV = PUP_PIXI_ENV / "Library/bin/uv.exe" if PLATFORM == "Windows" else "bin/uv"
+PUP_UV = PUP_PIXI_ENV / ("Library/bin/uv.exe" if PLATFORM == "Windows" else "bin/uv")
 VENV_PYTHON_SUBPATH = "Scripts/python.exe" if PLATFORM == "Windows" else "bin/python"
 
 
@@ -39,7 +39,7 @@ class UserInput:
         fg="bright_cyan")
     FETCH_WHAT = click.style("Specify what to install", fg="bright_cyan")
     FETCH_WHERE = click.style(
-        "Specify folder/environment where to fetch packages (use '.' for root)",
+        "Specify folder/environment where to fetch packages",
         fg="bright_cyan"
     )
     NEW_VENV_FOLDER = click.style("Folder to create venv in", fg="bright_cyan")
@@ -70,6 +70,15 @@ def uv_install(where, what):
     py_path = PUP_HOME / where / ".venv" / VENV_PYTHON_SUBPATH
     cmd = f"""{PUP_UV} pip install {what} -p {py_path}"""
     tee(cmd)
+    subprocess.run(cmd.split())
+
+@main.command(name="init")
+def pup_init():
+    """Set pup alias to current this pup.py."""
+    if PLATFORM == "Windows":
+        pass
+    else:
+        cmd = """echo setting pup alias; pup() { $(readlink -f) "$@"; }"""
     subprocess.run(cmd)
 
 @main.command(name="new")
@@ -78,6 +87,9 @@ def new_venv(where):
     """Create a new virtual environment in <WHERE> folder."""
     if where is None:
         where = click.prompt(UserInput.NEW_VENV_FOLDER)
+    if where == ".":
+        tee("cannot create virtual environment in pup's home folder")
+        return
     if (PUP_HOME / where).exists():
         if not click.confirm(UserInput.NEW_VENV_OVERWRITE.format(where)):
             return
