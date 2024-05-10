@@ -83,6 +83,6 @@ get_python() {
   echo $PY_VERSION
 }
 
-get_pixi()
-pixi_init()
-get_python()
+get_pixi
+pixi_init
+get_python $1
