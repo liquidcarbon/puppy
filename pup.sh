@@ -53,9 +53,11 @@
 # ────────────────────────────
 # Illustration of pup/py homes
 
-echo $0
 
+DEFAULT_PY_VERSION="3.12"
 PIXI_INSTALL_URL="https://pixi.sh/install.sh"
+PUP_EXECUTABLE="pup.py"
+PUP_URL="https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.py"
 
 get_pixi() {
   if ! command -v pixi &> /dev/null; then
@@ -73,22 +75,57 @@ pixi_init() {
   fi
 }
 
-get_python() {
+get_python_uv_click() {
   if [ -n "$1" ]; then
+    # if a version is passed as argument, update/reinstall
     PY_VERSION="$1"
-    INSTALL=1  # if a version is passed as argument, update/reinstall
+    INSTALL=1  
   else
     if ! command -v .pixi/envs/default/bin/python &> /dev/null; then
-      read -ei "3.12" -p "Enter desired base Python version (supported: 3.10|3.11|3.12; blank=latest): " PY_VERSION
-      INSTALL=1  # if no argument and no python, prompt and install
+    # if no argument and no python, prompt w/default for non-interactive shell & install
+      read -ei "$DEFAULT_PY_VERSION" -p \
+        "Enter desired base Python version (supported: 3.10|3.11|3.12; blank=latest): " PY_VERSION
+      INSTALL=1
     else
-      echo "python lives here!"
+      INSTALL=0
     fi
   fi
-  # echo $PY_VERSION
-  [[ -z $INSTALL ]] && pixi add python${PY_VERSION:+=$PY_VERSION} uv click || pixi run python -VV
+
+  if [ $INSTALL -eq 1 ]; then
+    pixi add python${PY_VERSION:+=$PY_VERSION}
+    pixi add uv
+    pixi add click
+  else
+    echo "python lives here!"
+  fi
+  pixi run python -VV
+  PYTHON_EXECUTABLE=$(pixi run python -c 'import sys; print(sys.executable)')
+  SHEBANG="#!$PYTHON_EXECUTABLE"
 }
+
+get_pup() {
+  if ! [ -f "$PUP_EXECUTABLE" ]; then
+    echo "$SHEBANG" > "$PUP_EXECUTABLE"
+    curl -fsSL $PUP_URL >> "$PUP_EXECUTABLE"
+  else
+    if ! head -n 1 "$PUP_EXECUTABLE" | grep -q "$SHEBANG"; then
+      echo "shebang!"
+      sed -i "1i $SHEBANG" "$PUP_EXECUTABLE"
+    fi
+  fi
+  if ! [ -x "$PUP_EXECUTABLE" ]; then
+    chmod +x "$PUP_EXECUTABLE"
+  fi
+}
+
 
 get_pixi
 pixi_init
-get_python "$1"
+get_python_uv_click "$1"
+get_pup
+
+# pup() {
+#   PUP_EXECUTABLE=$(readlink -f "$PUP_EXECUTABLE")
+#   "$PUP_EXECUTABLE" "$@"
+# }
+# export -f pup
