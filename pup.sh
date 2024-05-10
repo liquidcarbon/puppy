@@ -53,6 +53,7 @@
 # ────────────────────────────
 # Illustration of pup/py homes
 
+echo $0
 
 PIXI_INSTALL_URL="https://pixi.sh/install.sh"
 
@@ -65,24 +66,29 @@ get_pixi() {
 }
 
 pixi_init() {
-  if ! [ -f "$(pup home)/pixi.toml" ] && ! [ -f "$(pup home)/pyproject.toml" ]; then
+  if ! [ -f "pixi.toml" ] && ! [ -f "pyproject.toml" ]; then
     pixi init .
   else
-    echo "found existing python base in the current folder"
-    pixi run python -VV
+    echo "✨ here be pixies"
   fi
 }
-echo $1
 
 get_python() {
   if [ -z "$1" ]; then
-    read -ei "3.12" -p "Enter desired base Python version (supported: 3.10|3.11|3.12; blank=latest): " PY_VERSION
+    if ! command -v pixi run python &> /dev/null; then
+      read -ei "3.12" -p "Enter desired base Python version (supported: 3.10|3.11|3.12; blank=latest): " PY_VERSION
+      INSTALL=1  # if no python, prompt and install
+    else
+      echo "python lives here! no changes made"
+    fi
   else
     PY_VERSION="$1"
+    INSTALL=1  # if python exists but a version is passed as argument, update/reinstall
   fi
-  echo $PY_VERSION
+  # echo $PY_VERSION
+  [[ -z "INSTALL" ]] && pixi add python ${PY_VERSION:+=$PY_VERSION} uv click || pixi run python -VV
 }
 
 get_pixi
 pixi_init
-get_python $1
+get_python "$1"
