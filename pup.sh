@@ -75,7 +75,7 @@ pixi_init() {
 
 get_python() {
   if [ -z "$1" ]; then
-    if ! .pixi/envs/default/bin/python &> /dev/null; then
+    if ! command -v .pixi/envs/default/bin/python &> /dev/null; then
       read -ei "3.12" -p "Enter desired base Python version (supported: 3.10|3.11|3.12; blank=latest): " PY_VERSION
       INSTALL=1  # if no python, prompt and install
     else
