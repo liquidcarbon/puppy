@@ -86,7 +86,7 @@ get_python() {
     fi
   fi
   # echo $PY_VERSION
-  [[ -z "$INSTALL" ]] && pixi add python ${PY_VERSION:+=$PY_VERSION} uv click || pixi run python -VV
+  [[ -z $INSTALL ]] && pixi add python${PY_VERSION:+=$PY_VERSION} uv click || pixi run python -VV
 }
 
 get_pixi
