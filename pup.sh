@@ -23,7 +23,7 @@
 # Whenever you open a new terminal, simply call this script again to recreate the alias.
 # Running this script from another folder will setup/activate another pup/python base.
 # If another base python is needed, simply run this script again from another folder.
-# Though it may work, it is not recommended to nest pup/py folders.
+# Do not nest pup/py folders.
 
 # A pup/py home is defined by one and only one python executable, which is managed by pixi,
 # along with tools like uv, jupyter, hatch, pytest, and conda-managed packages.
@@ -138,4 +138,4 @@ get_pup
 # you source this file instead of running it, alias "pup" becomes available
 # `source pup.sh` or `. pup.sh` or
 # `. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh)`
-pup() { "$PUP_PATH" "$@"; }
+pup() { DIR=$(pwd); while [ "$DIR" != "/" ] && [ ! -f "$DIR/pup.py" ]; do DIR=$(dirname "$DIR"); done; "$DIR/pup.py" "$@"; }
