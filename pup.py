@@ -1,4 +1,3 @@
-#!/home/a/Desktop/puppy/.pixi/envs/default/bin/python
 import click
 import platform
 import subprocess

@@ -16,13 +16,31 @@ There is a script called `pup`.  It's a cute little wrapper around **[pixi](http
 
 To start, you need only `curl`/`iwr`; pup and friends will handle the rest.
 
-```shell
+The first command is the non-interactive installer.
+The second command creates alias "pup" in the current shell by sourcing the last line of the install script (do inspect the last line to ensure you trust it).
+
+### Linux
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | bash
 ```
 
-```powershell
-iwr -useb https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1 | iex  # coming soon
+```bash
+. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | tail -1)
 ```
+
+### Windows
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1 | iex
+```
+
+```powershell
+iex (Get-Content https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1 | Select-Object -Last 1)
+```
+> [!TIP] 
+> Do inspect that last line to ensure you trust it.
+
 
 ## Then what?
 

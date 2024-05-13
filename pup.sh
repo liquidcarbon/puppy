@@ -12,17 +12,18 @@
 # This script checks for the tools that pup requires and installs or updates them.
 # It will ask for the desired python version and use the latest versions of the other tools.
 
-# 1) pixi (see https://pixi.sh to learn more about Pixi)
-# 2) base python (strictly one per pup/py home)
-# 3) uv (see https://github.com/astral-sh/uv to learn more about uv)
-# 4) click (see https://github.com/pallets/click to learn more about click)
-# 5) pup.py
+# 1) pup.py
+# 2) pixi (see https://pixi.sh to learn more about Pixi)
+# 3) base python (strictly one per pup/py home)
+# 4) uv (see https://github.com/astral-sh/uv to learn more about uv)
+# 5) click (see https://github.com/pallets/click to learn more about click)
 
-# In the final step, the script will export an alias "pup" pointed to "./pup.py".
+# In the final step, the script can export an alias "pup" pointed to "./pup.py".
 # This alias is not permanent, by design, to easily between different base pup/pythons.
-# Whenever you open a new terminal, simply call this script again to recreate the alias.
-# Running this script from another folder will setup/activate another pup/python base.
-# If another base python is needed, simply run this script again from another folder.
+# Whenever you open a new terminal, simply call the last line of this script again to
+# recreate the alias.  Running this script from another folder will setup/activate another
+# pup/python base.  If another base python is needed, simply run this script again
+# from another folder.
 # Do not nest pup/py folders.
 
 # A pup/py home is defined by one and only one python executable, which is managed by pixi,
@@ -56,9 +57,32 @@
 
 DEFAULT_PY_VERSION="3.12"
 PIXI_INSTALL_URL="https://pixi.sh/install.sh"
-PIXI_PUP_HOME=$(pwd)
+PIXI_PUP_HOME="$(pwd)"  # initial assumption; will check parent paths
 PUP_EXECUTABLE="pup.py"
 PUP_URL="https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.py"
+
+
+get_pup() {
+  DIR="$PIXI_PUP_HOME"
+  while [ "$DIR" != "/" ]; do
+    echo "👀 for pup in $DIR ..."
+    if [ -f "$DIR/pup.py" ]; then
+      echo "🐶 woof! pup.py found in $DIR"
+      PUP_FOUND=1
+      PIXI_PUP_HOME=$DIR
+      break
+    fi
+    DIR=$(dirname $DIR)
+  done
+  
+  PUP_PATH="$PIXI_PUP_HOME/$PUP_EXECUTABLE"
+  if [ -f $PUP_FOUND ]; then
+    curl -fsSL $PUP_URL | grep -vE "^#!" > "$PUP_PATH"
+    echo "🐶 woof! $PUP_PATH has arrived"
+  fi
+}
+get_pup
+
 
 get_pixi() {
   if ! command -v pixi &> /dev/null; then
@@ -67,22 +91,16 @@ get_pixi() {
     echo "✨ $(pixi -V) found"
   fi
 }
+get_pixi
 
 pixi_init() {
-  DIR="$PIXI_PUP_HOME"
-  FOUND_PIXI_OR_PUP=0
-  while [ "$DIR" != "/" ]; do
-    echo 👀 for pups and pixies in "$DIR" ...
-    if [ -f "$DIR/pixi.toml" ] || [ -f "$DIR/pup.py" ]; then
-      echo "✨ here be pixies: $DIR"
-      FOUND_PIXI_OR_PUP=1
-      break
-    fi
-    DIR=$(dirname $DIR)
-  done
-  [[ $FOUND_PIXI_OR_PUP -eq 0 ]] && pixi init . || PIXI_PUP_HOME="$DIR"
-  echo $PIXI_PUP_HOME
+  if [ -f "$PIXI_PUP_HOME/pixi.toml" ]; then
+    echo "✨ here be pixies! pixi.toml found in $PIXI_PUP_HOME"
+  else
+    pixi init "$PIXI_PUP_HOME"
+  fi
 }
+pixi_init
 
 get_python_uv_click() {
   if [ -n "$1" ]; then
@@ -110,32 +128,16 @@ get_python_uv_click() {
   pixi run python -VV
   PYTHON_EXECUTABLE=$(pixi run python -c 'import sys; print(sys.executable)')
   SHEBANG="#!$PYTHON_EXECUTABLE"
-}
-
-get_pup() {
-  PUP_PATH="$PIXI_PUP_HOME/$PUP_EXECUTABLE"
-  if ! [ -f "$PUP_PATH" ]; then
-    echo "$SHEBANG" > "$PUP_PATH"
-    curl -fsSL $PUP_URL >> "$PUP_PATH"
-  else
-    if ! head -n 1 "$PUP_PATH" | grep -q "$SHEBANG"; then
-      echo "shebang!"
-      sed -i "1i $SHEBANG" "$PUP_PATH"
-    fi
+  if ! head -n 1 "$PUP_PATH" | grep -q "$SHEBANG"; then
+    sed -i "1i $SHEBANG" "$PUP_PATH"
   fi
-  if ! [ -x "$PUP_PATH" ]; then
-    chmod +x "$PUP_PATH"
-  fi
-  echo "🐶 woof!"
-}
-
-
-get_pixi
-pixi_init
+} 
 get_python_uv_click "$1"
-get_pup
 
-# you source this file instead of running it, alias "pup" becomes available
-# `source pup.sh` or `. pup.sh` or
-# `. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh)`
+
+# # you source this file instead of running it, alias "pup" becomes available
+# # `source pup.sh` or `. pup.sh` or
+# # `. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh)`
+# # or just the last line
+# # `. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | tail -1)`
 pup() { DIR=$(pwd); while [ "$DIR" != "/" ] && [ ! -f "$DIR/pup.py" ]; do DIR=$(dirname "$DIR"); done; "$DIR/pup.py" "$@"; }
