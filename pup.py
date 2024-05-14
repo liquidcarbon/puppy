@@ -103,7 +103,7 @@ def new_kernel(where, kernel_name):
             UserInput.NEW_KERNEL_NAME,
             default=f"{where}-{get_python_major_minor()}"
         )
-    PUP_NOTEBOOKS.create()
+    PUP_NOTEBOOKS.mkdir(exist_ok=True)
     
     py_path = PUP_HOME / where / ".venv" / VENV_PYTHON_SUBPATH
     log(f"pup kernel {where} {kernel_name}")
