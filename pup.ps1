@@ -1,59 +1,66 @@
-﻿# This is the installation Powershell script for Puppy.
+<#
+.SYNOPSIS
+  Puppy Powershell install script.
+.DESCRIPTION
+    This script is used to install Puppy on Windows from the command line.
 
-# IMPORTANT: pup will never touch or modify your system python.
-# Except for Pixi, nothing is permanently placed on PATH.
-# The base python installation and all virtual environments will
-# reside in one folder, the one from which you call this script.
+IMPORTANT: pup will never touch or modify your system python.
+Except for Pixi, nothing is permanently placed on PATH.
+The base python installation and all virtual environments will
+reside in one folder, the one from which you call this script.
 
-# From a folder that will become your pup/python home, call:
+From a folder that will become your pup/python home, call:
 
-# iwr -useb https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1 | iex
 
-# This script checks for the tools that pup requires and installs or updates them.
-# It will ask for the desired python version and use the latest versions of the other tools.
+This script checks for the tools that pup requires and installs or updates them.
+It will ask for the desired python version and use the latest versions of the other tools.
 
-# 1) pup.py
-# 2) pixi (see https://pixi.sh to learn more about Pixi)
-# 3) base python (strictly one per pup/py home)
-# 4) uv (see https://github.com/astral-sh/uv to learn more about uv)
-# 5) click (see https://github.com/pallets/click to learn more about click)
+1) pup.py
+2) pixi (see https://pixi.sh to learn more about Pixi)
+3) base python (strictly one per pup/py home)
+4) uv (see https://github.com/astral-sh/uv to learn more about uv)
+5) click (see https://github.com/pallets/click to learn more about click)
 
-# In the final step, the script can export an alias "pup" pointed to "./pup.py".
-# This alias is not permanent, by design, to easily between different base pup/pythons.
-# Whenever you open a new terminal, simply call the last line of this script again to
-# recreate the alias.  Running this script from another folder will setup/activate another
-# pup/python base.  If another base python is needed, simply run this script again
-# from another folder.
-# Do not nest pup/py folders.
+In the final step, the script can export an alias "pup" pointed to "./pup.py".
+This alias is not permanent, by design, to easily between different base pup/pythons.
+Whenever you open a new terminal, simply call the last line of this script again to
+recreate the alias.  Running this script from another folder will setup/activate another
+pup/python base.  If another base python is needed, simply run this script again
+from another folder.
+Do not nest pup/py folders.
 
-# A pup/py home is defined by one and only one python executable, which is managed by pixi,
-# along with tools like uv, jupyter, hatch, pytest, and conda-managed packages.
-# We use home-specific tools through a pixi shell from anywhere within the folder,
-# e.g. `pixi run python`, `pixi run jupyter`, or by calling their absolute paths.
+A pup/py home is defined by one and only one python executable, which is managed by pixi,
+along with tools like uv, jupyter, hatch, pytest, and conda-managed packages.
+We use home-specific tools through a pixi shell from anywhere within the folder,
+e.g. `pixi run python`, `pixi run jupyter`, or by calling their absolute paths.
 
-# The blueprint for a pup/py home is in `pixi.toml`; at this level, git is not needed.
-# The inner folders are git-ready project environments managed by pup and uv.
-# In each of the inner folders, there is a classic `.venv` folder populated by uv, and
-# a `pyproject.toml` file that is kept in sync with the environment by pup.
+The blueprint for a pup/py home is in `pixi.toml`; at this level, git is not needed.
+The inner folders are git-ready project environments managed by pup and uv.
+In each of the inner folders, there is a classic `.venv` folder populated by uv, and
+a `pyproject.toml` file that is kept in sync with the environment by pup.
 
-# ├── puphome
-# │   ├── env1
-# │   │   ├── .venv
-# │   │   └── pyproject.toml
-# │   ├── env2
-# │   │   ├── .venv
-# │   │   └── pyproject.toml
-# │   ├── pixi.toml
-# │   └── pup.py
-# ├── pup311torch
-# │   ├── env3
-# │   └── env4
-# └── pup313beta
-#     └── env5
+├── puphome
+│   ├── env1
+│   │   ├── .venv
+│   │   └── pyproject.toml
+│   ├── env2
+│   │   ├── .venv
+│   │   └── pyproject.toml
+│   ├── pixi.toml
+│   └── pup.py
+├── pup311torch
+│   ├── env3
+│   └── env4
+└── pup313beta
+    └── env5
 
-# ────────────────────────────
-# Illustration of pup/py homes
+────────────────────────────
+Illustration of pup/py homes
 
+.NOTES
+    Version: v0.2.0
+#>
 
 $DEFAULT_PY_VERSION="3.12"
 $PIXI_INSTALL_URL="https://pixi.sh/install.sh"
