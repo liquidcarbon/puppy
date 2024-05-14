@@ -16,8 +16,8 @@ There is a script called `pup`.  It's a cute little wrapper around **[pixi](http
 
 To start, you need only `curl`/`iwr`; pup and friends will handle the rest.
 
-The first command is the non-interactive installer.
-The second command creates alias "pup" in the current shell by sourcing the last line of the install script (do inspect the last line to ensure you trust it).
+The first command installs Pixi, Pup, and Python.
+The second command creates alias `pup` in the current shell by sourcing the last line of the install script (do inspect the last line to ensure you trust it).
 
 ### Linux
 
@@ -41,6 +41,31 @@ iex ((iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Con
 > [!TIP] 
 > Do inspect that last line to ensure you trust it.
 
+### Check Installation
+With `pup` alias:
+
+```bash
+$ pup which
+[2024-05-13 18:54:12] 🐶 says: home is /mnt/c/Users/a/Desktop/code/puppy513
+```
+
+```powershell
+PS C:\Users\a\puppytest> pup which
+[2024-05-13 18:48:16] 🐶 says: home is C:\Users\a\puppytest
+```
+
+> [!NOTE] 
+> If you don't set the `pup` alias, Bash `./pup.py` will work thanks to a shebang; but for Powershell you'll have to find python executable and run `.\.pixi\envs\default\python.exe pup.py which`.
+
+
+### Install specific python version
+```bash
+curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | bash -s 3.11
+```
+
+```powershell
+& ([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content)) 3.11
+```
 
 ## Then what?
 
