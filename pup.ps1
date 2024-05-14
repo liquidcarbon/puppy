@@ -63,7 +63,7 @@ Illustration of pup/py homes
 #>
 
 $DEFAULT_PY_VERSION="3.12"
-$PIXI_INSTALL_URL="https://pixi.sh/install.sh"
+$PIXI_INSTALL_URL="https://pixi.sh/install.ps1"
 $PIXI_PUP_HOME=$(pwd).Path  # initial assumption; will check parent paths
 $PUP_EXECUTABLE="pup.py"
 $PUP_URL="https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.py"
