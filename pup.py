@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+__doc__ = """
+
+"""
+
 import click
 import platform
 import subprocess
