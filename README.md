@@ -6,6 +6,8 @@ Your new best friend will help you set up python, with a little help from some p
 
 ## What does puppy do?
 
+https://github.com/liquidcarbon/puppy/assets/47034358/16821b3b-f049-4e0a-873b-f90fcdc3f5a2
+
 TLDR: `pup fetch` <-> `pip install`.  But wait, there's more!
 
 There is a script called `pup`.  It's a cute little wrapper around **[pixi](https://github.com/prefix-dev/pixi)** and **[uv](https://github.com/astral-sh/uv)**, two modern and powerful Rust-based tools that complement each other.
