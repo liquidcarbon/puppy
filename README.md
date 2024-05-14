@@ -36,7 +36,7 @@ iex (iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Cont
 ```
 
 ```powershell
-iex ((iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content -split "`n")[-1]
+iex ((iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content -split "`n")[-2]
 ```
 > [!TIP] 
 > Do inspect that last line to ensure you trust it.
