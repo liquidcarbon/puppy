@@ -32,11 +32,11 @@ curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | ba
 ### Windows
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1 | iex
+iex (iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content
 ```
 
 ```powershell
-iex (Get-Content https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1 | Select-Object -Last 1)
+iex ((iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content -split "`n")[-1]
 ```
 > [!TIP] 
 > Do inspect that last line to ensure you trust it.
