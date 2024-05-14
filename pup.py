@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 __doc__ = """
-🐶 Puppy 0.2.1
----------------
-Tested with:
-✨ Pixi 0.22.0
-🎆 uv 0.1.43
-"""
 
+"""
 
 import click
 import platform
@@ -21,6 +16,7 @@ PUP_FILE = Path(__file__).absolute()
 PUP_HOME = Path(__file__).parent
 PUP_LOG = PUP_HOME / "woof.log"
 PUP_LOG_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+PUP_NOTEBOOKS = PUP_HOME / "notebooks"
 PUP_PIXI_ENV = PUP_HOME / ".pixi/envs/default"
 PUP_PYTHON = PUP_PIXI_ENV  / ("python.exe" if PLATFORM == "Windows" else "bin/python")
 PUP_UV = PUP_PIXI_ENV / ("Library/bin/uv.exe" if PLATFORM == "Windows" else "bin/uv")
@@ -107,6 +103,7 @@ def new_kernel(where, kernel_name):
             UserInput.NEW_KERNEL_NAME,
             default=f"{where}-{get_python_major_minor()}"
         )
+    PUP_NOTEBOOKS.create()
     
     py_path = PUP_HOME / where / ".venv" / VENV_PYTHON_SUBPATH
     log(f"pup kernel {where} {kernel_name}")
@@ -148,6 +145,25 @@ def new_venv(where):
         new_kernel.callback(where=where, kernel_name=None)
 
 
+@main.command(name="play")
+@click.option("--kernel-name", "-k", default="python3")
+@click.option("--name", "-n", default=None)
+def start_notebook_kernel(kernel_name, name):
+    """Launch jupyter notebook from a kernel template."""
+    import textwrap
+    from time import time
+    if not name:
+        name=f"{int(time())}.ipynb"
+    
+    notebook_file = PUP_NOTEBOOKS / name
+    with open(notebook_file, "w") as f:
+        content = textwrap.dedent(Templates.IPYNB.format(k=kernel_name))
+        f.write(content)
+    # jupyter_main(argv=[str(notebook_file)]),
+    cmd = f"pixi run jupyter notebook {notebook_file}"
+    subprocess.run(cmd)
+
+
 @main.command()
 def which():
     """Show 🐶's current home."""
@@ -160,6 +176,29 @@ def which():
 
 def get_python_major_minor():
     return ".".join(platform.python_version_tuple()[:2])
+
+
+### Templates ###
+
+class Templates:
+    IPYNB = """{{
+        "cells": [{{
+                "cell_type": "code",
+                "metadata": {{}},
+                "source": ["import sys\\n","!uv pip list -p $sys.executable"]
+            }}],
+        "metadata": {{
+            "kernelspec": {{
+                "name": "{k}"
+            }},
+            "language_info": {{
+                "name": ""
+            }}
+        }},
+        "nbformat": 4,
+        "nbformat_minor": 5
+    }}
+    """
 
 
 ### Entry Point ###
