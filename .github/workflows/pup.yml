@@ -16,4 +16,4 @@ jobs:
         curl -fsSL $PUP_INSTALL_URL | bash -s 3.12
     - name: Create alias and run a pup command
       run: |
-        . <(curl -fsSL $PUP_INSTALL_URL | tail -1) && pup new test1  #"cowsay<6"
+        . <(curl -fsSL $PUP_INSTALL_URL | tail -1) && pup fetch test1 "cowsay<6"

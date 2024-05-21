@@ -88,6 +88,7 @@ get_pixi() {
   if ! command -v pixi &> /dev/null; then
     curl -fsSL $PIXI_INSTALL_URL | bash
     [[ -w ~/.bash_profile ]] && source ~/.bash_profile  # for GHA
+    echo "✨ $(pixi -V) installed"
   else
     echo "✨ $(pixi -V) found"
   fi
@@ -121,7 +122,7 @@ get_python_uv_click() {
 
   if [ $INSTALL -eq 1 ]; then
     pixi add python${PY_VERSION:+=$PY_VERSION}
-    pixi add uv
+    pixi add uv && echo "🟣 $(pixi run uv --version)"
     pixi add click
   else
     echo "python lives here!"
