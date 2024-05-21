@@ -4,9 +4,9 @@ __doc__ = """
 """
 
 import click
+import os
 import platform
 import subprocess
-import tomllib
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -22,6 +22,8 @@ PUP_PIXI_ENV = PUP_HOME / ".pixi/envs/default"
 PUP_PYTHON = PUP_PIXI_ENV  / ("python.exe" if PLATFORM == "Windows" else "bin/python")
 PUP_UV = PUP_PIXI_ENV / ("Library/bin/uv.exe" if PLATFORM == "Windows" else "bin/uv")
 VENV_PYTHON_SUBPATH = "Scripts/python.exe" if PLATFORM == "Windows" else "bin/python"
+
+os.environ["PYTHONIOENCODING"] = "utf-8"  # for Win runner
 
 
 def log(message, file=PUP_LOG):
@@ -185,8 +187,6 @@ def confirm(text, **kwargs):
 def get_python_major_minor():
     return ".".join(platform.python_version_tuple()[:2])
 
-def is_interactive():
-    return hasattr(sys, "ps1")
 
 ### Templates ###
 
