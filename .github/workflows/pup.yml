@@ -13,4 +13,4 @@ jobs:
 
     - name: Install puppy3.12
       run: |
-        curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | bash -s 3.12
+        curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | bash -s 3.12 && pup which

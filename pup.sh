@@ -87,6 +87,7 @@ get_pup
 get_pixi() {
   if ! command -v pixi &> /dev/null; then
     curl -fsSL $PIXI_INSTALL_URL | bash
+    source ~/.bash_profile
   else
     echo "✨ $(pixi -V) found"
   fi
