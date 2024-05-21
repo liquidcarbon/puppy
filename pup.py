@@ -140,7 +140,7 @@ def new_venv(where):
     log(f"pup new {where}")
     cmd = f"{PUP_UV} venv {PUP_HOME / where}/.venv -p {PUP_PYTHON}"
     tee(cmd)
-    subprocess.run(cmd)
+    subprocess.run(cmd.split())
     if click.confirm(UserInput.NEW_VENV_KERNEL, default=True):
         new_kernel.callback(where=where, kernel_name=None)
 
