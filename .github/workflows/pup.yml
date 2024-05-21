@@ -6,11 +6,14 @@ on:
 jobs:
   install:
     runs-on: ubuntu-latest
-
+    env:
+      PUP_INSTALL_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
     - name: Install puppy3.12
       run: |
-        curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | bash -s 3.12 && pup which
+        curl -fsSL $PUP_INSTALL_URL | bash -s 3.12
+    - name: Create alias and run a pup command
+      run: |
+        . <(curl $PUP_INSTALL_URL | tail -1) && pup which
