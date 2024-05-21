@@ -26,4 +26,4 @@ jobs:
       uses: actions/checkout@v4
     - name: Install puppy3.11
       run: |
-        & ([scriptblock]::Create((iwr -useb $MAIN_BRANCH_URL/pup.ps1).Content)) 3.11
+        & ([scriptblock]::Create((iwr -useb "$MAIN_BRANCH_URL/pup.ps1").Content)) 3.11
