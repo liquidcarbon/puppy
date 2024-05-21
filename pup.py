@@ -81,7 +81,7 @@ def uv_install(where, what):
     
     py_path = PUP_HOME / where / ".venv" / VENV_PYTHON_SUBPATH
     if not (PUP_HOME / where).exists() or not py_path.exists():
-        if click.confirm(UserInput.FETCH_NEW_VENV.format(where)):
+        if click.confirm(UserInput.FETCH_NEW_VENV.format(where), default=True):
             new_venv.callback(where=where)
         else:
             return
@@ -135,13 +135,13 @@ def new_venv(where):
         tee("use pixi to install packages in pup's home folder")
         exit(1)
     if (PUP_HOME / where).exists():
-        if not click.confirm(UserInput.NEW_VENV_OVERWRITE.format(where)):
+        if not click.confirm(UserInput.NEW_VENV_OVERWRITE.format(where), default=True):
             return
     log(f"pup new {where}")
     cmd = f"{PUP_UV} venv {PUP_HOME / where}/.venv -p {PUP_PYTHON}"
     tee(cmd)
     subprocess.run(cmd)
-    if click.confirm(UserInput.NEW_VENV_KERNEL):
+    if click.confirm(UserInput.NEW_VENV_KERNEL, default=True):
         new_kernel.callback(where=where, kernel_name=None)
 
 
