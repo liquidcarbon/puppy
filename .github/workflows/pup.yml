@@ -3,17 +3,27 @@ on:
     branches:
       - main
 
+env:
+  MAIN_BRANCH_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/"
+
 jobs:
-  install:
+  install-bash:
     runs-on: ubuntu-latest
-    env:
-      PUP_INSTALL_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
     - name: Install puppy3.12
       run: |
-        curl -fsSL $PUP_INSTALL_URL | bash -s 3.12
+        curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash -s 3.12
     - name: Create alias and run a pup command
       run: |
-        . <(curl -fsSL $PUP_INSTALL_URL | tail -1) && pup fetch test1 "cowsay<6"
+        . <(curl -fsSL $MAIN_BRANCH_URL/pup.sh | tail -1) && pup fetch test1 "cowsay<6"
+  
+  install-windows:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install puppy3.11
+      run: |
+        & ([scriptblock]::Create((iwr -useb $MAIN_BRANCH_URL/pup.ps1).Content)) 3.11
