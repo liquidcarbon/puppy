@@ -24,6 +24,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+    - run: Write-Host $MAIN_BRANCH_URL
     - name: Install puppy3.11
       run: |
-        & ([scriptblock]::Create((iwr -useb "$MAIN_BRANCH_URL/pup.ps1").Content)) 3.11
+        & ([scriptblock]::Create((iwr -useb "$MAIN_BRANCH_URL"/pup.ps1).Content)) 3.11
