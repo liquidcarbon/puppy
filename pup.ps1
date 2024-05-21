@@ -109,7 +109,7 @@ function pixi_init {
     Write-Host "✨ here be pixies! pixi.toml found in $PIXI_PUP_HOME"
   }
   else {
-    pixi init "$env:PIXI_PUP_HOME"
+    pixi init "$PIXI_PUP_HOME"
   }
 }
 pixi_init
