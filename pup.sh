@@ -125,7 +125,7 @@ get_python_uv_click() {
     pixi add uv && echo "🟣 $(pixi run uv --version)"
     pixi add click
   else
-    echo "python lives here!"
+    echo "🐍 python lives here!"
   fi
   pixi run python -VV
   PYTHON_EXECUTABLE=$(pixi run python -c 'import sys; print(sys.executable)')

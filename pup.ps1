@@ -95,6 +95,7 @@ get_pup
 function get_pixi {
   if (!(Get-Command -Name pixi -ErrorAction SilentlyContinue)) {
     iwr -useb  $PIXI_INSTALL_URL | iex
+    Write-Host "✨ $(pixi -V) installed"
   }
   else {
     Write-Host "✨ $(pixi -V) found"
@@ -108,7 +109,7 @@ function pixi_init {
     Write-Host "✨ here be pixies! pixi.toml found in $PIXI_PUP_HOME"
   }
   else {
-    pixi init "$PIXI_PUP_HOME"
+    pixi init "$env:PIXI_PUP_HOME"
   }
 }
 pixi_init
@@ -138,7 +139,7 @@ function get_python_uv_click {
 
   if ($INSTALL -eq 1) {
     pixi add "python=$PY_VERSION"
-    pixi add uv
+    pixi add uv; Write-Host "🟣 $(pixi run uv --version)"
     pixi add click
   }
   else {

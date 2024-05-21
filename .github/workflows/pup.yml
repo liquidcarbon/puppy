@@ -27,3 +27,6 @@ jobs:
     - name: Install puppy3.11
       run: |
         & ([scriptblock]::Create((iwr -useb $env:MAIN_BRANCH_URL/pup.ps1).Content)) 3.11
+    - name: Create alias and run a pup command
+      run: |
+        iex ((iwr $env:MAIN_BRANCH_URL/pup.ps1).Content -split "`n")[-2] ; pup which
