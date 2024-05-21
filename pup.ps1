@@ -85,7 +85,7 @@ function get_pup {
   if ($PUP_FOUND -ne 1) {
     (iwr -useb $PUP_URL).Content -split "`n" | ForEach-Object {
       if (-not $_.startsWith("#!")) { $_ }
-      } | Out-File -FilePath $PUP_PATH
+      } | Out-File -FilePath $PUP_PATH -Encoding UTF8
     Write-Host "🐶 woof! $PUP_PATH has arrived"
   }
 }
