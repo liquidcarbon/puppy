@@ -7,6 +7,7 @@ import click
 import platform
 import subprocess
 import tomllib
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -81,7 +82,7 @@ def uv_install(where, what):
     
     py_path = PUP_HOME / where / ".venv" / VENV_PYTHON_SUBPATH
     if not (PUP_HOME / where).exists() or not py_path.exists():
-        if click.confirm(UserInput.FETCH_NEW_VENV.format(where), default=True):
+        if click.confirm(UserInput.FETCH_NEW_VENV.format(where), default="y"):
             new_venv.callback(where=where)
         else:
             return
@@ -135,13 +136,13 @@ def new_venv(where):
         tee("use pixi to install packages in pup's home folder")
         exit(1)
     if (PUP_HOME / where).exists():
-        if not click.confirm(UserInput.NEW_VENV_OVERWRITE.format(where), default=True):
+        if not click.confirm(UserInput.NEW_VENV_OVERWRITE.format(where), default="y"):
             return
     log(f"pup new {where}")
     cmd = f"{PUP_UV} venv {PUP_HOME / where}/.venv -p {PUP_PYTHON}"
     tee(cmd)
     subprocess.run(cmd.split())
-    if click.confirm(UserInput.NEW_VENV_KERNEL, default=True):
+    if confirm(UserInput.NEW_VENV_KERNEL, default=True):
         new_kernel.callback(where=where, kernel_name=None)
 
 
@@ -174,9 +175,18 @@ def which():
 
 ### Utils ###
 
+def confirm(text, **kwargs):
+    """Prompts with click.confirm or silently return True in non-interactive shells."""
+    if not hasattr(sys, "ps1"):
+        return True
+    else:
+        click.confirm(text, **kwargs)
+
 def get_python_major_minor():
     return ".".join(platform.python_version_tuple()[:2])
 
+def is_interactive():
+    return hasattr(sys, "ps1")
 
 ### Templates ###
 

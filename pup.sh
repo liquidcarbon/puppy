@@ -130,7 +130,7 @@ get_python_uv_click() {
   PYTHON_EXECUTABLE=$(pixi run python -c 'import sys; print(sys.executable)')
   SHEBANG="#!$PYTHON_EXECUTABLE"
   if ! head -n 1 "$PUP_PATH" | grep -q "$SHEBANG"; then
-    sed -i "1i $SHEBANG" "$PUP_PATH"
+    sed -i "1i $SHEBANG\n" "$PUP_PATH"
   fi
 } 
 get_python_uv_click "$1"
