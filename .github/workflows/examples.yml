@@ -1,0 +1,24 @@
+on:
+  push:
+    branches:
+      - main
+    # paths:
+    #   - examples/**
+
+env:
+  MAIN_BRANCH_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/"
+  PYTHONIOENCODING: "utf8"  # https://github.com/pallets/click/issues/2121
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+    - name: Install puppy3.11
+      run: |
+        & ([scriptblock]::Create((iwr -useb $env:MAIN_BRANCH_URL/pup.ps1).Content)) 3.11
+    - name: Create alias and run a pup command
+      run: |
+        iex ((iwr $env:MAIN_BRANCH_URL/pup.ps1).Content -split "`n")[-2] ; pup fetch zero-to-gradio gradio
+    - name: Start app
+      run: |
+        zero-to-gradio\.venv\Scripts\python.exe -c 'import gradio as gr; gr.Interface(lambda x: x, gr.inputs.Text(), "text").launch()'
