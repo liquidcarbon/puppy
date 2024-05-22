@@ -21,4 +21,4 @@ jobs:
         iex ((iwr $env:MAIN_BRANCH_URL/pup.ps1).Content -split "`n")[-2] ; pup fetch zero-to-gradio gradio
     - name: Start app
       run: |
-        zero-to-gradio\.venv\Scripts\python.exe -c 'import gradio as gr; gr.Interface(lambda x: x, inputs=["text"]).launch()'
+        zero-to-gradio\.venv\Scripts\python.exe -c 'import gradio as gr; gr.Interface(lambda x: x, inputs=["text"], outputs=["text"]).launch()'
