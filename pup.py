@@ -4,7 +4,6 @@ __doc__ = """
 """
 
 import click
-import os
 import platform
 import subprocess
 import sys
@@ -22,8 +21,6 @@ PUP_PIXI_ENV = PUP_HOME / ".pixi/envs/default"
 PUP_PYTHON = PUP_PIXI_ENV  / ("python.exe" if PLATFORM == "Windows" else "bin/python")
 PUP_UV = PUP_PIXI_ENV / ("Library/bin/uv.exe" if PLATFORM == "Windows" else "bin/uv")
 VENV_PYTHON_SUBPATH = "Scripts/python.exe" if PLATFORM == "Windows" else "bin/python"
-
-os.environ["PYTHONIOENCODING"] = "utf-8"  # for Win runner
 
 
 def log(message, file=PUP_LOG):
