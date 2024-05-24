@@ -11,8 +11,6 @@ jobs:
   install-bash:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
     - name: Install puppy3.12
       run: |
         curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash -s 3.12
@@ -23,15 +21,14 @@ jobs:
   install-windows:
     runs-on: windows-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
     - name: Install puppy3.11
       run: |
         & ([scriptblock]::Create((iwr -useb $env:MAIN_BRANCH_URL/pup.ps1).Content)) 3.11
-    - name: Create alias and run a pup command
+    - name: Install Jupyter
+      run: pixi add notebook nbclient
+    - name: Run pup commands
       run: >
         iex ((iwr $env:MAIN_BRANCH_URL/pup.ps1).Content -split "`n")[-2];
-        pixi add notebook nbclient;
         pup fetch test1 cowsay;
         pup kernel test1 test1-3.11;
         pup play -c "md|# Woof!" -c "import cowsay" -E -N;
