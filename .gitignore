@@ -1,4 +1,5 @@
 /*
+!examples
 !.*
 .gitattributes
 pixi.lock
@@ -7,10 +8,4 @@ woof.log
 
 # pixi environments
 .pixi
-*.egg-info# pixi environments
-.pixi
 *.egg-info
-
-# pixi environments
-.pixi
-

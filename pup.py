@@ -110,7 +110,7 @@ def new_kernel(where, kernel_name):
     log(f"pup kernel {where} {kernel_name}")
     cmd = f"{py_path} -m ipykernel install --name {kernel_name} --prefix {PUP_PIXI_ENV}"
     tee(cmd)
-    subprocess.run(cmd)
+    subprocess.run(cmd.split())
 
 
 @main.command(name="list")
@@ -192,7 +192,7 @@ def start_notebook_kernel(jupyter, name, kernel_name, code, ex, start):
         tee(f"done")
 
     if start:
-        cmd = f"""pixi run jupyter {jupyter} {nb_file}"""
+        cmd = f"""pixi run jupyter {jupyter} {nb_file} --notebook-dir "{PUP_HOME}" """
         tee(cmd)
         subprocess.run(cmd.split())
 
