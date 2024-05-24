@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 __doc__ = """
-
+The CLI for pup, a cute python package manager.
 """
 
 import click
+import json
 import platform
 import subprocess
 import sys
-from datetime import datetime
+from copy import deepcopy
 from pathlib import Path
+from time import sleep, strftime, time
 
 PLATFORM = platform.system()
 PUP_COLOR = "yellow"
@@ -25,7 +27,7 @@ VENV_PYTHON_SUBPATH = "Scripts/python.exe" if PLATFORM == "Windows" else "bin/py
 
 def log(message, file=PUP_LOG):
     """Log to file."""
-    timestamp = datetime.now().strftime(PUP_LOG_TIME_FORMAT)
+    timestamp = strftime(PUP_LOG_TIME_FORMAT)
     log_message = f"[{timestamp}] {message} "
     if file != "-":
         with open(file, "a", encoding="utf-8") as f:
@@ -103,7 +105,6 @@ def new_kernel(where, kernel_name):
             UserInput.NEW_KERNEL_NAME,
             default=f"{where}-{get_python_major_minor()}"
         )
-    PUP_NOTEBOOKS.mkdir(exist_ok=True)
     
     py_path = PUP_HOME / where / ".venv" / VENV_PYTHON_SUBPATH
     log(f"pup kernel {where} {kernel_name}")
@@ -146,22 +147,54 @@ def new_venv(where):
 
 
 @main.command(name="play")
-@click.option("--kernel-name", "-k", default="python3")
-@click.option("--name", "-n", default=None)
-def start_notebook_kernel(kernel_name, name):
-    """Launch jupyter notebook from a kernel template."""
-    import textwrap
-    from time import time
-    if not name:
-        name=f"{int(time())}.ipynb"
+@click.option(
+    "--jupyter", "-j",
+    type=click.Choice(["notebook", "lab"]),
+    default="notebook",
+    help="jupyter flavor"
+)
+@click.option("--name", "-n", default=None, help="notebook name (default: timestamp)")
+@click.option("--kernel-name", "-k", default="python3", help="kernel name")
+@click.option(
+    "--code", "-c", multiple=True,
+    help="""\b
+        add code or markdown cells
+        use `;` (no spaces) to separate code lines
+        prefix markdown cells with `md|`
+    """
+)
+@click.option(
+    "--ex/--no-ex", "-E/-X",
+    default=False,
+    help="execute notebook (default: no)"
+)
+@click.option(
+    "--start/--no-start", "-S/-N",
+    default=True,
+    help="start jupyter (default: start)"
+)
+def start_notebook_kernel(jupyter, name, kernel_name, code, ex, start):
+    """Launch jupyter notebook with added code cells."""
+
+    if code == tuple():
+        code = (
+            "md|# Title",
+            "import sys;!uv pip list -p $sys.executable",
+            """print("notebook run complete")"""
+        )
     
-    notebook_file = PUP_NOTEBOOKS / name
-    with open(notebook_file, "w") as f:
-        content = textwrap.dedent(Templates.IPYNB.format(k=kernel_name))
-        f.write(content)
-    # jupyter_main(argv=[str(notebook_file)]),
-    cmd = f"pixi run jupyter notebook {notebook_file}"
-    subprocess.run(cmd)
+    PUP_NOTEBOOKS.mkdir(exist_ok=True)
+    nb_file = IPYNB.create(name, kernel_name, *code)
+    tee(f"{nb_file} created")
+    if ex:
+        tee(f"executing notebook {nb_file} using {kernel_name}...")
+        IPYNB.run_nbclient(nb_file, kernel_name)
+        tee(f"done")
+
+    if start:
+        cmd = f"""pixi run jupyter {jupyter} {nb_file}"""
+        tee(cmd)
+        subprocess.run(cmd.split())
 
 
 @main.command()
@@ -187,25 +220,75 @@ def get_python_major_minor():
 
 ### Templates ###
 
-class Templates:
-    IPYNB = """{{
-        "cells": [{{
-                "cell_type": "code",
-                "metadata": {{}},
-                "source": ["import sys\\n","!uv pip list -p $sys.executable"]
-            }}],
-        "metadata": {{
-            "kernelspec": {{
-                "name": "{k}"
-            }},
-            "language_info": {{
+class IPYNB:
+    """Templates and methods for populating IPython notebooks from CLI."""
+
+    TEMPLATE = {
+        "cells": [],
+        "metadata": {
+            "kernelspec": {
+                "name": None
+            },
+            "language_info": {
                 "name": ""
-            }}
-        }},
+            }
+        },
         "nbformat": 4,
         "nbformat_minor": 5
-    }}
-    """
+    }
+
+    CELL = {
+        "cell_type": None,
+        "metadata": {},
+        "source": [],
+    }
+    
+    def parse_cell(source: str) -> dict:
+        """Parse CLI `--code` option into an IPYNB cell dict"""
+        ipynb_cell = deepcopy(IPYNB.CELL)
+        if len(source) > 2 and source[:3] == "md|":
+            source = source[3:]
+            cell_type = "markdown"
+            ipynb_cell["source"] = [source]
+        else:
+            cell_type = "code"
+            lines = [line+"\n" for line in source.split(";")]
+            lines[-1] = lines[-1][:-1]
+            ipynb_cell["execution_count"] = None
+            ipynb_cell["source"] = lines
+            ipynb_cell["outputs"] = []
+        ipynb_cell["cell_type"] = cell_type
+        ipynb_cell["id"] = str(time())[-4:]; sleep(1e-4)  # pseudorandom
+        return ipynb_cell
+
+    def create(name, kernel_name, *code) -> Path:
+        """Create notebook dict, return path to notebook."""
+
+        if not name:
+            name=f"{int(time())}.ipynb"
+    
+        nb_file = PUP_NOTEBOOKS / name
+        ipynb = deepcopy(IPYNB.TEMPLATE)
+        ipynb.update(
+            **{"cells": [IPYNB.parse_cell(cell) for cell in code]}
+        )
+        ipynb["metadata"]["kernelspec"]["name"] = kernel_name
+        ipynb["metadata"]["kernelspec"]["display_name"] = kernel_name
+        with open(nb_file, "w") as f:
+            json.dump(ipynb, f)
+        
+        return nb_file
+
+    def run_nbclient(nb_file, kernel_name):
+        import nbformat
+        from nbclient import NotebookClient
+        nb = nbformat.read(nb_file, as_version=4)
+        client = NotebookClient(
+            nb, kernel_name=kernel_name,
+            timeout=120, allow_errors=True, log_level=40
+        )
+        client.execute()
+        nbformat.write(nb, nb_file)
 
 
 ### Entry Point ###
