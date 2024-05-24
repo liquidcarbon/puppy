@@ -2,8 +2,8 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - examples/**
+    paths:
+      - examples/**
 
 env:
   MAIN_BRANCH_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/"
