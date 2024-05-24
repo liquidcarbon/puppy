@@ -80,6 +80,7 @@ get_pup() {
     curl -fsSL $PUP_URL | grep -vE "^#!" > "$PUP_PATH"
     echo "🐶 woof! $PUP_PATH has arrived"
   fi
+  chmod +x "$PUP_PATH"
 }
 get_pup
 
