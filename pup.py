@@ -123,7 +123,7 @@ def list_packages(where):
         py_path = PUP_HOME / where / ".venv" / VENV_PYTHON_SUBPATH
         cmd = f"""{PUP_UV} pip list -p {py_path}"""
     tee(cmd)
-    subprocess.run(cmd)
+    subprocess.run(cmd.split())
 
 
 @main.command(name="new")
@@ -184,7 +184,7 @@ def start_notebook_kernel(jupyter, name, kernel_name, code, ex, start):
         )
     
     PUP_NOTEBOOKS.mkdir(exist_ok=True)
-    nb_file = IPYNB.create(name, kernel_name, *code)
+    nb_file = IPYNB.create(name, kernel_name, ex, *code)
     tee(f"{nb_file} created")
     if ex:
         tee(f"executing notebook {nb_file} using {kernel_name}...")
@@ -249,25 +249,24 @@ class IPYNB:
         if len(source) > 2 and source[:3] == "md|":
             source = source[3:]
             cell_type = "markdown"
-            ipynb_cell["source"] = [source]
         else:
             cell_type = "code"
-            lines = [line+"\n" for line in source.split(";")]
-            lines[-1] = lines[-1][:-1]
             ipynb_cell["execution_count"] = None
-            ipynb_cell["source"] = lines
             ipynb_cell["outputs"] = []
+        lines = [line+"\n" for line in source.split(";")]
+        lines[-1] = lines[-1][:-1]
+        ipynb_cell["source"] = lines
         ipynb_cell["cell_type"] = cell_type
         ipynb_cell["id"] = str(time())[-4:]; sleep(1e-4)  # pseudorandom
         return ipynb_cell
 
-    def create(name, kernel_name, *code) -> Path:
+    def create(name: str, kernel_name: str, ex: bool, *code) -> Path:
         """Create notebook dict, return path to notebook."""
-
         if not name:
             name=f"{int(time())}.ipynb"
     
         nb_file = PUP_NOTEBOOKS / name
+        nb_file.parent.mkdir(exist_ok=True)
         ipynb = deepcopy(IPYNB.TEMPLATE)
         ipynb.update(
             **{"cells": [IPYNB.parse_cell(cell) for cell in code]}
@@ -279,7 +278,8 @@ class IPYNB:
         
         return nb_file
 
-    def run_nbclient(nb_file, kernel_name):
+    def run_nbclient(nb_file: Path, kernel_name: str):
+        """Execute notebook with nbclient."""
         import nbformat
         from nbclient import NotebookClient
         nb = nbformat.read(nb_file, as_version=4)
@@ -287,7 +287,7 @@ class IPYNB:
             nb, kernel_name=kernel_name,
             timeout=120, allow_errors=True, log_level=40
         )
-        client.execute()
+        client.execute(cwd=nb_file.parent)
         nbformat.write(nb, nb_file)
 
 
