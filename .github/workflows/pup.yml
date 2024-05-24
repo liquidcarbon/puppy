@@ -30,5 +30,5 @@ jobs:
         iex ((iwr $env:MAIN_BRANCH_URL/pup.ps1).Content -split "`n")[-2];
         pup fetch test1 cowsay;
         pup kernel test1 test1-3.11;
-        pup play --kernel test1-3.11 -c "md|# Woof!" -c "import cowsay" -E -N;
+        pup play --kernel-name test1-3.11 -c "md|# Woof!" -c "import cowsay" -E -N;
         cat .\notebooks\*.ipynb
