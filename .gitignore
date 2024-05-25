@@ -9,3 +9,4 @@ woof.log
 # pixi environments
 .pixi
 *.egg-info
+**/__pycache__
