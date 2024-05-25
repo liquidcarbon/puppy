@@ -13,7 +13,7 @@ eval $cmd
 
 cmd="pup play -k ducks-pandas-3.12 -n play_test.ipynb \
 -c \"md|### 🐶 woof! I made this notebook!;and added some code!\" \
--c "%%bash;pwd" \
+-c \"%%bash;pwd\" \
 -N"
 echo "🎇 $cmd"
 eval $cmd
@@ -21,7 +21,7 @@ eval $cmd
 # sleep 3
 cmd="pup play -k ducks-pandas-3.12 -n play_test.ipynb \
 -c \"md|### 🐶 woof! I made this notebook!;and added some code!;;and ran it!\" \
--c "%%bash;pwd" \
+-c \"%%bash;pwd\" \
 -N -E"
 echo "🎇 $cmd"
 eval $cmd

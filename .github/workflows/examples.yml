@@ -5,6 +5,7 @@ on:
     paths:
       - .github/**
       - examples/**
+      - '!README.md'
 
 env:
   MAIN_BRANCH_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/"
