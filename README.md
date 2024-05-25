@@ -71,7 +71,10 @@ curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | ba
 
 ## Then what?
 
-Coming soon
+More examples coming soon
+
+#### Generate environments, notebook kernels, and notebooks from CLI
+[Screencast from 2024-05-24 15-35-33.webm](https://github.com/liquidcarbon/puppy/assets/47034358/272aea05-01c6-49c9-ada2-180cfac08927)
 
 ## Future
 - `pup build` (via compile, freeze, etc.)
