@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
-. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | tail -1)
+# create pup alias
+. <(cat pup.sh | tail -1)
 
 cmd="pup fetch ducks-pandas duckdb pandas"
 echo "$cmd"
