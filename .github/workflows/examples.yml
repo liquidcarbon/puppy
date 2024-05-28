@@ -43,7 +43,7 @@ SELECT *
 FROM isotopes
 WHERE Symbol = '{el}'
 """, el=el).df()
-"@
+"@ ;
         pup play `
           --kernel-name db-3.12 `
           -n qtest.ipynb `
