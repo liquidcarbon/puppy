@@ -37,13 +37,13 @@ jobs:
         pup fetch db duckdb pandas ;
         pup kernel db db-3.11 ;
         $QUERY1=@"
-        el='Ca'
-        Q("""
-        SELECT *
-        FROM isotopes
-        WHERE Symbol = '{el}'
-        """, el=el).df()
-        "@
+el='Ca'
+Q("""
+SELECT *
+FROM isotopes
+WHERE Symbol = '{el}'
+""", el=el).df()
+"@
         pup play `
           --kernel-name db-3.12 `
           -n qtest.ipynb `
