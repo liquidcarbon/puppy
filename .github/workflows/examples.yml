@@ -36,21 +36,21 @@ jobs:
         iex ((iwr $env:MAIN_BRANCH_URL/pup.ps1).Content -split "`n")[-2] ;
         pup fetch db duckdb pandas ;
         pup kernel db db-3.11 ;
-        $QUERY1=@"
-el='Ca'
-Q("""
-SELECT *
-FROM isotopes
-WHERE Symbol = '{el}'
-""", el=el).df()
-"@ ;
+        $QUERY1=@'
+        el='Ca'
+        Q("""
+        SELECT *
+        FROM isotopes
+        WHERE Symbol = '{el}'
+        """, el=el).df()
+        '@ ;
         pup play `
           --kernel-name db-3.12 `
           -n qtest.ipynb `
           -c "md|# SP Test" `
           -c $((iwr -useb $env:MAIN_BRANCH_URL/examples/Q-strings/Q.py).Content -replace '"', '\"') `
           -c $($QUERY1 -replace '"', '\"') `
-          -E -N;
+          -E -N ;
         cat .\notebooks\qtest.ipynb
   
   win-gradio:
