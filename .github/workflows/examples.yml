@@ -30,7 +30,7 @@ jobs:
     - name: Install puppy3.11
       run: >
         & ([scriptblock]::Create((iwr -useb $env:MAIN_BRANCH_URL/pup.ps1).Content)) 3.11 ;
-        pixi install notebook nbclient
+        pixi add notebook nbclient
     - name: Create pup alias and pup fetch the environment
       run: >
         pup fetch db duckdb pandas ;
