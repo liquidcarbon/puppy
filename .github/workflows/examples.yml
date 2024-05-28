@@ -32,7 +32,7 @@ jobs:
         & ([scriptblock]::Create((iwr -useb $env:MAIN_BRANCH_URL/pup.ps1).Content)) 3.11 ;
         pixi add notebook nbclient
     - name: Create pup alias, fetch environment, generate and run notebook
-      run: >
+      run: |
         iex ((iwr $env:MAIN_BRANCH_URL/pup.ps1).Content -split "`n")[-2] ;
         pup fetch db duckdb pandas ;
         pup kernel db db-3.11 ;
