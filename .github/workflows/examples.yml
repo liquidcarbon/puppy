@@ -47,9 +47,9 @@ jobs:
         pup play `
           --kernel-name db-3.11 `
           -n qtest.ipynb `
-          -c "md|# SP Test" `
+          -c "md|# 🐶 generated this notebook from CLI" `
           -c $((iwr -useb $env:MAIN_BRANCH_URL/examples/Q-strings/Q.py).Content) `
-          -c $($QUERY1 -replace '"', '\"') `
+          -c $QUERY1 `
           -E -N
         cat .\notebooks\qtest.ipynb
         # -replace '"', '\"' not needed?
