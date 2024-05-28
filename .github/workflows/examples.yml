@@ -24,6 +24,36 @@ jobs:
     - name: Run notebook demo
       run: examples/Q-strings/demo.sh
   
+  windows-generate-notebooks:
+    runs-on: windows-latest
+    steps:
+    - name: Install puppy3.11
+      run: >
+        & ([scriptblock]::Create((iwr -useb $env:MAIN_BRANCH_URL/pup.ps1).Content)) 3.11 ;
+        pixi install notebook nbclient
+    - name: Create pup alias and pup fetch the environment
+      run: >
+        pup fetch db duckdb pandas ;
+        pup kernel db db-3.11
+    - name: Generate and run notebook
+      run: >
+        $QUERY1=@"
+        el='Ca'
+        Q("""
+        SELECT *
+        FROM isotopes
+        WHERE Symbol = '{el}'
+        """, el=el).df()
+        "@
+        pup play `
+          --kernel-name db-3.12 `
+          -n qtest.ipynb `
+          -c "md|# SP Test" `
+          -c $((iwr -useb $env:MAIN_BRANCH_URL/examples/Q-strings/Q.py).Content -replace '"', '\"') `
+          -c $($QUERY1 -replace '"', '\"') `
+          -E -N;
+        cat .\notebooks\qtest.ipynb
+  
   windows-gradio:
     runs-on: windows-latest
     steps:
