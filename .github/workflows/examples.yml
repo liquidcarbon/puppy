@@ -48,10 +48,11 @@ jobs:
           --kernel-name db-3.11 `
           -n qtest.ipynb `
           -c "md|# SP Test" `
-          -c $((iwr -useb $env:MAIN_BRANCH_URL/examples/Q-strings/Q.py).Content -replace '"', '\"') `
+          -c $((iwr -useb $env:MAIN_BRANCH_URL/examples/Q-strings/Q.py).Content) `
           -c $($QUERY1 -replace '"', '\"') `
           -E -N
         cat .\notebooks\qtest.ipynb
+        # -replace '"', '\"' not needed?
   
   win-gradio:
     runs-on: windows-latest
