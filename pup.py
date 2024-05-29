@@ -157,6 +157,7 @@ def new_venv(where):
 )
 @click.option("--name", "-n", default=None, help="notebook name (default: timestamp)")
 @click.option("--kernel-name", "-k", default="python3", help="kernel name")
+# @click.option("--modify", "-M", is_flag=True, default=False, help="modify existing notebook (no_prompt)")
 @click.option(
     "--ex/--no-ex", "-E/-X",
     default=False,
@@ -173,29 +174,54 @@ def new_venv(where):
         add code or markdown cells
         use `;` (no spaces) to separate code lines
         prefix markdown cells with `md|`
+        ------------------------------------------------
+        with -n option and -c blocks, pup will write new
+        or ask to overwrite an existing notebook;
+        with -n option but no -c blocks, pup will try to
+        open or execute an existing notebook;
+        without -n, pup will create a new notebook named
+        `<epoch time>.ipynb` with some starter code.
+        ------------------------------------------------
     """
 )
-def start_notebook_kernel(jupyter, name, kernel_name, ex, start, code):
+def do_jupyter(jupyter, name, kernel_name, ex, start, code):
     """Generate, execute, or open jupyter notebook with added code cells."""
 
-    if not name:
-        name = f"{int(time())}.ipynb"
-        if code == tuple():
-            # inject some starter code if none provided
-            code = (
+    PUP_NOTEBOOKS.mkdir(exist_ok=True)
+    nb_file = PUP_NOTEBOOKS / (name or f"{int(time())}.ipynb")
+    
+    if not nb_file.exists():
+        # inject some starter code if none provided
+        code = code or (
                 "md|# Title",
-                "import sys;!uv pip list -p $sys.executable",
+                "import sys;py = sys.executable;print(py);"
+                "!pixi run uv pip list -p $py",
                 """print("notebook run complete")"""
             )
 
-    PUP_NOTEBOOKS.mkdir(exist_ok=True)
-    nb_file = PUP_NOTEBOOKS / name
-    if nb_file.exists():
-        if not confirm(UserInput.PLAY_OVERWRITE.format(nb_file)):
-            exit(1)
+    if code:
+        overwrite_prompt = UserInput.PLAY_OVERWRITE.format(nb_file)
+        if not nb_file.exists() or confirm(overwrite_prompt):
+            IPYNB.create(nb_file, kernel_name, ex, *code)
+            tee(f"{nb_file} created")
+    else:
+        pass  # file exists, no code provided: open file
 
-    IPYNB.create(nb_file, kernel_name, ex, *code)
-    tee(f"{nb_file} created")
+    # if not name:
+    #     name = f"{int(time())}.ipynb"
+    #     if code == tuple():
+    #         # inject some starter code if none provided
+    #         code = (
+    #             "md|# Title",
+    #             "import sys;!uv pip list -p $sys.executable",
+    #             """print("notebook run complete")"""
+    #         )
+
+    # nb_file = PUP_NOTEBOOKS / name
+    # if nb_file.exists():
+    #     if code != tuple() and confirm(UserInput.PLAY_OVERWRITE.format(nb_file)):
+    #         IPYNB.create(nb_file, kernel_name, ex, *code)
+    #         tee(f"{nb_file} created")
     
     if ex:
         tee(f"executing notebook {nb_file} using {kernel_name}...")
