@@ -178,11 +178,8 @@ def new_venv(where):
 def start_notebook_kernel(jupyter, name, kernel_name, ex, start, code):
     """Generate, execute, or open jupyter notebook with added code cells."""
 
-    PUP_NOTEBOOKS.mkdir(exist_ok=True)
-    write = False
     if not name:
         name = f"{int(time())}.ipynb"
-        write = True
         if code == tuple():
             # inject some starter code if none provided
             code = (
@@ -191,16 +188,14 @@ def start_notebook_kernel(jupyter, name, kernel_name, ex, start, code):
                 """print("notebook run complete")"""
             )
 
+    PUP_NOTEBOOKS.mkdir(exist_ok=True)
     nb_file = PUP_NOTEBOOKS / name
     if nb_file.exists():
         if not confirm(UserInput.PLAY_OVERWRITE.format(nb_file)):
             exit(1)
-        else:
-            write = True
 
-    if write:
-        IPYNB.create(nb_file, kernel_name, ex, *code)
-        tee(f"{nb_file} created")
+    IPYNB.create(nb_file, kernel_name, ex, *code)
+    tee(f"{nb_file} created")
     
     if ex:
         tee(f"executing notebook {nb_file} using {kernel_name}...")
