@@ -158,11 +158,6 @@ def new_venv(where):
 @click.option("--name", "-n", default=None, help="notebook name (default: timestamp)")
 @click.option("--kernel-name", "-k", default="python3", help="kernel name")
 @click.option(
-    "--write/--open", "-W/-O",
-    default=False,
-    help="write/open existing notebook (default: open)"
-)
-@click.option(
     "--ex/--no-ex", "-E/-X",
     default=False,
     help="execute notebook (default: no)"
@@ -180,33 +175,32 @@ def new_venv(where):
         prefix markdown cells with `md|`
     """
 )
-def start_notebook_kernel(jupyter, name, kernel_name, write, ex, start, code):
+def start_notebook_kernel(jupyter, name, kernel_name, ex, start, code):
     """Generate, execute, or open jupyter notebook with added code cells."""
 
     PUP_NOTEBOOKS.mkdir(exist_ok=True)
+    write = False
     if not name:
-        name=f"{int(time())}.ipynb"
-    nb_file = PUP_NOTEBOOKS / name
-
-    if write:
-        if nb_file.exists():
-            if not confirm(UserInput.PLAY_OVERWRITE.format(nb_file)):
-                exit(1)
+        name = f"{int(time())}.ipynb"
+        write = True
         if code == tuple():
-            # inject some starter code
+            # inject some starter code if none provided
             code = (
                 "md|# Title",
                 "import sys;!uv pip list -p $sys.executable",
                 """print("notebook run complete")"""
             )
+
+    nb_file = PUP_NOTEBOOKS / name
+    if nb_file.exists():
+        if not confirm(UserInput.PLAY_OVERWRITE.format(nb_file)):
+            exit(1)
+        else:
+            write = True
+
+    if write:
         IPYNB.create(nb_file, kernel_name, ex, *code)
         tee(f"{nb_file} created")
-    else:
-        if nb_file.exists():
-            start = True
-        else:
-            tee(f"`{nb_file}` not found")
-            exit(1)
     
     if ex:
         tee(f"executing notebook {nb_file} using {kernel_name}...")

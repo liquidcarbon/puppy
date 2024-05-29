@@ -62,7 +62,7 @@ Commands:
   kernel  Interactively create new ipython kernel linked to 🐶's environment.
   list    List packages.
   new     Create a new virtual environment in <WHERE> folder.
-  play    Launch jupyter notebook with added code cells.
+  play    Generate, execute, or open jupyter notebook with added code cells.
   which   Show 🐶's current home.
 ```
 
@@ -118,8 +118,10 @@ curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | ba
 
 Check out usage [examples](https://github.com/liquidcarbon/puppy/tree/main/examples) and [workflows](https://github.com/liquidcarbon/puppy/tree/main/.github/workflows).
 
-#### Generate environments, notebook kernels, and notebooks from CLI
+### Generate environments, notebook kernels, and notebooks from CLI
+
 [Screencast from 2024-05-24 15-35-33.webm](https://github.com/liquidcarbon/puppy/assets/47034358/272aea05-01c6-49c9-ada2-180cfac08927)
+
 
 ## Future
 - `pup build` (via compile, freeze, etc.)
