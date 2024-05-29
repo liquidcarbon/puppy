@@ -14,7 +14,7 @@ eval $cmd
 cmd="pup play -k ducks-pandas-3.12 -n play_test.ipynb \
 -c \"md|### 🐶 woof! I made this notebook!;and added some code!\" \
 -c \"%%bash;pwd\" \
--N"
+-W -N"
 echo "🎇 $cmd"
 eval $cmd
 
@@ -22,7 +22,7 @@ eval $cmd
 cmd="pup play -k ducks-pandas-3.12 -n play_test.ipynb \
 -c \"md|### 🐶 woof! I made this notebook!;and added some code!;;and ran it!\" \
 -c \"%%bash;pwd;ls -l;ls -l ..\" \
--N -E"
+-W -N -E"
 echo "🎇 $cmd"
 eval $cmd
 cat notebooks/play_test.ipynb
@@ -33,7 +33,7 @@ cmd="pup play -k ducks-pandas-3.12 -n play_test.ipynb \
 -c \"md|### 🐶 I can fetch external scripts into this notebook!;and run them\" \
 -c \"\`curl -s $PY_URL\`\" \
 -c \"Q('../examples/Q-strings/query1.sql', file=True, x=42).run()\" \
--N -E"
+-W -N -E"
 echo "🎇 $cmd"
 eval $cmd
 

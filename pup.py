@@ -45,7 +45,8 @@ def tee(message, file=PUP_LOG):
 class UserInput:
     FETCH_NEW_VENV = click.style(
         "Environment `{}` does not exist. Create it?",
-        fg="bright_cyan")
+        fg="bright_cyan"
+    )
     FETCH_WHAT = click.style("Specify what to install", fg="bright_cyan")
     FETCH_WHERE = click.style(
         "Specify folder/environment where to fetch packages",
@@ -62,6 +63,7 @@ class UserInput:
         fg="bright_cyan"
     )
     NEW_VENV_OVERWRITE = click.style("Folder `{}` already exists. Overwrite?", fg="red")
+    PLAY_OVERWRITE = click.style("File `{}` exists. Overwrite?", fg="bright_cyan")
 
 
 @click.group()
@@ -156,12 +158,9 @@ def new_venv(where):
 @click.option("--name", "-n", default=None, help="notebook name (default: timestamp)")
 @click.option("--kernel-name", "-k", default="python3", help="kernel name")
 @click.option(
-    "--code", "-c", multiple=True,
-    help="""\b
-        add code or markdown cells
-        use `;` (no spaces) to separate code lines
-        prefix markdown cells with `md|`
-    """
+    "--write/--open", "-W/-O",
+    default=False,
+    help="write/open existing notebook (default: open)"
 )
 @click.option(
     "--ex/--no-ex", "-E/-X",
@@ -173,19 +172,42 @@ def new_venv(where):
     default=True,
     help="start jupyter (default: start)"
 )
-def start_notebook_kernel(jupyter, name, kernel_name, code, ex, start):
-    """Launch jupyter notebook with added code cells."""
+@click.option(
+    "--code", "-c", multiple=True,
+    help="""\b
+        add code or markdown cells
+        use `;` (no spaces) to separate code lines
+        prefix markdown cells with `md|`
+    """
+)
+def start_notebook_kernel(jupyter, name, kernel_name, write, ex, start, code):
+    """Generate, execute, or open jupyter notebook with added code cells."""
 
-    if code == tuple():
-        code = (
-            "md|# Title",
-            "import sys;!uv pip list -p $sys.executable",
-            """print("notebook run complete")"""
-        )
-    
     PUP_NOTEBOOKS.mkdir(exist_ok=True)
-    nb_file = IPYNB.create(name, kernel_name, ex, *code)
-    tee(f"{nb_file} created")
+    if not name:
+        name=f"{int(time())}.ipynb"
+    nb_file = PUP_NOTEBOOKS / name
+
+    if write:
+        if nb_file.exists():
+            if not confirm(UserInput.PLAY_OVERWRITE.format(nb_file)):
+                exit(1)
+        if code == tuple():
+            # inject some starter code
+            code = (
+                "md|# Title",
+                "import sys;!uv pip list -p $sys.executable",
+                """print("notebook run complete")"""
+            )
+        IPYNB.create(nb_file, kernel_name, ex, *code)
+        tee(f"{nb_file} created")
+    else:
+        if nb_file.exists():
+            start = True
+        else:
+            tee(f"`{nb_file}` not found")
+            exit(1)
+    
     if ex:
         tee(f"executing notebook {nb_file} using {kernel_name}...")
         IPYNB.run_nbclient(nb_file, kernel_name)
@@ -207,12 +229,12 @@ def which():
 
 ### Utils ###
 
-def confirm(text, **kwargs):
-    """Prompts with click.confirm or silently return True in non-interactive shells."""
-    if not hasattr(sys, "ps1"):
-        return True
+def confirm(text, **kwargs) -> bool:
+    """Prompt with click.confirm or silently return True in non-interactive shells."""
+    if sys.stdin.isatty() or hasattr(sys, "ps1"):
+        return click.confirm(text, **kwargs)
     else:
-        click.confirm(text, **kwargs)
+        return True
 
 def get_python_major_minor():
     return ".".join(platform.python_version_tuple()[:2])
@@ -260,12 +282,9 @@ class IPYNB:
         ipynb_cell["id"] = str(time())[-4:]; sleep(1e-4)  # pseudorandom
         return ipynb_cell
 
-    def create(name: str, kernel_name: str, ex: bool, *code) -> Path:
+    def create(nb_file: Path, kernel_name: str, ex: bool, *code) -> Path:
         """Create notebook dict, return path to notebook."""
-        if not name:
-            name=f"{int(time())}.ipynb"
-    
-        nb_file = PUP_NOTEBOOKS / name
+
         nb_file.parent.mkdir(exist_ok=True)
         ipynb = deepcopy(IPYNB.TEMPLATE)
         ipynb.update(
@@ -276,7 +295,6 @@ class IPYNB:
         with open(nb_file, "w") as f:
             json.dump(ipynb, f)
         
-        return nb_file
 
     def run_nbclient(nb_file: Path, kernel_name: str):
         """Execute notebook with nbclient."""
