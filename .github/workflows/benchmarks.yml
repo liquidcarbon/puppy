@@ -19,10 +19,9 @@ jobs:
       run: Invoke-WebRequest -Uri "https://github.com/winpython/winpython/releases/download/7.5.20240410final/Winpython64-3.12.3.0.exe" -OutFile "Winpython64-3.12.3.0.exe"
 
     - name: Install WinPython
-      run: Start-Process -FilePath "Winpython64-3.12.3.0.exe" -ArgumentList "/passive"
+      run: .\Winpython64-3.12.3.0.exe -y -gm2
 
     - name: Verify installation
       run: |
-        $env:Path += ";C:\WinPython-64bit\python-3.12.3\Scripts"
-        python --version
-
+        $folder = Get-ChildItem -Name -Directory WPy64* | Select-Object -First 1
+        & (Join-Path $folder "scripts\python.bat") -VV
