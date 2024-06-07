@@ -19,7 +19,7 @@ jobs:
       run: Invoke-WebRequest -Uri "https://github.com/winpython/winpython/releases/download/7.5.20240410final/Winpython64-3.12.3.0.exe" -OutFile "Winpython64-3.12.3.0.exe"
 
     - name: Install WinPython
-      run: .\Winpython64-3.12.3.0.exe -y -gm2
+      run: Start-Process -FilePath .\Winpython64-3.12.3.0.exe -ArgumentList "-y -gm2" -Wait
 
     - name: Verify installation
       run: |
