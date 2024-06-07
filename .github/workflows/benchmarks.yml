@@ -24,4 +24,6 @@ jobs:
     - name: Verify installation
       run: |
         $folder = Get-ChildItem -Name -Directory WPy64* | Select-Object -First 1
-        & (Join-Path $folder "scripts\python.bat") -VV
+        $winPythonPath = Join-Path $folder "scripts\python.bat"
+        ls $winPythonPath
+        & winPythonPath -VV
