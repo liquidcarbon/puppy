@@ -1,0 +1,28 @@
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/**
+      - examples/**
+      - '!README.md'
+
+env:
+  MAIN_BRANCH_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/"
+  PYTHONIOENCODING: "utf8"  # https://github.com/pallets/click/issues/2121
+
+jobs:  
+  win-winpython:
+    runs-on: windows-latest
+    steps:
+    - name: Download WinPython installer
+      run: Invoke-WebRequest -Uri "https://github.com/winpython/winpython/releases/download/7.5.20240410final/Winpython64-3.12.3.0.exe" -OutFile "Winpython64-3.12.3.0.exe"
+
+    - name: Install WinPython
+      run: Start-Process -FilePath "Winpython64-3.12.3.0.exe" -ArgumentList "/S" -Wait
+
+    - name: Verify installation
+      run: |
+        $env:Path += ";C:\WinPython-64bit\python-3.12.3\Scripts"
+        python --version
+
