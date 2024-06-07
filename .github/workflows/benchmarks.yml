@@ -26,4 +26,4 @@ jobs:
         $folder = Get-ChildItem -Name -Directory WPy64* | Select-Object -First 1
         $winPythonPath = Join-Path $folder "scripts\python.bat"
         ls $winPythonPath
-        & winPythonPath -VV
+        & $winPythonPath -VV
