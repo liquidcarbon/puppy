@@ -6,49 +6,22 @@ Your new best friend will help you set up python, with a little help from some p
 
 ## What does puppy do?
 
+TLDR: `pup fetch` ≈ `pip install`.  But wait, there's more!
+
+🚀 fast cross-platform CLI (Bash, Windows) for managing python projects and environments  
+🫧 base layer python is completely isolated from OS or other pre-existing python - everything in one folder, nothing goes on PATH  
+🥜 generates jupyter kernels properly linked to virtual environments  
+📔 generates, executes notebooks from CLI  
+🪄 scriptable deployments - [from zero to any python app](https://github.com/liquidcarbon/puppy/actions/workflows/examples.yml) in a single Bash or Powershell script
+
 https://github.com/liquidcarbon/puppy/assets/47034358/16821b3b-f049-4e0a-873b-f90fcdc3f5a2
 
-TLDR: `pup fetch` <-> `pip install`.  But wait, there's more!
+## How does puppy work?
 
-There is a script called `pup`.  It's a cute little wrapper around **[pixi](https://github.com/prefix-dev/pixi)** and **[uv](https://github.com/astral-sh/uv)**, two modern and powerful Rust-based tools that complement each other.
+Puppy is a cute, transparent wrapper of **[pixi](https://github.com/prefix-dev/pixi)** and **[uv](https://github.com/astral-sh/uv)**, for best of both worlds.  
+[LOL WHY?](https://github.com/liquidcarbon/puppy/discussions/1)
 
-### [LOL WHY](https://github.com/liquidcarbon/puppy/discussions/1)?
-
-## Get started
-
-To start, you need only `curl`/`iwr`; pup and friends will handle the rest.
-
-The first command installs Pixi, Pup, and Python.
-The second command creates alias `pup` in the current shell by sourcing the last line of the install script (do inspect the last line to ensure you trust it).
-
-Everything is fetched into one folder, in complete isolation from system or any other python on your system.  Nothing (except Pixi) goes on PATH.
-
-### Linux
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | bash
 ```
-
-```bash
-. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | tail -1)
-```
-
-### Windows
-
-```powershell
-iex (iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content
-```
-
-```powershell
-iex ((iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content -split "`n")[-2]
-```
-> [!TIP] 
-> Do inspect that last line to ensure you trust it.
-
-### Check Installation
-With `pup` alias:
-
-```bash
 $ pup --help
 Usage: pup.py [OPTIONS] COMMAND [ARGS]...
 
@@ -65,6 +38,42 @@ Commands:
   play    Generate, execute, or open jupyter notebook with added code cells.
   which   Show 🐶's current home.
 ```
+
+## Get started
+
+To start, you need only `curl`/`iwr`; pup and friends will handle the rest.
+
+Start in an [empty folder](#file-structure).  Everything that puppy brings is fetched into this one folder, in complete isolation from system or any other python on your system.
+
+Nothing (except Pixi) goes on PATH.
+
+
+### Linux
+
+The first command installs Pixi, Pup, and Python.
+```bash
+curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | bash
+```
+
+The second command creates alias `pup` in the current shell by sourcing the last line of the install script.
+```bash
+. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | tail -1)
+```
+
+### Windows
+
+```powershell
+iex (iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content
+```
+
+```powershell
+iex ((iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content -split "`n")[-2]
+```
+> [!TIP] 
+> Be careful with sourcing random scripts from the internet!  Inspect that last line to ensure you trust it: [pup.sh](https://github.com/liquidcarbon/puppy/blob/main/pup.sh#L146) | [pup.ps1](https://github.com/liquidcarbon/puppy/blob/main/pup.ps1#L157)
+
+### Check Installation
+With `pup` alias:
 
 ```bash
 $ pup which
