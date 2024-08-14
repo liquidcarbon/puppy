@@ -126,6 +126,7 @@ curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | ba
 ## Then what?
 
 Check out usage [examples](https://github.com/liquidcarbon/puppy/tree/main/examples) and [workflows](https://github.com/liquidcarbon/puppy/tree/main/.github/workflows).
+Note that Pixi and uv are still v0 and breaking changes may sneak in, which I'll try address promptly.
 
 ### Generate environments, notebook kernels, and notebooks from CLI
 
