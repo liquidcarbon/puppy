@@ -17,10 +17,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+    - name: Set up custom PATH
+      run: echo "PATH=$HOME/.pixi/bin:$PATH" >> $GITHUB_ENV
     - name: Install puppy3.12
       run: cat pup.sh | bash -s 3.12
     - name: Install jupyter
-      run: source ~/.bashrc && pixi add notebook nbclient
+      run: pixi add notebook nbclient
     - name: Run notebook demo
       run: examples/Q-strings/demo.sh
   
