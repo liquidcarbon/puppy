@@ -20,7 +20,7 @@ jobs:
     - name: Install puppy3.12
       run: cat pup.sh | bash -s 3.12
     - name: Install jupyter
-      run: source ~/.bash_profile && pixi add notebook nbclient
+      run: source ~/.bashrc && pixi add notebook nbclient
     - name: Run notebook demo
       run: examples/Q-strings/demo.sh
   
