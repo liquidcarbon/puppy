@@ -16,7 +16,7 @@ jobs:
     steps:
     - name: Install puppy3.12
       run: |
-        sleep 10;  # give it time to update MAIN_BRANCH_URL
+        sleep 9;  # give it time to update MAIN_BRANCH_URL
         curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash -s 3.12
     - name: Create alias and run a pup command
       run: |
