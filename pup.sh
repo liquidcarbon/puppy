@@ -88,7 +88,9 @@ get_pup
 get_pixi() {
   if ! command -v pixi &> /dev/null; then
     curl -fsSL $PIXI_INSTALL_URL | bash
-    source $HOME/.bashrc  # for GHA
+    echo hi $(ls -l ~/.bashrc)
+    cat "$HOME/.bashrc"
+    source "$HOME/.bashrc"  # for GHA
     echo "✨ $(pixi -V) installed"
   else
     echo "✨ $(pixi -V) found"
