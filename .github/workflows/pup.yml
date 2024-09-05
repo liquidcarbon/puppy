@@ -35,4 +35,5 @@ jobs:
         pup fetch test1 cowsay;
         pup kernel test1 test1-3.11;
         pup play --kernel-name test1-3.11 -c "md|# Woof!" -c "import cowsay" -E -N;
-        cat .\notebooks\*.ipynb
+        cat .\notebooks\*.ipynb;
+        pup drop test1 cowsay

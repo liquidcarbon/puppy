@@ -43,6 +43,11 @@ def tee(message, file=PUP_LOG):
 ### CLI ###
 
 class UserInput:
+    DROP_WHAT = click.style("Specify which packages to drop (uninstall)", fg="bright_cyan")
+    DROP_FROM_WHERE = click.style(
+        "Specify folder/environment from which to remove packages",
+        fg="bright_cyan"
+    )
     FETCH_NEW_VENV = click.style(
         "Environment `{}` does not exist. Create it?",
         fg="bright_cyan"
@@ -91,6 +96,23 @@ def uv_install(where, what):
             return
     
     cmd = f"""{PUP_UV} pip install {what} -p {py_path}"""
+    tee(cmd)
+    subprocess.run(cmd.split())
+
+@main.command(name="drop", context_settings={"ignore_unknown_options": True})
+@click.argument("where", nargs=1, required=False)
+@click.argument("what", nargs=-1, required=False)
+def uv_uninstall(where, what):
+    """Drop (remove, uninstall) packages with uv."""
+    if where is None:
+        where = click.prompt(UserInput.DROP_FROM_WHERE)
+    if what in (None, ()):
+        what = click.prompt(UserInput.DROP_WHAT).split()
+    what = " ".join(what)
+    log(f"pup drop {where} {what}")
+    
+    py_path = PUP_HOME / where / ".venv" / VENV_PYTHON_SUBPATH
+    cmd = f"""{PUP_UV} pip uninstall {what} -p {py_path}"""
     tee(cmd)
     subprocess.run(cmd.split())
 

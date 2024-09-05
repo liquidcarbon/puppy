@@ -31,6 +31,7 @@ Options:
   --help  Show this message and exit.
 
 Commands:
+  drop    Drop (uninstall) packages with uv.
   fetch   Fetch (install) packages with uv.
   kernel  Interactively create new ipython kernel linked to 🐶's environment.
   list    List packages.
