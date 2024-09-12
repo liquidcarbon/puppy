@@ -180,6 +180,7 @@ def new_venv(where):
 )
 @click.option("--ip", "-i", default="0.0.0.0", help="Jupyter Server IP (default: 0.0.0.0)")
 @click.option("--port", "-p", default="8880", help="Jupyter Server port (default: 8880)")
+@click.option("--nb-dir", "-d", default=PUP_HOME, help="Starting Notebook Dir")
 @click.option("--name", "-n", default=None, help="notebook name (default: timestamp)")
 @click.option("--kernel-name", "-k", default="python3", help="kernel name")
 # @click.option("--modify", "-M", is_flag=True, default=False, help="modify existing notebook (no_prompt)")
@@ -209,7 +210,7 @@ def new_venv(where):
         ------------------------------------------------
     """
 )
-def do_jupyter(jupyter, ip, port, name, kernel_name, ex, start, code):
+def do_jupyter(jupyter, ip, port, nb_dir, name, kernel_name, ex, start, code):
     """Generate, execute, or open jupyter notebook with added code cells."""
 
     PUP_NOTEBOOKS.mkdir(exist_ok=True)
@@ -238,7 +239,7 @@ def do_jupyter(jupyter, ip, port, name, kernel_name, ex, start, code):
         tee(f"done")
 
     if start:
-        cmd = f"""pixi run jupyter {jupyter} {nb_file} --notebook-dir "{PUP_HOME}"  --ip {ip} --port {port}"""
+        cmd = f"""pixi run jupyter {jupyter} {nb_file} --notebook-dir="{nb_dir}"  --ip={ip} --port={port}"""
         tee(cmd)
         subprocess.run(cmd.split())
 
