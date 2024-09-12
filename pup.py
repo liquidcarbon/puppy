@@ -76,6 +76,7 @@ def main():
     """Call pup and friends for all your python needs."""
     pass
 
+
 @main.command(name="fetch", context_settings={"ignore_unknown_options": True})
 @click.argument("where", nargs=1, required=False)
 @click.argument("what", nargs=-1, required=False)
@@ -99,6 +100,7 @@ def uv_install(where, what):
     tee(cmd)
     subprocess.run(cmd.split())
 
+
 @main.command(name="drop", context_settings={"ignore_unknown_options": True})
 @click.argument("where", nargs=1, required=False)
 @click.argument("what", nargs=-1, required=False)
@@ -115,6 +117,7 @@ def uv_uninstall(where, what):
     cmd = f"""{PUP_UV} pip uninstall {what} -p {py_path}"""
     tee(cmd)
     subprocess.run(cmd.split())
+
 
 @main.command(name="kernel")
 @click.argument("where", nargs=1, required=False)
@@ -166,8 +169,6 @@ def new_venv(where):
     cmd = f"{PUP_UV} venv {PUP_HOME / where}/.venv -p {PUP_PYTHON}"
     tee(cmd)
     subprocess.run(cmd.split())
-    # if confirm(UserInput.NEW_VENV_KERNEL, default=True):
-    #     new_kernel.callback(where=where, kernel_name=None)
 
 
 @main.command(name="play")
@@ -230,23 +231,7 @@ def do_jupyter(jupyter, ip, port, name, kernel_name, ex, start, code):
             tee(f"{nb_file} created")
     else:
         pass  # file exists, no code provided: open file
-
-    # if not name:
-    #     name = f"{int(time())}.ipynb"
-    #     if code == tuple():
-    #         # inject some starter code if none provided
-    #         code = (
-    #             "md|# Title",
-    #             "import sys;!uv pip list -p $sys.executable",
-    #             """print("notebook run complete")"""
-    #         )
-
-    # nb_file = PUP_NOTEBOOKS / name
-    # if nb_file.exists():
-    #     if code != tuple() and confirm(UserInput.PLAY_OVERWRITE.format(nb_file)):
-    #         IPYNB.create(nb_file, kernel_name, ex, *code)
-    #         tee(f"{nb_file} created")
-    
+  
     if ex:
         tee(f"executing notebook {nb_file} using {kernel_name}...")
         IPYNB.run_nbclient(nb_file, kernel_name)
@@ -334,7 +319,6 @@ class IPYNB:
         with open(nb_file, "w") as f:
             json.dump(ipynb, f)
         
-
     def run_nbclient(nb_file: Path, kernel_name: str):
         """Execute notebook with nbclient."""
         import nbformat
