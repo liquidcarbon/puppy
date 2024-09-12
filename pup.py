@@ -178,8 +178,8 @@ def new_venv(where):
     default="notebook",
     help="jupyter flavor"
 )
-@click.option("--ip, "-i", default="0.0.0.0", help="Jupyter Server IP (default: 0.0.0.0)")
-@click.option("--port, "-p", default="8880", help="Jupyter Server port (default: 8880)")
+@click.option("--ip", "-i", default="0.0.0.0", help="Jupyter Server IP (default: 0.0.0.0)")
+@click.option("--port", "-p", default="8880", help="Jupyter Server port (default: 8880)")
 @click.option("--name", "-n", default=None, help="notebook name (default: timestamp)")
 @click.option("--kernel-name", "-k", default="python3", help="kernel name")
 # @click.option("--modify", "-M", is_flag=True, default=False, help="modify existing notebook (no_prompt)")
