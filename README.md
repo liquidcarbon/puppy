@@ -21,6 +21,8 @@ https://github.com/liquidcarbon/puppy/assets/47034358/16821b3b-f049-4e0a-873b-f9
 Puppy is a cute, transparent wrapper of **[pixi](https://github.com/prefix-dev/pixi)** and **[uv](https://github.com/astral-sh/uv)**, for best of both worlds.  
 [LOL WHY?](https://github.com/liquidcarbon/puppy/discussions/1)
 
+Update Sep 2024: now that uv became more than `uv pip install` (it installs python, creates projects, writes lock files, runs scripts, and more), this way of doing things makes (slightly) less sense.
+
 ```
 $ pup --help
 Usage: pup.py [OPTIONS] COMMAND [ARGS]...
