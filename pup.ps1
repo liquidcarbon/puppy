@@ -149,7 +149,12 @@ function get_python_uv_click {
   pixi run python -VV
   $PYTHON_EXECUTABLE=$(pixi run python -c 'import sys; print(sys.executable)')
 }
-get_python_uv_click $args[0]
+
+if ($args.Count -gt 0) {
+    get_python_uv_click $args[0]
+} else {
+    get_python_uv_click $null  # make PS 5 happy
+}
 
 
 # you source this file instead of running it, alias "pup" becomes available
