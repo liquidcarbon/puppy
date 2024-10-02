@@ -70,6 +70,7 @@ $PUP_URL="https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.py"
 
 
 function get_pup {
+  $PUP_FOUND=0
   $DIR = $PIXI_PUP_HOME
   while ($DIR -ne [System.IO.Path]::GetPathRoot($DIR)) {
     Write-Host "👀 for pup in $DIR ..."
