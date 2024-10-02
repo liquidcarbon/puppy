@@ -160,4 +160,4 @@ if ($args.Count -gt 0) {
 # you source this file instead of running it, alias "pup" becomes available
 # or just the last line:
 # iex (Get-Content https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1 | Select-Object -Last 1)
-function pup() { $D=$PWD; while ($D -ne [System.IO.Path]::GetPathRoot($D) -or $E) { $E=(Test-Path "$D/pup.py"); if ($E) { & "$D/.pixi/envs/default/python.exe" "$D/pup.py" @args }; $D=Split-Path $D } Write-Host "pup.py not found in current or parent folders" }
+function pup() { $D=$PWD; while ($D -ne [System.IO.Path]::GetPathRoot($D) -or $E) { $E=(Test-Path "$D/pup.py"); if ($E) { & "$D/.pixi/envs/default/python.exe" "$D/pup.py" @args; break }; $D=Split-Path $D } Write-Host "pup.py not found in current or parent folders" }
