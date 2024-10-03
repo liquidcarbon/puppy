@@ -1,12 +1,9 @@
-/*
-!examples
-!.*
-.gitattributes
+# pixi
+.pixi
 pixi.lock
 pixi.toml
 woof.log
 
-# pixi environments
-.pixi
 *.egg-info
 **/__pycache__
+.gitattributes
