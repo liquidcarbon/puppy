@@ -1,0 +1,13 @@
+# pixi
+.pixi
+pixi.lock
+pixi.toml
+woof.log
+
+*.egg-info
+**/__pycache__
+.gitattributes
+
+# pixi environments
+.pixi
+*.egg-info

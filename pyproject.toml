@@ -1,0 +1,10 @@
+[project]
+name = "puppy"
+version = "2.0.0"
+description = "Your new best friend in the python world."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.ruff]
+line-length=88
