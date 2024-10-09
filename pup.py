@@ -7,11 +7,15 @@ The CLI for pup, a cute python project manager.
 __version__ = "2.0.0"
 
 import collections
+import platform
+import subprocess
 import sys
 from pathlib import Path
 from time import strftime
 
 import click
+
+PLATFORM = platform.system()
 
 
 class PupException(Exception):
@@ -126,6 +130,7 @@ def say_hi():
 @main.command(name="init")
 def uv_init():
     """Initialize new project with uv."""
+    subprocess.run("echo")
     pass
 
 
