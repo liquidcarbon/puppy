@@ -116,7 +116,11 @@ get_python_uv_click() {
 
 
 get_pup() {
-  curl -fsSL "$GH_URL/pup.py" -o "$PUP"
+  if [ -n $PUP ]; then
+    curl -fsSL "$GH_URL/pup.py" -o "$PUP"
+  else
+    curl -fsSL "$GH_URL/pup.py" -o pup.py
+  fi
   curl -fsSL "$GH_URL/pup.sh" -o "$PIXI_HOME/pup"
   chmod +x "$PIXI_HOME/pup"
   "$PIXI_HOME/pup" hi
