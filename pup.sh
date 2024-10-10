@@ -1,27 +1,54 @@
-# Installer and runner for puppy v2.
+# Runner / installer / updater for puppy v2.
 
 #!/bin/bash
-
-# RUNNER
-
-DIR=$(pwd)
-while [ "$DIR" != "/" ]; do
-  if [ -f "$DIR/pup.py" ]; then
-    PUP="$DIR/pup.py"
-    break
-  fi
-  DIR=$(dirname "$DIR")
-done
-
-[[ -f $PUP ]] && pixi run python "$PUP" "$@" && exit || \
-
-
-# INSTALLER
 
 DEFAULT_PY_VERSION=3.13
 GH_BRANCH=v2
 GH_URL=https://raw.githubusercontent.com/liquidcarbon/puppy/"$GH_BRANCH"/
 PIXI_INSTALL_URL=https://pixi.sh/install.sh
+
+main() {
+  DIR=$(pwd)
+  while [ "$DIR" != "/" ]; do
+    if [ -f "$DIR/pup.py" ]; then
+      PUP="$DIR/pup.py"
+      PUP_HOME="$DIR"
+      break
+    fi
+    DIR=$(dirname "$DIR")
+  done
+
+  if [ -n $PUP ] && [ "$1" != "update" ]; then
+    run "$@"
+  elif [ -n $PUP ] && [ "$1" == "update" ]; then
+    update
+  else
+    install "$@"
+  fi
+}
+
+run() {
+  PY="$PUP_HOME"/.pixi/envs/default/bin/python
+  if [ -n "$PY" ]; then
+    "$PY" "$PUP" "$@"
+  else
+    pixi run python "$PUP" "$@"
+  fi
+}
+
+update() {
+  get_pixi
+  pixi self-update
+  pixi update
+  get_pup
+}
+
+install() {
+  get_pixi
+  pixi_init
+  get_python_uv_click "$1"
+  get_pup
+}
 
 get_pixi() {
   if ! command -v pixi &> /dev/null; then
@@ -33,8 +60,6 @@ get_pixi() {
   fi
   PIXI_HOME=$(dirname $(command -v pixi))
 }
-get_pixi
-
 
 pixi_init() {
   if pixi run &> /dev/null; then
@@ -43,7 +68,6 @@ pixi_init() {
     pixi init .
   fi
 }
-pixi_init
 
 py_ver_prompt() {
   read -ei "$DEFAULT_PY_VERSION" -p "$(cat <<-EOF
@@ -78,14 +102,12 @@ get_python_uv_click() {
   pixi run python -VV
   PYTHON_EXECUTABLE=$(pixi run python -c 'import sys; print(sys.executable)')
 } 
-get_python_uv_click "$1"
 
 get_pup() {
-  [[ -f pup.py ]] && pixi run python pup.py hi || curl "$GH_URL" -o pup.py
+  curl "$GH_URL" -o pup.py
   curl "$GH_URL/pup.sh" -o "$PIXI_HOME/pup"
   chmod +x "$PIXI_HOME/pup"
   "$PIXI_HOME/pup" hi
 }
-get_pup
 
-
+main "$@"
