@@ -19,7 +19,7 @@ main() {
   done
 
   if [ -n $PUP ] && [ "$1" != "update" ]; then
-    run "$@"
+    run "$@" || install
   elif [ -n $PUP ] && [ "$1" == "update" ]; then
     update
   else
@@ -36,6 +36,7 @@ run() {
   fi
 }
 
+
 update() {
   get_pixi
   pixi self-update
@@ -43,12 +44,19 @@ update() {
   get_pup
 }
 
+
 install() {
+  if [ "$(ls -A)" != "" ]; then
+    read -ei "y" -p \
+      "$(pwd) is not empty; do you want to make it puppy's home? (y/n): " && \
+      [[ "$REPLY" == "y" ]] || exit 1
+  fi
   get_pixi
   pixi_init
   get_python_uv_click "$1"
   get_pup
 }
+
 
 get_pixi() {
   if ! command -v pixi &> /dev/null; then
@@ -61,21 +69,24 @@ get_pixi() {
   PIXI_HOME=$(dirname $(command -v pixi))
 }
 
+
 pixi_init() {
   if pixi run &> /dev/null; then
-    echo "✨ here be pixies! pixi.toml found in $PIXI_PUP_HOME"
+    echo "✨ here be pixies! pixi.toml found"
   else
     pixi init .
   fi
 }
 
+
 py_ver_prompt() {
   read -ei "$DEFAULT_PY_VERSION" -p "$(cat <<-EOF
 Enter desired base Python version
-(supported: 3.10|3.11|3.12|3.13; blank=latest):
+(supported: 3.9|3.10|3.11|3.12|3.13; blank=latest):$(printf '\u00A0')
 EOF
 )" PY_VERSION
 }
+
 
 get_python_uv_click() {
   if [ -n "$1" ]; then
@@ -91,17 +102,18 @@ get_python_uv_click() {
       INSTALL=1
     fi
   fi
-
   if [ $INSTALL -eq 1 ]; then
     pixi add python${PY_VERSION:+=$PY_VERSION}
-    pixi add uv && echo "🟣 $(pixi run uv --version)"
-    pixi add click
+    pixi add "uv>=0" && echo "🟣 $(pixi run uv --version)"
+    pixi add "click>=8"
+    # using ">=" overrides pixi's default ">=,<" and allows updates to new major versions
   else
     echo "🐍 python lives here!"
   fi
   pixi run python -VV
-  PYTHON_EXECUTABLE=$(pixi run python -c 'import sys; print(sys.executable)')
+  # PYTHON_EXECUTABLE=$(pixi run python -c 'import sys; print(sys.executable)')
 }
+
 
 get_pup() {
   curl -fsSL "$GH_URL/pup.py" -o "$PUP"
@@ -109,5 +121,6 @@ get_pup() {
   chmod +x "$PIXI_HOME/pup"
   "$PIXI_HOME/pup" hi
 }
+
 
 main "$@"
