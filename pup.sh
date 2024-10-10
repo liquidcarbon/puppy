@@ -81,7 +81,7 @@ get_python_uv_click() {
   if [ -n "$1" ]; then
     # if a version is passed as argument, update/reinstall
     PY_VERSION="$1"
-    INSTALL=1  
+    INSTALL=1
   else
     if pixi run python -V &> /dev/null; then
       INSTALL=0
@@ -101,11 +101,11 @@ get_python_uv_click() {
   fi
   pixi run python -VV
   PYTHON_EXECUTABLE=$(pixi run python -c 'import sys; print(sys.executable)')
-} 
+}
 
 get_pup() {
-  curl "$GH_URL" -o pup.py
-  curl "$GH_URL/pup.sh" -o "$PIXI_HOME/pup"
+  curl -fsSL "$GH_URL/pup.py" -o "$PUP"
+  curl -fsSL "$GH_URL/pup.sh" -o "$PIXI_HOME/pup"
   chmod +x "$PIXI_HOME/pup"
   "$PIXI_HOME/pup" hi
 }
