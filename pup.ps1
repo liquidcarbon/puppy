@@ -34,7 +34,6 @@ function Main {
 
 function Run {
     $PY = "$PUP_HOME\.pixi\envs\default\python.exe"
-        echo $PUP; echo @args
     if (Test-Path $PY) {
         & "$PY" "$PUP" @args
     } else {

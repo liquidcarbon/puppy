@@ -15,8 +15,6 @@ from time import strftime
 
 import click
 
-PLATFORM = platform.system()
-
 
 class PupException(Exception):
     pass
@@ -32,9 +30,11 @@ class Pup:
 
     COLOR: str = "yellow"
     FILE: Path = Path(__file__)
+    HOME: Path = Path(__file__).parent  # initial assumption
     HOME_MARKER: str = "pup.py"
     LOG_FILE: Path = Path("woof.log")
     LOG_TIME_FORMAT: str = "%Y-%m-%d %H:%M:%S"
+    PLATFORM = platform.system()
     PYTHON: Path = Path(sys.executable)
 
     @staticmethod
@@ -63,6 +63,7 @@ class Pup:
         if (prefix / cls.HOME_MARKER).exists():
             return prefix
         elif prefix.parent in (prefix, prefix.root):
+            # should never happen using Bash/PS runners, only if pup.py used directly
             if click.confirm(UserInput.PupHomeNotFound):
                 exit(1)
             else:
@@ -92,10 +93,15 @@ class UserInput:
     """User input prompts and other messages."""
 
     COLOR = "bright_cyan"
+    COLOR_WARN = "magenta"
     PupHomeNotFound = click.style(
         f"🐶's {Pup.HOME_MARKER} not found in this folder or its parents;"
         "\nwould you like to set up a new pup home here?",
         fg=COLOR,
+    )
+    NewVenvFolder = click.style("Folder to create venv in", fg=COLOR)
+    NewVenvFolderOverwrite = click.style(
+        "Folder `{}` already exists. Overwrite the venv?", fg=COLOR_WARN
     )
 
 
@@ -127,10 +133,28 @@ def say_hi():
     Pup.say("woof! Nice to meet you. Check woof.log for pup command history")
 
 
-@main.command(name="init")
-def uv_init():
-    """Initialize new project with uv."""
-    subprocess.run("echo")
+@main.command(name="new", context_settings={"ignore_unknown_options": True})
+@click.argument("folder", nargs=1, required=False)
+def uv_init(folder: str):
+    """Create new project and virtual environment with uv in FOLDER."""
+
+    Pup.hear(f"pup new {folder}")
+    if folder is None:
+        folder = click.prompt(UserInput.NewVenvFolder)
+    if folder in ("", "."):
+        Pup.say("use `pixi add` to install packages in pup's home folder")
+        exit(1)
+    if (Pup.HOME / folder).exists():
+        if not click.confirm(
+            UserInput.NewVenvFolderOverwrite.format(folder), default="y"
+        ):
+            return
+    cmd_init = f"pixi run uv init {Pup.HOME / folder} -p {Pup.PYTHON} --no-workspace"
+    Pup.say(cmd_init)
+    subprocess.run(cmd_init.split())
+    cmd_venv = f"pixi run uv venv {Pup.HOME / folder}/.venv -p {Pup.PYTHON}"
+    Pup.say(cmd_venv)
+    subprocess.run(cmd_venv.split())
     pass
 
 
