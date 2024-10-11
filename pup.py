@@ -12,6 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 from time import strftime
+from typing import Tuple
 
 import click
 
@@ -103,6 +104,8 @@ class UserInput:
     NewVenvFolderOverwrite = click.style(
         "Folder `{}` already exists. Overwrite the venv?", fg=COLOR_WARN
     )
+    AddWhere = click.style("Specify folder/venv where to add packages", fg=COLOR)
+    AddWhat = click.style("Specify what to install", fg=COLOR)
 
 
 class OrderedGroup(click.Group):
@@ -137,7 +140,7 @@ def say_hi():
 @click.argument("folder", nargs=1, required=False)
 @click.argument("uv_options", nargs=-1, required=False)
 def uv_init(folder: str, **uv_options):
-    """Create new project and virtual environment with uv in FOLDER."""
+    """Create new project and virtual environment in FOLDER with `uv init`."""
 
     Pup.hear(f"pup new {folder}")
     if folder is None:
@@ -146,9 +149,7 @@ def uv_init(folder: str, **uv_options):
         Pup.say("use `pixi add` to install packages in pup's home folder")
         exit(1)
     if (Pup.HOME / folder).exists():
-        if not click.confirm(
-            UserInput.NewVenvFolderOverwrite.format(folder), default="y"
-        ):
+        if not click.confirm(UserInput.NewVenvFolderOverwrite.format(folder), default="y"):
             return
     cmd_init = f"pixi run uv init {Pup.HOME / folder} -p {Pup.PYTHON} --no-workspace"
     Pup.say(cmd_init)
@@ -156,7 +157,25 @@ def uv_init(folder: str, **uv_options):
     cmd_venv = f"pixi run uv venv {Pup.HOME / folder}/.venv -p {Pup.PYTHON}"
     Pup.say(cmd_venv)
     subprocess.run(cmd_venv.split())
-    pass
+
+
+@main.command(name="add", context_settings={"ignore_unknown_options": True})
+@click.argument("folder", nargs=1, required=False)
+@click.argument("packages", nargs=-1, required=False)
+def uv_add(folder: str, packages: Tuple[str]):
+    """Install packages into specified venv with `uv add`."""
+    if folder is None:
+        folder = click.prompt(UserInput.AddWhere)
+    folder_abs_path = (Pup.HOME / folder).absolute()
+    if not folder_abs_path.exists():
+        uv_init.callback(folder)
+    if packages in (None, ()):
+        packages = click.prompt(UserInput.AddWhat).split()
+    packages = " ".join(packages)
+    Pup.hear(f"pup add {folder} {packages}")
+    cmd_add = f"pixi run uv add {packages} --project {folder_abs_path}"
+    Pup.say(cmd_add)
+    subprocess.run(cmd_add.split())
 
 
 if __name__ == "__main__":
