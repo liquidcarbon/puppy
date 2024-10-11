@@ -15,20 +15,27 @@ function Main {
         }
         $DIR = Split-Path $DIR
     }
-
-    if ($PUP -and $args[0] -ne "update") {
-        if (!(Run @args)) { Install }
-    } elseif ($PUP -and $args[0] -eq "update") {
-        Update
+    if ($args.Count -gt 0) {
+        if ($PUP -and $args[0] -ne "update") {
+            Run @args
+        } elseif ($PUP -and $args[0] -eq "update") {
+            Update
+        } else {
+            Install @args
+        }
     } else {
-        Install @args
+        if ($PUP) {
+            Run $null # make PS happy
+        } else {
+            Install $null
+        }
     }
 }
 
 function Run {
     $PY = "$PUP_HOME\.pixi\envs\default\python.exe"
-    if (Test-Path $PY) {
         echo $PUP; echo @args
+    if (Test-Path $PY) {
         & "$PY" "$PUP" @args
     } else {
         pixi run python "$PUP" @args
