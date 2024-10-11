@@ -135,7 +135,8 @@ def say_hi():
 
 @main.command(name="new", context_settings={"ignore_unknown_options": True})
 @click.argument("folder", nargs=1, required=False)
-def uv_init(folder: str):
+@click.argument("uv_options", nargs=-1, required=False)
+def uv_init(folder: str, **uv_options):
     """Create new project and virtual environment with uv in FOLDER."""
 
     Pup.hear(f"pup new {folder}")
