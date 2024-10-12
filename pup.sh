@@ -18,9 +18,9 @@ main() {
     DIR=$(dirname "$DIR")
   done
 
-  if [ -e $PUP ] && [ "$1" != "update" ]; then
+  if [ -n $PUP ] && [ "$1" != "update" ]; then
     run "$@"
-  elif [ -e $PUP ] && [ "$1" == "update" ]; then
+  elif [ -n $PUP ] && [ "$1" == "update" ]; then
     update
   else
     install "$@"
@@ -116,10 +116,10 @@ get_python_uv_click() {
 
 
 get_pup() {
-  if [ -n $PUP ]; then
-    curl -fsSL "$GH_URL/pup.py" -o "$PUP"
+  if [ -n $PUP ] && [ -f "$PUP" ]; then
+    curl -fsSL "$GH_URL/pup.py" -o "$PUP" && chmod +x "$PUP"
   else
-    curl -fsSL "$GH_URL/pup.py" -o pup.py
+    curl -fsSL "$GH_URL/pup.py" -o pup.py && chmod +x pup.py
   fi
   curl -fsSL "$GH_URL/pup.sh" -o "$PIXI_HOME/pup"
   chmod +x "$PIXI_HOME/pup"
