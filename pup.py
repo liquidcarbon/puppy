@@ -16,6 +16,8 @@ from typing import Tuple
 
 import click
 
+sys.path.append("blabla")
+
 
 class PupException(Exception):
     pass
@@ -37,6 +39,7 @@ class Pup:
     LOG_TIME_FORMAT: str = "%Y-%m-%d %H:%M:%S"
     PLATFORM = platform.system()
     PYTHON: Path = Path(sys.executable)
+    PYTHON_VER: str = f"{sys.version_info.major}.{sys.version_info.minor}"
 
     @staticmethod
     def log(message: str, file: Path, fg_color: str | None = None, tee: bool = True):
@@ -98,16 +101,25 @@ class Pup:
 class Notebook:
     """Templates and env managers for `pup play`."""
 
+    SITE_PACKAGES_PATH: Path = Path(
+        r".venv\Lib\site-packages"
+        if Pup.PLATFORM == "Windows"
+        else f".venv/bin/python{Pup.PYTHON_VER}/site-packages"
+    ).absolute()
+
     @staticmethod
     def install_nb_package(engine: str):
         with open(Pup.HOME / "pixi.toml") as f:
             pixi_toml = f.read()
-            if engine == "marimo" and "marimo" not in pixi_toml:
-                Pup.do("pixi add marimo")
-            elif engine == "notebook" and "jupyter" not in pixi_toml:
-                Pup.do("pixi add jupyter")
-            elif engine == "lab" and "jupyterlab" not in pixi_toml:
-                Pup.do("pixi add jupyterlab")
+            if engine == "marimo":
+                if "marimo" not in pixi_toml:
+                    Pup.do("pixi add marimo")
+            elif engine == "notebook":
+                if "jupyter" not in pixi_toml:
+                    Pup.do("pixi add jupyter")
+            elif engine == "lab":
+                if "jupyterlab" not in pixi_toml:
+                    Pup.do("pixi add jupyterlab")
             else:
                 Pup.say(f"notebook engine '{engine}' not supported")
                 exit(1)
@@ -130,7 +142,9 @@ class UserInput:
     )
     AddWhere = click.style("Specify folder/venv where to add packages", fg=COLOR)
     AddWhat = click.style("Specify what to install", fg=COLOR)
-    RemoveWhere = click.style("Specify folder/venv from where to remove packages", fg=COLOR)
+    RemoveWhere = click.style(
+        "Specify folder/venv from where to remove packages", fg=COLOR
+    )
     RemoveWhat = click.style("Specify what to remove", fg=COLOR)
 
 
@@ -176,7 +190,9 @@ def uv_init(folder: str, **uv_options):
         Pup.say("use `pixi add` to install packages in pup's home folder")
         exit(1)
     if (Pup.HOME / folder).exists():
-        if not click.confirm(UserInput.NewVenvFolderOverwrite.format(folder), default="y"):
+        if not click.confirm(
+            UserInput.NewVenvFolderOverwrite.format(folder), default="y"
+        ):
             return
 
     Pup.do(f"pixi run uv init {Pup.HOME / folder} -p {Pup.PYTHON} --no-workspace")
