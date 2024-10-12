@@ -106,6 +106,8 @@ class UserInput:
     )
     AddWhere = click.style("Specify folder/venv where to add packages", fg=COLOR)
     AddWhat = click.style("Specify what to install", fg=COLOR)
+    RemoveWhere = click.style("Specify folder/venv from where to remove packages", fg=COLOR)
+    RemoveWhat = click.style("Specify what to remove", fg=COLOR)
 
 
 class OrderedGroup(click.Group):
@@ -164,6 +166,7 @@ def uv_init(folder: str, **uv_options):
 @click.argument("packages", nargs=-1, required=False)
 def uv_add(folder: str, packages: Tuple[str]):
     """Install packages into specified venv with `uv add`."""
+
     if folder is None:
         folder = click.prompt(UserInput.AddWhere)
     folder_abs_path = (Pup.HOME / folder).absolute()
@@ -176,6 +179,24 @@ def uv_add(folder: str, packages: Tuple[str]):
     cmd_add = f"pixi run uv add {packages} --project {folder_abs_path}"
     Pup.say(cmd_add)
     subprocess.run(cmd_add.split())
+
+
+@main.command(name="remove", context_settings={"ignore_unknown_options": True})
+@click.argument("folder", nargs=1, required=False)
+@click.argument("packages", nargs=-1, required=False)
+def uv_remove(folder: str, packages: Tuple[str]):
+    """Remove packages from specified venv with `uv remove`."""
+
+    if folder is None:
+        folder = click.prompt(UserInput.RemoveWhere)
+    if packages in (None, ()):
+        packages = click.prompt(UserInput.RemoveWhat).split()
+    folder_abs_path = (Pup.HOME / folder).absolute()
+    packages = " ".join(packages)
+    Pup.hear(f"pup add {folder} {packages}")
+    cmd_rm = f"pixi run uv remove {packages} --project {folder_abs_path}"
+    Pup.say(cmd_rm)
+    subprocess.run(cmd_rm.split())
 
 
 if __name__ == "__main__":
