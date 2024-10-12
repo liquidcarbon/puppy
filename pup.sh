@@ -32,7 +32,7 @@ run() {
   if [ -n "$PY" ]; then
     "$PY" "$PUP" "$@"
   else
-    pixi run python "$PUP" "$@"
+    pixi run python "$PUP" "$@" || install
   fi
 }
 
