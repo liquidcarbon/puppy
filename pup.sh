@@ -29,7 +29,7 @@ main() {
 
 run() {
   PY="$PUP_HOME"/.pixi/envs/default/bin/python
-  if [ -n "$PY" ]; then
+  if [ -e "$PY" ]; then
     "$PY" "$PUP" "$@"
   else
     pixi run python "$PUP" "$@" || install
