@@ -103,11 +103,11 @@ class Notebook:
         with open(Pup.HOME / "pixi.toml") as f:
             pixi_toml = f.read()
             if engine == "marimo" and "marimo" not in pixi_toml:
-                Pup.say("pixi add marimo")
+                Pup.do("pixi add marimo")
             elif engine == "notebook" and "jupyter" not in pixi_toml:
-                Pup.say("pixi add jupyter")
+                Pup.do("pixi add jupyter")
             elif engine == "lab" and "jupyterlab" not in pixi_toml:
-                Pup.say("pixi add jupyterlab")
+                Pup.do("pixi add jupyterlab")
             else:
                 Pup.say(f"notebook engine '{engine}' not supported")
                 exit(1)

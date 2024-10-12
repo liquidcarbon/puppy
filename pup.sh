@@ -2,7 +2,7 @@
 
 #!/bin/bash
 
-DEFAULT_PY_VERSION=3.13
+DEFAULT_PY_VERSION=3.12
 GH_BRANCH=v2
 GH_URL=https://raw.githubusercontent.com/liquidcarbon/puppy/"$GH_BRANCH"/
 PIXI_INSTALL_URL=https://pixi.sh/install.sh
@@ -82,7 +82,7 @@ pixi_init() {
 py_ver_prompt() {
   read -ei "$DEFAULT_PY_VERSION" -p "$(cat <<-EOF
 Enter desired base Python version
-(supported: 3.9|3.10|3.11|3.12|3.13; blank=latest):$(printf '\u00A0')
+(supported: 3.9|3.10|3.11|3.12|3.13; blank=3.12):$(printf '\u00A0')
 EOF
 )" PY_VERSION
 }

@@ -1,5 +1,5 @@
 
-$DEFAULT_PY_VERSION = "3.13"
+$DEFAULT_PY_VERSION = "3.12"
 $GH_BRANCH = "v2"
 $GH_URL = "https://raw.githubusercontent.com/liquidcarbon/puppy/$GH_BRANCH/"
 $PIXI_INSTALL_URL = "https://pixi.sh/install.ps1"
@@ -82,7 +82,7 @@ function Pixi-Init {
 }
 
 function Py-Ver-Prompt {
-    $PromptMessage = "Enter desired base Python version (supported: 3.9|3.10|3.11|3.12|3.13; blank=latest)"
+    $PromptMessage = "Enter desired base Python version (supported: 3.9|3.10|3.11|3.12|3.13; blank=3.12)"
     $PY_VERSION = Read-Host -Prompt $PromptMessage
     if (-not $PY_VERSION) { $PY_VERSION = $DEFAULT_PY_VERSION }
     return $PY_VERSION
