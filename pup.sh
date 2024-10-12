@@ -19,7 +19,7 @@ main() {
   done
 
   if [ -n $PUP ] && [ "$1" != "update" ]; then
-    run "$@" || install
+    run "$@"
   elif [ -n $PUP ] && [ "$1" == "update" ]; then
     update
   else

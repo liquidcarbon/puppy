@@ -49,6 +49,11 @@ class Pup:
                 f.write(log_message + "\n")
 
     @staticmethod
+    def do(command: str, tee: bool = True):
+        Pup.say(command, tee=tee)
+        subprocess.run(command.split())
+
+    @staticmethod
     def hear(message: str, tee: bool = True):
         """Log pup's input."""
         Pup.log(f"🐶 heard: {message}", Pup.LOG_FILE, None, tee)
@@ -88,6 +93,25 @@ class Pup:
     # def verbose(fn: Callable) -> Callable:
     #     click.echo("decorator for CLI commands")
     #     return fn
+
+
+class Notebook:
+    """Templates and env managers for `pup play`."""
+
+    @staticmethod
+    def install_nb_package(engine: str):
+        with open(Pup.HOME / "pixi.toml") as f:
+            pixi_toml = f.read()
+            if engine == "marimo" and "marimo" not in pixi_toml:
+                Pup.say("pixi add marimo")
+            elif engine == "notebook" and "jupyter" not in pixi_toml:
+                Pup.say("pixi add jupyter")
+            elif engine == "lab" and "jupyterlab" not in pixi_toml:
+                Pup.say("pixi add jupyterlab")
+            else:
+                Pup.say(f"notebook engine '{engine}' not supported")
+                exit(1)
+        return
 
 
 class UserInput:
@@ -144,21 +168,19 @@ def say_hi():
 def uv_init(folder: str, **uv_options):
     """Create new project and virtual environment in FOLDER with `uv init`."""
 
-    Pup.hear(f"pup new {folder}")
     if folder is None:
         folder = click.prompt(UserInput.NewVenvFolder)
+    Pup.hear(f"pup new {folder}")
+
     if folder in ("", "."):
         Pup.say("use `pixi add` to install packages in pup's home folder")
         exit(1)
     if (Pup.HOME / folder).exists():
         if not click.confirm(UserInput.NewVenvFolderOverwrite.format(folder), default="y"):
             return
-    cmd_init = f"pixi run uv init {Pup.HOME / folder} -p {Pup.PYTHON} --no-workspace"
-    Pup.say(cmd_init)
-    subprocess.run(cmd_init.split())
-    cmd_venv = f"pixi run uv venv {Pup.HOME / folder}/.venv -p {Pup.PYTHON}"
-    Pup.say(cmd_venv)
-    subprocess.run(cmd_venv.split())
+
+    Pup.do(f"pixi run uv init {Pup.HOME / folder} -p {Pup.PYTHON} --no-workspace")
+    Pup.do(f"pixi run uv venv {Pup.HOME / folder}/.venv -p {Pup.PYTHON}")
 
 
 @main.command(name="add", context_settings={"ignore_unknown_options": True})
@@ -176,9 +198,8 @@ def uv_add(folder: str, packages: Tuple[str]):
         packages = click.prompt(UserInput.AddWhat).split()
     packages = " ".join(packages)
     Pup.hear(f"pup add {folder} {packages}")
-    cmd_add = f"pixi run uv add {packages} --project {folder_abs_path}"
-    Pup.say(cmd_add)
-    subprocess.run(cmd_add.split())
+
+    Pup.do(f"pixi run uv add {packages} --project {folder_abs_path}")
 
 
 @main.command(name="remove", context_settings={"ignore_unknown_options": True})
@@ -193,10 +214,23 @@ def uv_remove(folder: str, packages: Tuple[str]):
         packages = click.prompt(UserInput.RemoveWhat).split()
     folder_abs_path = (Pup.HOME / folder).absolute()
     packages = " ".join(packages)
-    Pup.hear(f"pup add {folder} {packages}")
-    cmd_rm = f"pixi run uv remove {packages} --project {folder_abs_path}"
-    Pup.say(cmd_rm)
-    subprocess.run(cmd_rm.split())
+    Pup.hear(f"pup remove {folder} {packages}")
+
+    Pup.do(f"pixi run uv remove {packages} --project {folder_abs_path}")
+
+
+@main.command(name="play")
+@click.option(
+    "--engine",
+    "-e",
+    type=click.Choice(["marimo", "notebook", "lab"]),
+    default="marimo",
+    help="notebook engine",
+)
+def play(engine: str):
+    """Create a notebook in a specified environment."""
+
+    Notebook.install_nb_package(engine)
 
 
 if __name__ == "__main__":
