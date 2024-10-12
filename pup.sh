@@ -18,9 +18,9 @@ main() {
     DIR=$(dirname "$DIR")
   done
 
-  if [ -n $PUP ] && [ "$1" != "update" ]; then
+  if [ -e $PUP ] && [ "$1" != "update" ]; then
     run "$@"
-  elif [ -n $PUP ] && [ "$1" == "update" ]; then
+  elif [ -e $PUP ] && [ "$1" == "update" ]; then
     update
   else
     install "$@"
