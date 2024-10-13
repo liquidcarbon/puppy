@@ -59,6 +59,8 @@ Successfully installed numpy-2.1.2
 
 The command worked, yay! Antigravity!  But *which* pip did the work and *where* did the packages go?
 
+![confused Travolta](https://i.kym-cdn.com/photos/images/newsfeed/001/042/619/4ea.jpg)
+
 Most tools that came later followed the same pattern.
 
 Puppy makes implicitly sensible choices while being explicitly transparent.  Compare:

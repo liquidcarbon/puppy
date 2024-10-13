@@ -7,9 +7,11 @@ The CLI for pup, a cute python project manager.
 __version__ = "2.0.0"
 
 import collections
+import json
 import platform
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 from time import strftime
 from typing import Tuple
@@ -178,7 +180,7 @@ def say_hi():
 @click.argument("folder", nargs=1, required=False)
 @click.argument("uv_options", nargs=-1, required=False)
 def uv_init(folder: str, **uv_options):
-    """Create new project and virtual environment in FOLDER with `uv init`."""
+    """Create new project and virtual environment with `uv init`."""
 
     if folder is None:
         folder = click.prompt(UserInput.NewVenvFolder)
@@ -231,6 +233,22 @@ def uv_remove(folder: str, packages: Tuple[str]):
     Pup.hear(f"pup remove {folder} {packages}")
 
     Pup.do(f"pixi run uv remove {packages} --project {folder_abs_path}")
+
+
+@main.command(name="list")
+def pup_list():
+    """List venvs and their `pyproject.toml` dependencies."""
+
+    Pup.hear("pup list")
+    pup_venvs = {
+        p.parent.stem: tomllib.load(p.open("rb"))["project"]["dependencies"]
+        for p in Path(Pup.HOME).glob("./*/pyproject.toml")
+    }
+
+    click.secho(
+        "list of pup environments:\n" + json.dumps(pup_venvs, indent=2),
+        fg=UserInput.COLOR,
+    )
 
 
 @main.command(name="play")
