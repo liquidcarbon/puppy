@@ -6,17 +6,11 @@ Your new best friend will help you set up and organize your python projects, wit
 
 Puppy is a transparent wrapper around [pixi](https://github.com/prefix-dev/pixi/) and [uv](https://github.com/astral-sh/uv), two widely used Rust-based tools that belong together.
 
+Puppy installs python, creates projects and virtual environments, and launches notebook properly linked to venvs. 
+
 ## Get started
 
 To start, you need only `curl` / `iwr` and an empty folder; pup and friends will handle the rest.
-
-Puppy preps the folder to house python, in complete isolation from system or any other python on your system:
-
-1) ✨ pixi installs core components: python, uv, click
-2) ⚙ runner/installer `pup.sh` / `pup.ps1` is placed into `~/.pixi/bin` (the only folder that goes on PATH)
-3) 🐶 `pup.py` is the python/[click](https://github.com/pallets/click) CLI that wraps pixi and uv commands
-4) 🟣 `pup new` and `pup add` use uv to handle projects, packages and virtual environments
-5) 🥳 `pup play` creates and launches notebooks (marimo or jupyter) properly linked to the virtual environments
 
 ### Linux
 
@@ -29,6 +23,17 @@ curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | ba
 ```powershell
 iex (iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content
 ```
+
+## How It Works
+
+Puppy preps the folder to house python, in complete isolation from system or any other python on your system:
+
+0) 🐍 this folder is home to one and only one python executable, managed by pixi
+1) ✨ pixi installs core components: python, uv, click
+2) ⚙ [Bash](https://github.com/liquidcarbon/puppy/blob/main/pup.sh) or [Powershell](https://github.com/liquidcarbon/puppy/blob/main/pup.ps1) runner/installer is placed into `~/.pixi/bin` (the only folder that goes on PATH)
+3) 🐶 `pup.py` is the python/[click](https://github.com/pallets/click) CLI that wraps pixi and uv commands
+4) 🟣 `pup new` and `pup add` use uv to handle projects, packages and virtual environments
+5) 🥳 `pup play` creates and launches notebooks (marimo or jupyter) properly linked to the virtual environments
 
 ## Notebooks
 

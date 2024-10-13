@@ -41,31 +41,6 @@ class Pup:
     PYTHON: Path = Path(sys.executable)
     PYTHON_VER: str = f"{sys.version_info.major}.{sys.version_info.minor}"
 
-    @staticmethod
-    def log(message: str, file: Path, fg_color: str | None = None, tee: bool = True):
-        """Log to stdout.  Tee also logs to file (like '| tee -a $LOG_FILE')."""
-        timestamp = strftime(Pup.LOG_TIME_FORMAT)
-        log_message = f"[{timestamp}] {message}"
-        click.secho(log_message, fg=fg_color)
-        if tee:
-            with open(file, "a", encoding="utf-8") as f:
-                f.write(log_message + "\n")
-
-    @staticmethod
-    def do(command: str, tee: bool = True):
-        Pup.say(command, tee=tee)
-        subprocess.run(command.split())
-
-    @staticmethod
-    def hear(message: str, tee: bool = True):
-        """Log pup's input."""
-        Pup.log(f"🐶 heard: {message}", Pup.LOG_FILE, None, tee)
-
-    @staticmethod
-    def say(message: str, tee: bool = True):
-        """Log pup's output."""
-        Pup.log(f"🐶 said: {message}", Pup.LOG_FILE, Pup.COLOR, tee)
-
     @classmethod
     def find_home(cls, prefix: Path = Path(sys.prefix)) -> Path:
         """Search in current folder and its parents for HOME_MARKER file."""
@@ -85,12 +60,49 @@ class Pup:
         return f"🐶 = {cls.PYTHON} {cls.FILE}"
 
     @classmethod
-    def welcome(cls):
+    def welcome(cls) -> None:
         """Prep pup's environment."""
         cls.HOME = cls.find_home()
         cls.LOG_FILE = cls.HOME / cls.LOG_FILE
         if not cls.LOG_FILE.exists():
             cls.log(f"🐶 has arrived to {cls.HOME}", cls.LOG_FILE)
+
+    @staticmethod
+    def log(
+        message: str, file: Path, fg_color: str | None = None, tee: bool = True
+    ) -> None:
+        """Log to stdout.  Tee also logs to file (like '| tee -a $LOG_FILE')."""
+        timestamp = strftime(Pup.LOG_TIME_FORMAT)
+        log_message = f"[{timestamp}] {message}"
+        click.secho(log_message, fg=fg_color)
+        if tee:
+            with open(file, "a", encoding="utf-8") as f:
+                f.write(log_message + "\n")
+
+    @staticmethod
+    def do(command: str, tee: bool = True) -> None:
+        Pup.say(command, tee=tee)
+        subprocess.run(command.split())
+
+    @staticmethod
+    def hear(message: str, tee: bool = True) -> None:
+        """Log pup's input."""
+        Pup.log(f"🐶 heard: {message}", Pup.LOG_FILE, None, tee)
+
+    @staticmethod
+    def say(message: str, tee: bool = True) -> None:
+        """Log pup's output."""
+        Pup.log(f"🐶 said: {message}", Pup.LOG_FILE, Pup.COLOR, tee)
+
+    @staticmethod
+    def list_envs() -> list[Path]:
+        """List of pup's current environments."""
+        return [p.parent for p in Path(Pup.HOME).glob("./*/pyproject.toml")]
+
+    @staticmethod
+    def load_pyproject(path: Path) -> dict:
+        """Load folder's `pyproject.toml` file."""
+        return tomllib.load((path / "pyproject.toml").open("rb"))
 
     # @staticmethod
     # def verbose(fn: Callable) -> Callable:
@@ -240,13 +252,13 @@ def pup_list():
     """List venvs and their `pyproject.toml` dependencies."""
 
     Pup.hear("pup list")
-    pup_venvs = {
-        p.parent.stem: tomllib.load(p.open("rb"))["project"]["dependencies"]
-        for p in Path(Pup.HOME).glob("./*/pyproject.toml")
+    pup_venvs = Pup.list_envs()
+    pup_venvs_dict = {
+        p.stem: Pup.load_pyproject(p)["project"]["dependencies"] for p in pup_venvs
     }
 
     click.secho(
-        "list of pup environments:\n" + json.dumps(pup_venvs, indent=2),
+        "current pup environments:\n" + json.dumps(pup_venvs_dict, indent=2),
         fg=UserInput.COLOR,
     )
 
@@ -259,7 +271,16 @@ def pup_list():
     default="marimo",
     help="notebook engine",
 )
-def play(engine: str):
+@click.option(
+    "--kernel",
+    "-k",
+    type=click.Choice([p.stem for p in Pup.list_envs()]),
+    help=(
+        "pup notebook kernels are folders created by uv "
+        "that contain `pyproject.toml` and `.venv/` with installed packages"
+    ),
+)
+def play(engine: str, kernel: str):
     """Create a notebook in a specified environment."""
 
     Notebook.install_nb_package(engine)
