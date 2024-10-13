@@ -16,8 +16,6 @@ from typing import Tuple
 
 import click
 
-sys.path.append("blabla")
-
 
 class PupException(Exception):
     pass
