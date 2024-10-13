@@ -1,6 +1,6 @@
 
 $DEFAULT_PY_VERSION = "3.12"
-$GH_BRANCH = "v2"
+$GH_BRANCH = "main"
 $GH_URL = "https://raw.githubusercontent.com/liquidcarbon/puppy/$GH_BRANCH/"
 $PIXI_INSTALL_URL = "https://pixi.sh/install.ps1"
 
