@@ -18,9 +18,9 @@ main() {
     DIR=$(dirname "$DIR")
   done
 
-  if [ -n $PUP ] && [ "$1" != "update" ]; then
+  if [ -f $PUP ] && [ "$1" != "update" ]; then
     run "$@"
-  elif [ -n $PUP ] && [ "$1" == "update" ]; then
+  elif [ -f $PUP ] && [ "$1" == "update" ]; then
     update
   else
     install "$@"
@@ -32,7 +32,9 @@ run() {
   if [ -e "$PY" ]; then
     "$PY" "$PUP" "$@"
   else
-    pixi run python "$PUP" "$@" || install
+    if ! pixi run python "$PUP" "$@"; then
+      install "$@"
+    fi
   fi
 }
 
@@ -48,8 +50,8 @@ update() {
 install() {
   if [ "$(ls -A)" != "" ]; then
     read -ei "y" -p \
-      "$(pwd) is not empty; do you want to make it puppy's home? (y/n): " && \
-      [[ "$REPLY" == "y" ]] || exit 1
+      "$(pwd) is not empty; do you want to make it puppy's home? (y/n): "
+      [[ "$REPLY" == "n" ]] && exit 1
   fi
   get_pixi
   pixi_init
