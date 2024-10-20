@@ -90,6 +90,7 @@ EOF
 )" PY_VERSION
   else
     PY_VERSION="$DEFAULT_PY_VERSION"
+  fi
 }
 
 
