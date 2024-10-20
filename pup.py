@@ -11,12 +11,12 @@ import json
 import platform
 import subprocess
 import sys
-import tomllib
 from pathlib import Path
 from time import strftime
 from typing import Tuple
 
 import click
+import tomllib
 
 
 class PupException(Exception):
@@ -40,6 +40,9 @@ class Pup:
     PLATFORM = platform.system()
     PYTHON: Path = Path(sys.executable)
     PYTHON_VER: str = f"{sys.version_info.major}.{sys.version_info.minor}"
+    LIB_PREFIX: str = "Lib" if PLATFORM == "Windows" else f"lib/python{PYTHON_VER}"
+    SITE_PACKAGES: Path = Path(sys.prefix) / LIB_PREFIX / "site-packages"
+    SITE_PACKAGES_PUP: Path = SITE_PACKAGES / "pup.py"
 
     @classmethod
     def find_home(cls, prefix: Path = Path(sys.prefix)) -> Path:
@@ -63,19 +66,20 @@ class Pup:
     def welcome(cls) -> None:
         """Prep pup's environment."""
         cls.HOME = cls.find_home()
+        cls.SITE_PACKAGES_PUP.write_text(cls.FILE.read_text())
         cls.LOG_FILE = cls.HOME / cls.LOG_FILE
         if not cls.LOG_FILE.exists():
             cls.log(f"🐶 has arrived to {cls.HOME}", cls.LOG_FILE)
 
     @staticmethod
     def log(
-        message: str, file: Path, fg_color: str | None = None, tee: bool = True
+        msg: str, file: Path | None = None, color: str | None = None, tee: bool = True
     ) -> None:
         """Log to stdout.  Tee also logs to file (like '| tee -a $LOG_FILE')."""
         timestamp = strftime(Pup.LOG_TIME_FORMAT)
-        log_message = f"[{timestamp}] {message}"
-        click.secho(log_message, fg=fg_color)
-        if tee:
+        log_message = f"[{timestamp}] {msg}"
+        click.secho(log_message, fg=color)
+        if file and tee:
             with open(file, "a", encoding="utf-8") as f:
                 f.write(log_message + "\n")
 
@@ -154,9 +158,7 @@ class UserInput:
     )
     AddWhere = click.style("Specify folder/venv where to add packages", fg=COLOR)
     AddWhat = click.style("Specify what to install", fg=COLOR)
-    RemoveWhere = click.style(
-        "Specify folder/venv from where to remove packages", fg=COLOR
-    )
+    RemoveWhere = click.style("Specify folder/venv from where to remove packages", fg=COLOR)
     RemoveWhat = click.style("Specify what to remove", fg=COLOR)
 
 
@@ -169,6 +171,10 @@ class OrderedGroup(click.Group):
 
     def list_commands(self, ctx):
         return self.commands
+
+
+# prep Pup attributes before setting up CLI
+Pup.welcome()
 
 
 @click.group(cls=OrderedGroup)
@@ -202,9 +208,7 @@ def uv_init(folder: str, **uv_options):
         Pup.say("use `pixi add` to install packages in pup's home folder")
         exit(1)
     if (Pup.HOME / folder).exists():
-        if not click.confirm(
-            UserInput.NewVenvFolderOverwrite.format(folder), default="y"
-        ):
+        if not click.confirm(UserInput.NewVenvFolderOverwrite.format(folder), default="y"):
             return
 
     Pup.do(f"pixi run uv init {Pup.HOME / folder} -p {Pup.PYTHON} --no-workspace")
@@ -253,9 +257,7 @@ def pup_list():
 
     Pup.hear("pup list")
     pup_venvs = Pup.list_envs()
-    pup_venvs_dict = {
-        p.stem: Pup.load_pyproject(p)["project"]["dependencies"] for p in pup_venvs
-    }
+    pup_venvs_dict = {p.stem: Pup.load_pyproject(p)["project"]["dependencies"] for p in pup_venvs}
 
     click.secho(
         "current pup environments:\n" + json.dumps(pup_venvs_dict, indent=2),
@@ -287,5 +289,12 @@ def play(engine: str, kernel: str):
 
 
 if __name__ == "__main__":
-    Pup.welcome()
     main()
+else:
+    # for "import pup" in .pth files and elsewhere
+    envs = Pup.list_envs()
+    Pup.log(
+        f"venvs available: {[p.stem for p in envs]}",
+        file=None,
+        tee=False,
+    )
