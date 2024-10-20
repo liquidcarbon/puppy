@@ -55,25 +55,25 @@ Nothing (except Pixi) goes on PATH.
 
 The first command installs Pixi, Pup, and Python.
 ```bash
-curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | bash
+curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/v1/pup.sh | bash
 ```
 
 The second command creates alias `pup` in the current shell by sourcing the last line of the install script.
 ```bash
-. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | tail -1)
+. <(curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/v1/pup.sh | tail -1)
 ```
 
 ### Windows
 
 ```powershell
-iex (iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content
+iex (iwr https://raw.githubusercontent.com/liquidcarbon/puppy/v1/pup.ps1).Content
 ```
 
 ```powershell
-iex ((iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content -split "`n")[-2]
+iex ((iwr https://raw.githubusercontent.com/liquidcarbon/puppy/v1/pup.ps1).Content -split "`n")[-2]
 ```
 > [!TIP] 
-> Be careful with sourcing random scripts from the internet!  Inspect that last line to ensure you trust it: [pup.sh](https://github.com/liquidcarbon/puppy/blob/main/pup.sh#L146) | [pup.ps1](https://github.com/liquidcarbon/puppy/blob/main/pup.ps1#L157)
+> Be careful with sourcing random scripts from the internet!  Inspect that last line to ensure you trust it: [pup.sh](https://github.com/liquidcarbon/puppy/blob/v1/pup.sh#L146) | [pup.ps1](https://github.com/liquidcarbon/puppy/blob/v1/pup.ps1#L157)
 
 ### Check Installation
 With `pup` alias:
@@ -119,11 +119,11 @@ Illustration of pup/py homes
 
 ### Install specific python version
 ```bash
-curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | bash -s 3.11
+curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/v1/pup.sh | bash -s 3.11
 ```
 
 ```powershell
-& ([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content)) 3.11
+& ([scriptblock]::Create((iwr -useb https://raw.githubusercontent.com/liquidcarbon/puppy/v1/pup.ps1).Content)) 3.11
 ```
 
 ## Then what?
@@ -140,8 +140,5 @@ Note that Pixi and uv are still v0 and breaking changes may sneak in [[example](
 - `pup build` (via compile, freeze, etc.)
 - `pup swim` (build [Dockerfiles](https://huggingface.co/spaces/liquidcarbon/pup-fileserver))
 
-
-## Past
-- the [first iteration](https://github.com/liquidcarbon/puppy/tree/b474b1cd6c63b9fc80db5d81f954536a58aeab2a) was a big Bash script
 
 Thanks for checking out this repo.  Hope you try it out and like it!  Feedback, discussion, and ⭐s are welcome!
