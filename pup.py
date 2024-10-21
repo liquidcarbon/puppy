@@ -69,7 +69,7 @@ class Pup:
     def welcome(cls) -> None:
         """Prep pup's environment."""
         cls.HOME = cls.find_home()
-        cls.SP_ROOT_PUP.write_text(cls.FILE.read_text())
+        cls.SP_ROOT_PUP.write_text(cls.FILE.read_text("utf-8"), "utf-8")
         cls.LOG_FILE = cls.HOME / cls.LOG_FILE
         if not cls.LOG_FILE.exists():
             cls.log(f"🐶 has arrived to {cls.HOME}", cls.LOG_FILE)
@@ -116,6 +116,11 @@ class Pup:
             _venvs.extend(d.rglob(Pup.VENV_MARKER))
 
         return [p.parent for p in _venvs if ".venv" not in str(p)]
+
+    @staticmethod
+    def list_venvs_relative() -> list[Path]:
+        """List of relative paths to virtual environments known to pup."""
+        return [p.relative_to(Pup.HOME) for p in Pup.list_venvs()]
 
     @staticmethod
     def load_pyproject(path: Path) -> Dict[str, Any]:
@@ -172,7 +177,9 @@ class UserInput:
     )
     AddWhere = click.style("Specify folder/venv where to add packages", fg=COLOR)
     AddWhat = click.style("Specify what to install", fg=COLOR)
-    RemoveWhere = click.style("Specify folder/venv from where to remove packages", fg=COLOR)
+    RemoveWhere = click.style(
+        "Specify folder/venv from where to remove packages", fg=COLOR
+    )
     RemoveWhat = click.style("Specify what to remove", fg=COLOR)
     FetchWhat = click.style("Choose venv to fetch", fg=COLOR)
 
@@ -206,7 +213,8 @@ def say_hi():
     Pup.log(f"🏠 = {Pup.HOME}", Pup.LOG_FILE)
     Pup.log(f"🐍 = {sys.version}", Pup.LOG_FILE)
     Pup.hear("pup hi")
-    Pup.say("woof! Nice to meet you. Check woof.log for pup command history")
+    Pup.say("woof! Nice to meet you! Where you been? I can show you incredible things")
+    Pup.say("run `pup` for help; check woof.log for pup command history")
 
 
 @main.command(name="new", context_settings={"ignore_unknown_options": True})
@@ -223,7 +231,9 @@ def uv_init(folder: str, **uv_options: Dict[str, Any]):
         Pup.say("use `pixi add` to install packages in pup's home folder")
         exit(1)
     if (Pup.HOME / folder).exists():
-        if not click.confirm(UserInput.NewVenvFolderOverwrite.format(folder), default="y"):
+        if not click.confirm(
+            UserInput.NewVenvFolderOverwrite.format(folder), default="y"
+        ):
             return
 
     Pup.do(f"pixi run uv init {Pup.HOME / folder} -p {Pup.PYTHON} --no-workspace")
@@ -271,10 +281,10 @@ def uv_remove(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
 def pup_list(venv: str | None = None) -> Dict[str, str]:
     """List venvs and their `pyproject.toml` dependencies."""
 
-    Pup.hear(f"pup list {venv}")
-    pup_venvs = Pup.list_venvs()
+    Pup.hear(f"pup list {"" if venv is None else venv}")
+    pup_venvs = Pup.list_venvs_relative()
     pup_venvs_dict = {
-        str(p.relative_to(Pup.HOME)): Pup.load_pyproject(p)
+        p.as_posix(): Pup.load_pyproject(Pup.HOME / p)
         .get("project", {})
         .get("dependencies", None)
         for p in pup_venvs
@@ -315,9 +325,11 @@ if __name__ == "__main__":
     main()
 else:
     # runs on "import pup"
+    Pup.say("woof! run `pup.fetch()` to get started")
+
     def fetch(venv: str | None = None, *packages: str) -> None:
-        pup_venvs = Pup.list_venvs()
-        venvs_names = [str(p.relative_to(Pup.HOME)) for p in pup_venvs]
+        pup_venvs = Pup.list_venvs_relative()
+        venvs_names = [p.as_posix() for p in pup_venvs]
         Pup.log(f"🐶 virtual envs available: {venvs_names}", file=None, tee=False)
         while not venv:
             venv = click.prompt(UserInput.FetchWhat)
@@ -325,10 +337,14 @@ else:
         if venv_sp_path.exists():
             if len(packages) > 0:
                 uv_add.callback(folder=venv, packages=packages)
-            sys.path.append(str(venv_sp_path))
+            if (path := str(venv_sp_path)) not in sys.path:
+                _action = "added to"
+                sys.path.append(path)
+            else:
+                _action = "already on"
             pup_list.callback(venv)
             Pup.log(
-                f"fetched packages from '{venv}': {venv_sp_path} added to `sys.path`",
+                f"fetched packages from '{venv}': {venv_sp_path} {_action} `sys.path`",
                 file=None,
                 tee=False,
             )
