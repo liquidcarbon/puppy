@@ -10,6 +10,7 @@ PIXI_INSTALL_URL=https://pixi.sh/install.sh
 main() {
   DIR=$(pwd)
   while [ "$DIR" != "/" ]; do
+    [[ -f "$DIR/pixi.toml" ]] && PIXI_TOML="$DIR/pixi.toml"
     if [ -f "$DIR/pup.py" ]; then
       PUP="$DIR/pup.py"
       PUP_HOME="$DIR"
@@ -73,7 +74,7 @@ get_pixi() {
 
 
 pixi_init() {
-  if pixi run &> /dev/null; then
+  if [ -f "$PUP_HOME/pixi.toml" ]; then
     echo "✨ here be pixies! pixi.toml found"
   else
     pixi init .
@@ -100,7 +101,7 @@ get_python_uv_click() {
     PY_VERSION="$1"
     INSTALL=1
   else
-    if pixi run python -V &> /dev/null; then
+    if grep -q python "$PUP_HOME/pixi.toml"; then
       INSTALL=0
     else
       # no argument and no python? prompt w/default for non-interactive shell & install

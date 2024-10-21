@@ -6,8 +6,12 @@ $PIXI_INSTALL_URL = "https://pixi.sh/install.ps1"
 
 function Main {
     $DIR = Get-Location
+    $global:PIXI_TOML = ""
     $global:PUP = ""
     while ($DIR -ne [System.IO.Path]::GetPathRoot($DIR)) {
+        if (Test-Path "$DIR\pixi.toml") {
+            $global:PIXI_TOML = "$DIR\pixi.toml"
+        }
         if (Test-Path "$DIR\pup.py") {
             $global:PUP = "$DIR\pup.py"
             $global:PUP_HOME = $DIR
@@ -74,10 +78,11 @@ function Get-Pixi {
 }
 
 function Pixi-Init {
-    if (pixi run *>&1 | Out-Null) {
+    if ($PIXI_TOML -ne "") {
         Write-Host "✨ here be pixies! pixi.toml found"
     } else {
         pixi init .
+        $global:PIXI_TOML = (Resolve-Path pixi.toml).Path
     }
 }
 
@@ -94,7 +99,7 @@ function Get-Python-UV-Click {
         $PY_VERSION = $version
         $INSTALL = 1
     } else {
-        if (pixi run python -V *>&1 | Out-Null) {
+        if (Select-String -Path $PIXI_TOML -Pattern "python") {
             $INSTALL = 0
         } else {
             $PY_VERSION = Py-Ver-Prompt
