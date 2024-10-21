@@ -13,7 +13,7 @@ import subprocess
 import sys
 from pathlib import Path
 from time import strftime
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 import click
 import tomllib
@@ -27,7 +27,7 @@ class Pup:
     """Settings and initialization for pup CLI.
 
     Puppy is designed to work the same from anywhere within the project folder.
-    This means there's some discovery to be done at every invokation,
+    This means there's some discovery to be done at every invocation,
     so we run Pup.welcome() prior to main().
     """
 
@@ -37,12 +37,14 @@ class Pup:
     HOME_MARKER: str = "pup.py"
     LOG_FILE: Path = Path("woof.log")
     LOG_TIME_FORMAT: str = "%Y-%m-%d %H:%M:%S"
-    PLATFORM = platform.system()
+    PLATFORM: str = platform.system()
     PYTHON: Path = Path(sys.executable)
     PYTHON_VER: str = f"{sys.version_info.major}.{sys.version_info.minor}"
-    LIB_PREFIX: str = "Lib" if PLATFORM == "Windows" else f"lib/python{PYTHON_VER}"
-    SITE_PACKAGES: Path = Path(sys.prefix) / LIB_PREFIX / "site-packages"
-    SITE_PACKAGES_PUP: Path = SITE_PACKAGES / "pup.py"
+    SP_PREFIX: str = "Lib" if PLATFORM == "Windows" else f"lib/python{PYTHON_VER}"
+    SP_VENV: str = f".venv/{SP_PREFIX}/site-packages"
+    SP_ROOT_PATH: Path = Path(sys.prefix) / SP_PREFIX / "site-packages"
+    SP_ROOT_PUP: Path = SP_ROOT_PATH / "pup.py"
+    VENV_MARKER: str = "pyproject.toml"
 
     @classmethod
     def find_home(cls, prefix: Path = Path(sys.prefix)) -> Path:
@@ -60,13 +62,14 @@ class Pup:
 
     @classmethod
     def pedigree(cls) -> str:
-        return f"🐶 = {cls.PYTHON} {cls.FILE}"
+        """Pup's origins."""
+        return f"🐶 = {cls.PYTHON} {cls.FILE}  # v{__version__}"
 
     @classmethod
     def welcome(cls) -> None:
         """Prep pup's environment."""
         cls.HOME = cls.find_home()
-        cls.SITE_PACKAGES_PUP.write_text(cls.FILE.read_text())
+        cls.SP_ROOT_PUP.write_text(cls.FILE.read_text())
         cls.LOG_FILE = cls.HOME / cls.LOG_FILE
         if not cls.LOG_FILE.exists():
             cls.log(f"🐶 has arrived to {cls.HOME}", cls.LOG_FILE)
@@ -99,12 +102,23 @@ class Pup:
         Pup.log(f"🐶 said: {message}", Pup.LOG_FILE, Pup.COLOR, tee)
 
     @staticmethod
-    def list_envs() -> list[Path]:
-        """List of pup's current environments."""
-        return [p.parent for p in Path(Pup.HOME).glob("./*/pyproject.toml")]
+    def list_venvs() -> list[Path]:
+        """List of virtual environments known to pup.
+
+        A virtual environment is a non-hidden folder that contains
+        `Pup.VENV_MARKER` file (`pyproject.toml` by default).
+        """
+
+        _venvs = []
+        for d in Pup.HOME.iterdir():
+            if not d.is_dir() or d.name.startswith("."):
+                continue
+            _venvs.extend(d.rglob(Pup.VENV_MARKER))
+
+        return [p.parent for p in _venvs if ".venv" not in str(p)]
 
     @staticmethod
-    def load_pyproject(path: Path) -> dict:
+    def load_pyproject(path: Path) -> Dict[str, Any]:
         """Load folder's `pyproject.toml` file."""
         return tomllib.load((path / "pyproject.toml").open("rb"))
 
@@ -117,11 +131,11 @@ class Pup:
 class Notebook:
     """Templates and env managers for `pup play`."""
 
-    SITE_PACKAGES_PATH: Path = Path(
-        r".venv\Lib\site-packages"
-        if Pup.PLATFORM == "Windows"
-        else f".venv/bin/python{Pup.PYTHON_VER}/site-packages"
-    ).absolute()
+    # SITE_PACKAGES_PATH: Path = Path(
+    #     r".venv\Lib\site-packages"
+    #     if Pup.PLATFORM == "Windows"
+    #     else f".venv/bin/python{Pup.PYTHON_VER}/site-packages"
+    # ).absolute()
 
     @staticmethod
     def install_nb_package(engine: str):
@@ -160,6 +174,7 @@ class UserInput:
     AddWhat = click.style("Specify what to install", fg=COLOR)
     RemoveWhere = click.style("Specify folder/venv from where to remove packages", fg=COLOR)
     RemoveWhat = click.style("Specify what to remove", fg=COLOR)
+    FetchWhat = click.style("Choose venv to fetch", fg=COLOR)
 
 
 class OrderedGroup(click.Group):
@@ -197,7 +212,7 @@ def say_hi():
 @main.command(name="new", context_settings={"ignore_unknown_options": True})
 @click.argument("folder", nargs=1, required=False)
 @click.argument("uv_options", nargs=-1, required=False)
-def uv_init(folder: str, **uv_options):
+def uv_init(folder: str, **uv_options: Dict[str, Any]):
     """Create new project and virtual environment with `uv init`."""
 
     if folder is None:
@@ -218,7 +233,7 @@ def uv_init(folder: str, **uv_options):
 @main.command(name="add", context_settings={"ignore_unknown_options": True})
 @click.argument("folder", nargs=1, required=False)
 @click.argument("packages", nargs=-1, required=False)
-def uv_add(folder: str, packages: Tuple[str]):
+def uv_add(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
     """Install packages into specified venv with `uv add`."""
 
     if folder is None:
@@ -234,10 +249,10 @@ def uv_add(folder: str, packages: Tuple[str]):
     Pup.do(f"pixi run uv add {packages} --project {folder_abs_path}")
 
 
-@main.command(name="remove", context_settings={"ignore_unknown_options": True})
+@main.command(name="remove")
 @click.argument("folder", nargs=1, required=False)
 @click.argument("packages", nargs=-1, required=False)
-def uv_remove(folder: str, packages: Tuple[str]):
+def uv_remove(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
     """Remove packages from specified venv with `uv remove`."""
 
     if folder is None:
@@ -252,16 +267,23 @@ def uv_remove(folder: str, packages: Tuple[str]):
 
 
 @main.command(name="list")
-def pup_list():
+@click.argument("venv", required=False)
+def pup_list(venv: str | None = None) -> Dict[str, str]:
     """List venvs and their `pyproject.toml` dependencies."""
 
-    Pup.hear("pup list")
-    pup_venvs = Pup.list_envs()
-    pup_venvs_dict = {p.stem: Pup.load_pyproject(p)["project"]["dependencies"] for p in pup_venvs}
-
+    Pup.hear(f"pup list {venv}")
+    pup_venvs = Pup.list_venvs()
+    pup_venvs_dict = {
+        str(p.relative_to(Pup.HOME)): Pup.load_pyproject(p)
+        .get("project", {})
+        .get("dependencies", None)
+        for p in pup_venvs
+    }
+    if venv:
+        pup_venvs_dict = {venv: pup_venvs_dict.get(venv, None)}
     click.secho(
-        "current pup environments:\n" + json.dumps(pup_venvs_dict, indent=2),
-        fg=UserInput.COLOR,
+        json.dumps(pup_venvs_dict, indent=2),
+        fg=Pup.COLOR,
     )
 
 
@@ -276,7 +298,7 @@ def pup_list():
 @click.option(
     "--kernel",
     "-k",
-    type=click.Choice([p.stem for p in Pup.list_envs()]),
+    type=click.Choice([p.stem for p in Pup.list_venvs()]),
     help=(
         "pup notebook kernels are folders created by uv "
         "that contain `pyproject.toml` and `.venv/` with installed packages"
@@ -289,12 +311,28 @@ def play(engine: str, kernel: str):
 
 
 if __name__ == "__main__":
+    # CLI
     main()
 else:
-    # for "import pup" in .pth files and elsewhere
-    envs = Pup.list_envs()
-    Pup.log(
-        f"venvs available: {[p.stem for p in envs]}",
-        file=None,
-        tee=False,
-    )
+    # runs on "import pup"
+    def fetch(venv: str | None = None, *packages: str) -> None:
+        pup_venvs = Pup.list_venvs()
+        venvs_names = [str(p.relative_to(Pup.HOME)) for p in pup_venvs]
+        Pup.log(f"🐶 virtual envs available: {venvs_names}", file=None, tee=False)
+        while not venv:
+            venv = click.prompt(UserInput.FetchWhat)
+        venv_sp_path = Pup.HOME / venv / Pup.SP_VENV
+        if venv_sp_path.exists():
+            if len(packages) > 0:
+                uv_add.callback(folder=venv, packages=packages)
+            sys.path.append(str(venv_sp_path))
+            pup_list.callback(venv)
+            Pup.log(
+                f"fetched packages from '{venv}': {venv_sp_path} added to `sys.path`",
+                file=None,
+                tee=False,
+            )
+        else:
+            uv_add.callback(folder=venv, packages=packages)
+            fetch(venv)
+        return
