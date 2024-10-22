@@ -8,6 +8,7 @@ on:
 env:
   MAIN_BRANCH_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/"
   PYTHONIOENCODING: "utf8" # https://github.com/pallets/click/issues/2121
+  PATH: "%USERPROFILE%\\.pixi\\bin;%PATH%"
 
 jobs:
   puppy-win-311:
@@ -15,7 +16,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
       - name: Set up custom PATH
-        run: echo "PATH=%USERPROFILE%\.pixi\bin;%PATH%" >> $GITHUB_ENV
+        run: echo "PATH=%USERPROFILE%\.pixi\bin;%PATH%" >> $GITHUB_ENV; env
       - name: Install puppy 3.11
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL

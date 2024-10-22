@@ -19,6 +19,7 @@ jobs:
       - name: Install default puppy
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL
+          pwd && ls -la
           curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash
       - name: new env with pup new
         run: |

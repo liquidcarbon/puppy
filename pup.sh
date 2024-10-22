@@ -20,7 +20,6 @@ main() {
   done
 
   if [ -f $PUP ] && [ "$1" != "update" ]; then
-    echo RUN
     run "$@"
   elif [ -f $PUP ] && [ "$1" == "update" ]; then
     update
