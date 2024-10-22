@@ -18,3 +18,6 @@ jobs:
       run: |
         sleep 9;  # give it time to update MAIN_BRANCH_URL
         curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash
+    - name: Make new venv
+      run: |
+        pup new t1
