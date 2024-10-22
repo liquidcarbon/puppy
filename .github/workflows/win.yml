@@ -27,11 +27,15 @@ jobs:
           pup add t1/with/nesting "cowsay<6"
       - name: new env with pup add
         run: |
-          pup add t2 cowsay httpx
+          pup add t2 cowsay requests
+          pup list
+      - name: pup remove
+        run: |
+          pup remove t1/with/nesting cowsay
           pup list
       - name: import pup with fetch
         run: |
-          pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "requests"); import requests; requests.get("https://example.com")'
+          pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "httpx"); import httpx; print(httpx.get("https://example.com"))'
       - name: pup update after deleting pixi.exe
         run: |
           rm C:\\Users\\runneradmin\\.pixi\\bin\\pixi.exe
