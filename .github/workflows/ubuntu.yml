@@ -1,0 +1,20 @@
+name: Tests on Ubuntu runner
+
+on:
+  push:
+    branches:
+      - '**'
+
+env:
+  MAIN_BRANCH_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/"
+  PYTHONIOENCODING: "utf8"  # https://github.com/pallets/click/issues/2121
+
+jobs:
+  check-message:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'nogha')"
+    steps:
+    - name: Install default puppy
+      run: |
+        sleep 9;  # give it time to update MAIN_BRANCH_URL
+        curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash
