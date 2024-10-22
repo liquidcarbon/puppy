@@ -23,12 +23,15 @@ jobs:
           curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash
       - name: new env with pup new
         run: |
-          pup new t1
-          pup add t1 "cowsay<6"
+          pup new t1/with/nesting
+          pup add t1/with/nesting "cowsay<6"
       - name: new env with pup add
         run: |
           pup add t2 cowsay httpx
           pup list
+      - name: import pup with fetch
+        run: |
+          pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "requests"); import requests; requests.get("https://example.com")'
       - name: pup update after deleting local pixi files
         run: |
           rm -rf .pixi pixi.toml && pup update
