@@ -25,8 +25,9 @@ jobs:
         run: |
           pup new t1/with/nesting
           pup add t1/with/nesting "cowsay<6"
-      - name: new env with pup add
+      - name: new env with pup add from another folder
         run: |
+          cd t1
           pup add t2 cowsay requests
           pup list
       - name: pup remove
