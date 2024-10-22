@@ -16,7 +16,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
       - name: Set up custom PATH
-        run: echo "PATH=%USERPROFILE%\.pixi\bin;%PATH%" >> $GITHUB_ENV; env
+        run: echo "PATH=%USERPROFILE%\.pixi\bin;%PATH%" >> $GITHUB_ENV; echo $PATH
       - name: Install puppy 3.11
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL

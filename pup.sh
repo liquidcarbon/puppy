@@ -18,7 +18,7 @@ main() {
     fi
     DIR=$(dirname "$DIR")
   done
-
+  echo $DIR; echo $PUP
   if [ -f $PUP ] && [ "$1" != "update" ]; then
     run "$@"
   elif [ -f $PUP ] && [ "$1" == "update" ]; then
