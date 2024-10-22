@@ -10,10 +10,12 @@ env:
   PYTHONIOENCODING: "utf8"  # https://github.com/pallets/click/issues/2121
 
 jobs:
-  check-message:
+  puppy-bash-default:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
+    - name: Set up custom PATH
+      run: echo "PATH=$HOME/.pixi/bin:$PATH" >> $GITHUB_ENV
     - name: Install default puppy
       run: |
         sleep 9;  # give it time to update MAIN_BRANCH_URL
