@@ -20,6 +20,7 @@ main() {
   done
 
   if [ -f $PUP ] && [ "$1" != "update" ]; then
+    echo RUN
     run "$@"
   elif [ -f $PUP ] && [ "$1" == "update" ]; then
     update
@@ -101,7 +102,7 @@ get_python_uv_click() {
     PY_VERSION="$1"
     INSTALL=1
   else
-    if grep -q python "$PUP_HOME/pixi.toml"; then
+    if grep -q python "$PUP_HOME/pixi.toml" &> /dev/null; then
       INSTALL=0
     else
       # no argument and no python? prompt w/default for non-interactive shell & install

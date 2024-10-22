@@ -1,4 +1,4 @@
-name: Tests on Ubuntu runner
+name: Tests on Windows runner
 
 on:
   push:
@@ -10,16 +10,16 @@ env:
   PYTHONIOENCODING: "utf8" # https://github.com/pallets/click/issues/2121
 
 jobs:
-  puppy-bash-default:
-    runs-on: ubuntu-latest
+  puppy-win-311:
+    runs-on: windows-latest
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
-      - name: Set up custom PATH
-        run: echo "PATH=$HOME/.pixi/bin:$PATH" >> $GITHUB_ENV
-      - name: Install default puppy
+      # - name: Set up custom PATH
+      #   run: echo "PATH=$HOME/.pixi/bin:$PATH" >> $GITHUB_ENV
+      - name: Install puppy 3.11
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL
-          curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash
+          & ([scriptblock]::Create((iwr -useb $env:MAIN_BRANCH_URL/pup.ps1).Content)) 3.11
       - name: new env with pup new
         run: |
           pup new t1
