@@ -10,9 +10,9 @@ env:
   PYTHONIOENCODING: "utf8" # https://github.com/pallets/click/issues/2121
 
 jobs:
-  puppy-bash-default:
+  puppy-macos-310:
     runs-on: macos-latest
-    if: "!contains(github.event.head_commit.message, 'nogha')"
+    if: "contains(github.event.head_commit.message, 'allgha')"
     steps:
       - name: Set up custom PATH
         run: echo "PATH=$HOME/.pixi/bin:$PATH" >> $GITHUB_ENV
@@ -29,6 +29,6 @@ jobs:
         run: |
           pup add t2 cowsay httpx
           pup list
-      - name: pup update after deleting python
+      - name: pup update after deleting pup
         run: |
-          rm .pixi/envs/default/bin/python && pup update
+          rm pup.py && pup update
