@@ -281,7 +281,7 @@ def uv_remove(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
 def pup_list(venv: str | None = None) -> Dict[str, str]:
     """List venvs and their `pyproject.toml` dependencies."""
 
-    Pup.hear(f"pup list {"" if venv is None else venv}")
+    Pup.hear(f"pup list {'' if venv is None else venv}")
     pup_venvs = Pup.list_venvs_relative()
     pup_venvs_dict = {
         p.as_posix(): Pup.load_pyproject(Pup.HOME / p)
@@ -294,6 +294,20 @@ def pup_list(venv: str | None = None) -> Dict[str, str]:
     click.secho(
         json.dumps(pup_venvs_dict, indent=2),
         fg=Pup.COLOR,
+    )
+
+
+@main.command(name="clone")
+@click.argument("uri", required=True)
+def pup_clone(uri: str) -> None:
+    """Clone a repo and setup venv using `pyproject.toml` or `requirements.txt`."""
+
+    folder = uri.split("/")[-1][:-4]
+    Pup.hear(f"pup clone {uri}")
+    Pup.say("here's the recipe (WIP):")
+    Pup.say(f"git clone {uri}")
+    Pup.say(
+        f"pixi run uv pip install -r {folder}/pyproject.toml -p {folder}/.venv/bin/python"
     )
 
 
