@@ -14,8 +14,8 @@ jobs:
     runs-on: windows-latest
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
-      # - name: Set up custom PATH
-      #   run: echo "PATH=$HOME/.pixi/bin:$PATH" >> $GITHUB_ENV
+      - name: Set up custom PATH
+        run: echo "PATH=%USERPROFILE%\.pixi\bin;%PATH%" >> $GITHUB_ENV
       - name: Install puppy 3.11
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL
@@ -23,7 +23,7 @@ jobs:
       - name: new env with pup new
         run: |
           pup new t1
-          pup add "cowsay<6"
+          pup add t1 "cowsay<6"
       - name: new env with pup add
         run: |
           pup add t2 cowsay httpx

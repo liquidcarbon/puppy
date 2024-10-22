@@ -23,7 +23,7 @@ jobs:
       - name: new env with pup new
         run: |
           pup new t1
-          pup add "cowsay<6"
+          pup add t1 "cowsay<6"
       - name: new env with pup add
         run: |
           pup add t2 cowsay httpx
