@@ -1,4 +1,4 @@
-name: Tests on Windows runner
+name: Tests on MacOS runner
 
 on:
   push:
@@ -8,19 +8,19 @@ on:
 env:
   MAIN_BRANCH_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/"
   PYTHONIOENCODING: "utf8" # https://github.com/pallets/click/issues/2121
-  PATH: "C:\\Users\\runneradmin\\.pixi\\bin"
 
 jobs:
-  puppy-win-311:
-    runs-on: windows-latest
+  puppy-bash-default:
+    runs-on: macos-latest
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
-      - name: Check PATH
-        run: echo $PATH; echo $GITHUB_ENV
-      - name: Install puppy 3.11
+      - name: Set up custom PATH
+        run: echo "PATH=$HOME/.pixi/bin:$PATH" >> $GITHUB_ENV
+      - name: Install default puppy
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL
-          & ([scriptblock]::Create((iwr -useb $env:MAIN_BRANCH_URL/pup.ps1).Content)) 3.11
+          pwd && ls -la
+          curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash
       - name: new env with pup new
         run: |
           pup new t1
@@ -29,7 +29,6 @@ jobs:
         run: |
           pup add t2 cowsay httpx
           pup list
-      - name: pup update after deleting pixi.exe
+      - name: pup update after deleting python
         run: |
-          rm C:\\Users\\runneradmin\\.pixi\\bin\\pixi.exe
-          pup update
+          rm .pixi/envs/default/bin/python && pup update

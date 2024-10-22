@@ -29,6 +29,6 @@ jobs:
         run: |
           pup add t2 cowsay httpx
           pup list
-      - name: pup update
+      - name: pup update after deleting local pixi files
         run: |
-          pup update
+          rm -rf .pixi pixi.toml && pup update
