@@ -29,3 +29,6 @@ jobs:
         run: |
           pup add t2 cowsay httpx
           pup list
+      - name: pup update
+        run: |
+          pup update
