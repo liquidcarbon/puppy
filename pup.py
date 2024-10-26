@@ -12,6 +12,7 @@ import platform
 import subprocess
 import sys
 from pathlib import Path
+from textwrap import dedent
 from time import strftime
 from typing import Any, Dict, Tuple
 
@@ -134,13 +135,7 @@ class Pup:
 
 
 class Notebook:
-    """Templates and env managers for `pup play`."""
-
-    # SITE_PACKAGES_PATH: Path = Path(
-    #     r".venv\Lib\site-packages"
-    #     if Pup.PLATFORM == "Windows"
-    #     else f".venv/bin/python{Pup.PYTHON_VER}/site-packages"
-    # ).absolute()
+    """Notebook stuff."""
 
     @staticmethod
     def install_nb_package(engine: str):
@@ -159,6 +154,25 @@ class Notebook:
                 Pup.say(f"notebook engine '{engine}' not supported")
                 exit(1)
         return
+
+
+class Template:
+    """Templates and env managers for `pup play`."""
+
+    TIME_FORMAT: str = "%y%m%d%H%M%S"
+
+    Marimo = dedent("""
+    import marimo
+    app = marimo.App(width="full")
+
+    @app.cell
+    def __():
+        import pup; pup.fetch()
+        return (pup,)
+
+    if __name__ == "__main__":
+        app.run()
+    """)
 
 
 class UserInput:
@@ -319,15 +333,6 @@ def pup_clone(uri: str) -> None:
     default="marimo",
     help="notebook engine",
 )
-@click.option(
-    "--kernel",
-    "-k",
-    type=click.Choice([p.stem for p in Pup.list_venvs()]),
-    help=(
-        "pup notebook kernels are folders created by uv "
-        "that contain `pyproject.toml` and `.venv/` with installed packages"
-    ),
-)
 def play(engine: str, kernel: str):
     """Create a notebook in a specified environment."""
 
@@ -345,8 +350,10 @@ else:
         pup_venvs = Pup.list_venvs_relative()
         venvs_names = [p.as_posix() for p in pup_venvs]
         Pup.log(f"🐶 virtual envs available: {venvs_names}", file=None, tee=False)
-        while not venv:
-            venv = click.prompt(UserInput.FetchWhat)
+        if not venv:
+            venv = click.prompt(UserInput.FetchWhat, default="", show_default=False)
+        if not venv:
+            return
         venv_sp_path = Pup.HOME / venv / Pup.SP_VENV
         if venv_sp_path.exists():
             if len(packages) > 0:

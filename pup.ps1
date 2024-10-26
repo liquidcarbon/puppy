@@ -70,6 +70,7 @@ function Install {
 function Get-Pixi {
     if (-not (Get-Command pixi -ErrorAction SilentlyContinue)) {
         iwr -useb  $PIXI_INSTALL_URL | iex
+        $env:PATH = "$HOME\.pixi\bin;" + $env:PATH  # new installs need this
         Write-Host "✨ $(pixi -V) installed"
     } else {
         Write-Host "✨ $(pixi -V) found"

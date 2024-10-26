@@ -64,7 +64,7 @@ install() {
 get_pixi() {
   if ! command -v pixi &> /dev/null; then
     curl -fsSL $PIXI_INSTALL_URL | bash
-    export PATH=$HOME/.pixi/bin:$PATH  # for GHA
+    export PATH=$HOME/.pixi/bin:$PATH  # new installs & GHA need this
     echo "✨ $(pixi -V) installed"
   else
     echo "✨ $(pixi -V) found"
