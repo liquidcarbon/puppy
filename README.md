@@ -6,7 +6,7 @@ Your new best friend will help you set up and organize your python projects, wit
 
 Puppy is a transparent wrapper around [pixi](https://github.com/prefix-dev/pixi/) and [uv](https://github.com/astral-sh/uv), two widely used Rust-based tools that belong together.
 
-Puppy installs python, creates projects and virtual environments, and launches notebook properly linked to venvs. 
+Puppy installs python, creates projects and virtual environments, and launches notebook properly linked to venvs.
 
 ## Get started
 
@@ -26,7 +26,9 @@ iex (iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Cont
 
 ## How It Works
 
-Puppy preps the folder to house python, in complete isolation from system or any other python on your system:
+Puppy can be used as a CLI or as a module.
+
+Installing puppy preps the folder to house python, in complete isolation from system or any other python on your system:
 
 0) 🐍 this folder is home to one and only one python executable, managed by pixi
 1) ✨ pixi installs core components: python, uv, click
@@ -35,7 +37,39 @@ Puppy preps the folder to house python, in complete isolation from system or any
 4) 🟣 `pup new` and `pup add` use uv to handle projects, packages and virtual environments
 5) 🥳 `pup play` creates and launches notebooks (marimo or jupyter) properly linked to the virtual environments
 
-## Notebooks
+## Using `pup` as a Module
+
+Pup can help you build python projects from interactive environments, such as (i)python shells, jupyter notebooks, or marimo notebooks.
+
+```
+a@a-Aon-L1:~/Desktop/puppy$ .pixi/envs/default/bin/python
+Python 3.12.7
+>>> import pup; pup.fetch()
+[2024-10-26 16:50:37] 🐶 said: woof! run `pup.fetch()` to get started
+[2024-10-26 16:50:37] 🐶 virtual envs available: ['tbsky', 't1/web', 't2', 'tmpl', 'test-envs/e1']
+Choose venv to fetch: t1/web
+[2024-10-26 16:51:56] 🐶 heard: pup list t1/web
+{
+  "t1/web": [
+    "httpx>=0.27.2",
+    "requests>=2.32.3"
+  ]
+}
+[2024-10-26 16:51:56] fetched packages from 't1/web': /home/a/Desktop/puppy/t1/web/.venv/lib/python3.12/site-packages added to `sys.path`
+```
+
+Now the "kernel" `t1/web` is activated.  In other words, packages installed `t1/web/.venv` are available on `sys.path`.
+
+The signature of `pup.fetch` is `def fetch(venv: str | None = None, *packages: str) -> None:`
+
+Need to install more packages on the go, or create a new venv?  Just provide the destination, and list of packages.
+
+```python
+pup.fetch("t1/web", "awswrangler", "cloudpathlib")
+pup.fetch("data", "duckdb", "polars")
+```
+
+## Notebooks (WIP)
 
 `pup play --help`
 
