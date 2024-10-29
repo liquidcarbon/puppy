@@ -41,6 +41,7 @@ class Pup:
     PLATFORM: str = platform.system()
     PYTHON: Path = Path(sys.executable)
     PYTHON_VER: str = f"{sys.version_info.major}.{sys.version_info.minor}"
+    RESERVED: Tuple[str] = ("nb",)
     SP_PREFIX: str = "Lib" if PLATFORM == "Windows" else f"lib/python{PYTHON_VER}"
     SP_VENV: str = f".venv/{SP_PREFIX}/site-packages"
     SP_ROOT_PATH: Path = Path(sys.prefix) / SP_PREFIX / "site-packages"
@@ -239,11 +240,14 @@ def uv_init(folder: str, **uv_options: Dict[str, Any]):
 
     if folder is None:
         folder = click.prompt(UserInput.NewVenvFolder)
-    Pup.hear(f"pup new {folder}")
-
     if folder in ("", "."):
         Pup.say("use `pixi add` to install packages in pup's home folder")
         exit(1)
+    if folder in Pup.RESERVED:
+        Pup.say(f"folder name `{folder}` is reserved; please use another name")
+        exit(1)
+
+    Pup.hear(f"pup new {folder}")
     if (Pup.HOME / folder).exists():
         if not click.confirm(
             UserInput.NewVenvFolderOverwrite.format(folder), default="y"
