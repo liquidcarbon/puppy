@@ -6,6 +6,7 @@ The CLI for pup, a cute python project manager.
 
 __version__ = "2.0.0"
 
+from ast import Name
 import collections
 import json
 import platform
@@ -125,7 +126,12 @@ class Pup:
         return [p.relative_to(Pup.HOME) for p in Pup.list_venvs()]
 
     @staticmethod
-    def load_pyproject(path: Path) -> Dict[str, Any]:
+    def load_pixi_toml() -> Dict[str, Any]:
+        """Load Pup's `pixi.toml` file."""
+        return tomllib.load((Pup.HOME / "pixi.toml").open("rb"))
+
+    @staticmethod
+    def load_pyproject_toml(path: Path) -> Dict[str, Any]:
         """Load folder's `pyproject.toml` file."""
         return tomllib.load((path / "pyproject.toml").open("rb"))
 
@@ -138,19 +144,19 @@ class Pup:
 class Notebook:
     """Notebook stuff."""
 
+    def __init__(self, engine: str):
+        return
+
     @staticmethod
     def install_nb_package(engine: str):
         with open(Pup.HOME / "pixi.toml") as f:
             pixi_toml = f.read()
             if engine == "marimo":
-                if "marimo" not in pixi_toml:
-                    Pup.do("pixi add marimo")
-            elif engine == "notebook":
+                if "marimo" not in pixi_toml:.
+                    Pup.do("""pixi add "marimo>=0" """)
+            elif engine in ("lab", "notebook"):
                 if "jupyter" not in pixi_toml:
-                    Pup.do("pixi add jupyter")
-            elif engine == "lab":
-                if "jupyterlab" not in pixi_toml:
-                    Pup.do("pixi add jupyterlab")
+                    Pup.do("""pixi add "jupyter>=1" """)
             else:
                 Pup.say(f"notebook engine '{engine}' not supported")
                 exit(1)
@@ -296,21 +302,27 @@ def uv_remove(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
 
 @main.command(name="list")
 @click.argument("venv", required=False)
-def pup_list(venv: str | None = None) -> Dict[str, str]:
+@click.option(
+    "---", help="Use `pup list .` for root dependencies from `pixi.toml`", type=Path
+)
+def pup_list(venv: str | None = None, _: None = None) -> Dict[str, str]:
     """List venvs and their `pyproject.toml` dependencies."""
 
     Pup.hear(f"pup list {'' if venv is None else venv}")
-    pup_venvs = Pup.list_venvs_relative()
-    pup_venvs_dict = {
-        p.as_posix(): Pup.load_pyproject(Pup.HOME / p)
-        .get("project", {})
-        .get("dependencies", None)
-        for p in pup_venvs
-    }
-    if venv:
+    if venv == ".":
+        pup_venvs_dict = {"🏠": Pup.load_pixi_toml().get("dependencies", {})}
+    elif not venv:
+        pup_venvs = Pup.list_venvs_relative()
+        pup_venvs_dict = {
+            p.as_posix(): Pup.load_pyproject_toml(Pup.HOME / p)
+            .get("project", {})
+            .get("dependencies", None)
+            for p in pup_venvs
+        }
+    else:
         pup_venvs_dict = {venv: pup_venvs_dict.get(venv, None)}
     click.secho(
-        json.dumps(pup_venvs_dict, indent=2),
+        json.dumps(pup_venvs_dict, indent=2, ensure_ascii=False),
         fg=Pup.COLOR,
     )
 

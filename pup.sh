@@ -9,6 +9,7 @@ PIXI_INSTALL_URL=https://pixi.sh/install.sh
 
 main() {
   DIR=$(pwd)
+  PUP=""
   while [ "$DIR" != "/" ]; do
     [[ -f "$DIR/pixi.toml" ]] && PIXI_TOML="$DIR/pixi.toml"
     if [ -f "$DIR/pup.py" ]; then
@@ -43,6 +44,8 @@ run() {
 update() {
   get_pixi
   pixi self-update
+  pixi_init
+  get_python_uv_click
   pixi update
   get_pup
 }

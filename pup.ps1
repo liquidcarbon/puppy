@@ -48,6 +48,8 @@ function Run {
 function Update {
     Get-Pixi
     pixi self-update
+    Pixi-Init
+    Get-Python-UV-Click $null
     pixi update
     Get-Pup
 }
