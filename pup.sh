@@ -20,7 +20,7 @@ main() {
     DIR=$(dirname "$DIR")
   done
 
-  if [ -n $PUP ] && [ "$1" != "update" ]; then
+  if [ $PUP != "" ] && [ "$1" != "update" ]; then
     run "$@"
   elif [ -f $PUP ] && [ "$1" == "update" ]; then
     update

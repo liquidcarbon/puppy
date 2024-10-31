@@ -152,7 +152,7 @@ class Notebook:
         with open(Pup.HOME / "pixi.toml") as f:
             pixi_toml = f.read()
             if engine == "marimo":
-                if "marimo" not in pixi_toml:.
+                if "marimo" not in pixi_toml:
                     Pup.do("""pixi add "marimo>=0" """)
             elif engine in ("lab", "notebook"):
                 if "jupyter" not in pixi_toml:
