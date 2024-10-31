@@ -309,9 +309,7 @@ def pup_list(venv: str | None = None, _: None = None) -> Dict[str, str]:
     """List venvs and their `pyproject.toml` dependencies."""
 
     Pup.hear(f"pup list {'' if venv is None else venv}")
-    if venv == ".":
-        pup_venvs_dict = {"🏠": Pup.load_pixi_toml().get("dependencies", {})}
-    elif not venv:
+    if venv != ".":
         pup_venvs = Pup.list_venvs_relative()
         pup_venvs_dict = {
             p.as_posix(): Pup.load_pyproject_toml(Pup.HOME / p)
@@ -319,8 +317,10 @@ def pup_list(venv: str | None = None, _: None = None) -> Dict[str, str]:
             .get("dependencies", None)
             for p in pup_venvs
         }
+        if venv:
+            pup_venvs_dict = {venv: pup_venvs_dict.get(venv, None)}
     else:
-        pup_venvs_dict = {venv: pup_venvs_dict.get(venv, None)}
+        pup_venvs_dict = {"🏠": Pup.load_pixi_toml().get("dependencies", {})}
     click.secho(
         json.dumps(pup_venvs_dict, indent=2, ensure_ascii=False),
         fg=Pup.COLOR,
