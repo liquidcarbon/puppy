@@ -34,6 +34,9 @@ jobs:
         run: |
           pup remove t1/with/nesting cowsay
           pup list
+      - name: Ensure Git is available
+        run: |
+          git --version || choco install git
       - name: pup clone
         run: |
           pup clone https://github.com/liquidcarbon/affinity.git
