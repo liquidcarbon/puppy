@@ -39,7 +39,8 @@ jobs:
           pup clone https://github.com/liquidcarbon/affinity.git
           git clone https://github.com/liquidcarbon/affinity.git
           pup new affinity
-          pixi run uv sync --project affinity
+          pixi run uv sync --project affinity --group polars
+          pup list
           affinity/.venv/bin/pytest -vvsx affinity/
       - name: import pup with fetch
         run: |

@@ -34,6 +34,14 @@ jobs:
         run: |
           pup remove t1/with/nesting cowsay
           pup list
+      - name: pup clone
+        run: |
+          pup clone https://github.com/liquidcarbon/affinity.git
+          git clone https://github.com/liquidcarbon/affinity.git
+          pup new affinity
+          pixi run uv sync --project affinity --group polars
+          pup list
+          affinity/.venv/bin/pytest -vvsx affinity/
       - name: import pup with fetch
         run: |
           pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "httpx"); import httpx; print(httpx.get("https://example.com"))'
