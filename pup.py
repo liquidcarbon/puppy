@@ -300,6 +300,9 @@ def uv_remove(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
     Pup.do(f"pixi run uv remove {packages} --project {folder_abs_path}")
 
 
+# TODO: install and uninstall (get package bypassing pyproject.toml)
+
+
 @main.command(name="list")
 @click.argument("venv", required=False)
 @click.option(
@@ -332,13 +335,12 @@ def pup_list(venv: str | None = None, _: None = None) -> Dict[str, str]:
 def pup_clone(uri: str) -> None:
     """Clone a repo and setup venv using `pyproject.toml` or `requirements.txt`."""
 
-    folder = uri.split("/")[-1][:-4]
+    folder = Path(uri).stem
     Pup.hear(f"pup clone {uri}")
     Pup.say("here's the recipe (WIP):")
     Pup.say(f"git clone {uri}")
-    Pup.say(
-        f"pixi run uv pip install -r {folder}/pyproject.toml -p {folder}/.venv/bin/python"
-    )
+    Pup.say(f"pup new {folder}")
+    Pup.say(f"pixi run uv sync --project {folder}")
 
 
 @main.command(name="play")
