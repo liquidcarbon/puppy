@@ -15,8 +15,8 @@ jobs:
     runs-on: windows-latest
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
-      - name: Check PATH
-        run: echo $PATH; echo $GITHUB_ENV
+      - name: check PATH, install git
+        run: choco install git; echo $PATH; echo $GITHUB_ENV
       - name: Install puppy 3.11
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL
@@ -34,9 +34,6 @@ jobs:
         run: |
           pup remove t1/with/nesting cowsay
           pup list
-      - name: Ensure Git is available
-        run: |
-          git --version || choco install git
       - name: pup clone
         run: |
           pup clone https://github.com/liquidcarbon/affinity.git
