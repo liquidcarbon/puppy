@@ -255,7 +255,7 @@ def uv_init(folder: str, **uv_options: Dict[str, Any]):
 
     Pup.hear(f"pup new {folder}")
     if (Pup.HOME / folder).exists():
-        if not click.confirm(
+        if not confirm(
             UserInput.NewVenvFolderOverwrite.format(folder), default="y"
         ):
             return
@@ -356,6 +356,18 @@ def play(engine: str, kernel: str):
 
     Notebook.install_nb_package(engine)
 
+
+### Utils ###
+
+def confirm(text, **kwargs) -> bool:
+    """Prompt with click.confirm or silently return True in non-interactive shells."""
+    if sys.stdin.isatty() or hasattr(sys, "ps1"):
+        return click.confirm(text, **kwargs)
+    else:
+        return True
+
+
+### CLI and pup-as-a-module
 
 if __name__ == "__main__":
     # CLI
