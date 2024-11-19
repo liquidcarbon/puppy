@@ -46,7 +46,7 @@ class Pup:
     SP_PREFIX: str = "Lib" if PLATFORM == "Windows" else f"lib/python{PYTHON_VER}"
     SP_VENV: str = f".venv/{SP_PREFIX}/site-packages"
     SP_ROOT_PATH: Path = Path(sys.prefix) / SP_PREFIX / "site-packages"
-    SP_ROOT_PUP: Path = SP_ROOT_PATH / "pup.py"
+    SP_ROOT_PUP: Path = SP_ROOT_PATH.parent / "pup.py"
     VENV_MARKER: str = "pyproject.toml"
 
     @classmethod
@@ -73,7 +73,7 @@ class Pup:
         """Prep pup's environment."""
         cls.HOME = cls.find_home()
         # place a copy of pup.py into root python so that 'import pup' works everywhere
-        cls.SP_ROOT_PUP.parent.write_text(cls.FILE.read_text("utf-8"), "utf-8")
+        cls.SP_ROOT_PUP.write_text(cls.FILE.read_text("utf-8"), "utf-8")
         cls.LOG_FILE = cls.HOME / cls.LOG_FILE
         if not cls.LOG_FILE.exists():
             cls.log(f"🐶 has arrived to {cls.HOME}", cls.LOG_FILE)
