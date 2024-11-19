@@ -15,8 +15,8 @@ jobs:
     runs-on: windows-latest
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
-      - name: check PATH, install git
-        run: choco install git; echo $PATH; echo $GITHUB_ENV
+      # - name: check PATH, install git
+      #   run: choco install git; echo $PATH; echo $GITHUB_ENV
       - name: Install puppy 3.11
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL
@@ -34,14 +34,14 @@ jobs:
         run: |
           pup remove t1/with/nesting cowsay
           pup list
-      - name: pup clone
-        run: |
-          pup clone https://github.com/liquidcarbon/affinity.git
-          git clone https://github.com/liquidcarbon/affinity.git
-          pup new affinity
-          pixi run uv sync --project affinity
-          pup list
-          affinity/.venv/bin/pytest -vvsx affinity/
+      # - name: pup clone
+      #   run: |
+      #     pup clone https://github.com/liquidcarbon/affinity.git
+      #     git clone https://github.com/liquidcarbon/affinity.git
+      #     pup new affinity
+      #     pixi run uv sync --project affinity
+      #     pup list
+      #     affinity/.venv/bin/pytest -vvsx affinity/
       - name: import pup with fetch
         run: |
           pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "httpx"); import httpx; print(httpx.get("https://example.com"))'

@@ -72,7 +72,8 @@ class Pup:
     def welcome(cls) -> None:
         """Prep pup's environment."""
         cls.HOME = cls.find_home()
-        cls.SP_ROOT_PUP.write_text(cls.FILE.read_text("utf-8"), "utf-8")
+        # place a copy of pup.py into root python so that 'import pup' works everywhere
+        cls.SP_ROOT_PUP.parent.write_text(cls.FILE.read_text("utf-8"), "utf-8")
         cls.LOG_FILE = cls.HOME / cls.LOG_FILE
         if not cls.LOG_FILE.exists():
             cls.log(f"🐶 has arrived to {cls.HOME}", cls.LOG_FILE)
