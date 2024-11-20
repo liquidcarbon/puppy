@@ -6,7 +6,6 @@ The CLI for pup, a cute python project manager.
 
 __version__ = "2.0.0"
 
-from ast import Name
 import collections
 import json
 import platform
@@ -17,7 +16,6 @@ from textwrap import dedent
 from time import strftime
 from typing import Any, Dict, Tuple
 
-import click
 import tomllib
 
 
@@ -45,8 +43,6 @@ class Pup:
     RESERVED: Tuple[str] = ("nb",)
     SP_PREFIX: str = "Lib" if PLATFORM == "Windows" else f"lib/python{PYTHON_VER}"
     SP_VENV: str = f".venv/{SP_PREFIX}/site-packages"
-    SP_ROOT_PATH: Path = Path(sys.prefix) / SP_PREFIX / "site-packages"
-    SP_ROOT_PUP: Path = SP_ROOT_PATH.parent / "pup.py"
     VENV_MARKER: str = "pyproject.toml"
 
     @classmethod
@@ -64,19 +60,29 @@ class Pup:
             return cls.find_home(prefix.parent)
 
     @classmethod
-    def pedigree(cls) -> str:
-        """Pup's origins."""
-        return f"🐶 = {cls.PYTHON} {cls.FILE}  # v{__version__}"
-
-    @classmethod
     def welcome(cls) -> None:
         """Prep pup's environment."""
         cls.HOME = cls.find_home()
+        cls.PIXI_ENV = cls.HOME / ".pixi/envs" / "default"
+        cls.SP_ROOT_PATH = cls.PIXI_ENV / cls.SP_PREFIX / "site-packages"
+        cls.SP_ROOT_PUP = cls.SP_ROOT_PATH.parent / "pup.py"
+
         # place a copy of pup.py into root python so that 'import pup' works everywhere
-        cls.SP_ROOT_PUP.write_text(cls.FILE.read_text("utf-8"), "utf-8")
+        cls.SP_ROOT_PUP.write_bytes(cls.FILE.read_bytes())
+        # add to local sys.path so pup.py can find root click
+        import site
+
+        site.addsitedir(cls.SP_ROOT_PATH.as_posix())
+        # sys.path.append(cls.SP_ROOT_PATH.as_posix())
+
         cls.LOG_FILE = cls.HOME / cls.LOG_FILE
         if not cls.LOG_FILE.exists():
             cls.log(f"🐶 has arrived to {cls.HOME}", cls.LOG_FILE)
+
+    @classmethod
+    def pedigree(cls) -> str:
+        """Pup's origins."""
+        return f"🐶 = {cls.PYTHON} {cls.FILE}  # v{__version__}"
 
     @staticmethod
     def log(
@@ -183,6 +189,13 @@ class Template:
     """)
 
 
+# prep Pup attributes and environments before setting up CLI
+Pup.welcome()
+import click  # noqa: E402
+
+sys.path = sys.path[-1]  # drop root site_packages from sys.path
+
+
 class UserInput:
     """User input prompts and other messages."""
 
@@ -215,10 +228,6 @@ class OrderedGroup(click.Group):
 
     def list_commands(self, ctx):
         return self.commands
-
-
-# prep Pup attributes before setting up CLI
-Pup.welcome()
 
 
 @click.group(cls=OrderedGroup)
@@ -256,9 +265,7 @@ def uv_init(folder: str, **uv_options: Dict[str, Any]):
 
     Pup.hear(f"pup new {folder}")
     if (Pup.HOME / folder).exists():
-        if not confirm(
-            UserInput.NewVenvFolderOverwrite.format(folder), default="y"
-        ):
+        if not confirm(UserInput.NewVenvFolderOverwrite.format(folder), default="y"):
             return
 
     Pup.do(f"pixi run uv init {Pup.HOME / folder} -p {Pup.PYTHON} --no-workspace")
@@ -359,6 +366,7 @@ def play(engine: str, kernel: str):
 
 
 ### Utils ###
+
 
 def confirm(text, **kwargs) -> bool:
     """Prompt with click.confirm or silently return True in non-interactive shells."""
