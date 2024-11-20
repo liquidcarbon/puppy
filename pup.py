@@ -14,9 +14,13 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 from time import strftime
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, TYPE_CHECKING
 
 import tomllib
+
+
+if TYPE_CHECKING:
+    import click
 
 
 class PupException(Exception):
@@ -60,20 +64,23 @@ class Pup:
             return cls.find_home(prefix.parent)
 
     @classmethod
+    def import_click(cls) -> None:
+        """This hack to makes click and pup available in any venv."""
+        cls.SP_ROOT_PUP.write_bytes(cls.FILE.read_bytes())
+        sys.path.append(cls.SP_ROOT_PATH.as_posix())
+        import click  # noqa: F401
+
+        globals()["click"] = click
+        sys.path = sys.path[:-1]
+
+    @classmethod
     def welcome(cls) -> None:
         """Prep pup's environment."""
         cls.HOME = cls.find_home()
         cls.PIXI_ENV = cls.HOME / ".pixi/envs" / "default"
         cls.SP_ROOT_PATH = cls.PIXI_ENV / cls.SP_PREFIX / "site-packages"
         cls.SP_ROOT_PUP = cls.SP_ROOT_PATH.parent / "pup.py"
-
-        # place a copy of pup.py into root python so that 'import pup' works everywhere
-        cls.SP_ROOT_PUP.write_bytes(cls.FILE.read_bytes())
-        # add to local sys.path so pup.py can find root click
-        import site
-
-        site.addsitedir(cls.SP_ROOT_PATH.as_posix())
-        # sys.path.append(cls.SP_ROOT_PATH.as_posix())
+        cls.import_click()
 
         cls.LOG_FILE = cls.HOME / cls.LOG_FILE
         if not cls.LOG_FILE.exists():
@@ -191,9 +198,6 @@ class Template:
 
 # prep Pup attributes and environments before setting up CLI
 Pup.welcome()
-import click  # noqa: E402
-
-sys.path = sys.path[-1]  # drop root site_packages from sys.path
 
 
 class UserInput:
