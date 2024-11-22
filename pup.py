@@ -4,7 +4,7 @@ __doc__ = """
 The CLI for pup, a cute python project manager.
 """
 
-__version__ = "2.0.0"
+__version__ = "2.2.0"
 
 import collections
 import json
@@ -128,7 +128,8 @@ class Pup:
 
         _venvs = []
         for d in Pup.HOME.iterdir():
-            if not d.is_dir() or d.name.startswith("."):
+            # do not follow symlinks or hidden folders
+            if d.is_symlink() or d.name.startswith(".") or not d.is_dir():
                 continue
             _venvs.extend(d.rglob(Pup.VENV_MARKER))
 
