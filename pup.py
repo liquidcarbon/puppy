@@ -4,7 +4,7 @@ __doc__ = """
 The CLI for pup, a cute python project manager.
 """
 
-__version__ = "2.2.0"
+__version__ = "2.2.1"
 
 import collections
 import json
@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 from time import strftime
-from typing import Any, Dict, Tuple, TYPE_CHECKING
+from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
 
 import tomllib
 
@@ -289,7 +289,12 @@ def uv_add(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
     if not folder_abs_path.exists():
         uv_init.callback(folder)
     if packages in (None, ()):
-        packages = click.prompt(UserInput.AddWhat).split()
+        packages = click.prompt(
+            UserInput.AddWhat, default="", show_default=False
+        ).split()
+    if not packages:
+        return
+
     packages = " ".join(packages)
     Pup.hear(f"pup add {folder} {packages}")
 
@@ -390,7 +395,25 @@ else:
     # runs on "import pup"
     Pup.say("woof! run `pup.fetch()` to get started")
 
-    def fetch(venv: str | None = None, *packages: str) -> None:
+    def fetch(
+        venv: str | None = None,
+        *packages: Optional[str],
+        site_packages: bool = True,
+        root: bool = False,
+    ) -> None:
+        """Create, modify, or fetch (activate) existing venvs.
+
+        Activating an environment means placing its site-packages folder on `sys.path`,
+        allowing to import the modules that are installed in that venv.
+
+        `venv`: folder containing `pyproject.toml` and installed packages in `.venv`
+            if venv does not exist, puppy will create it, install *packages,
+            and fetch newly created venv
+        `*packages`: names of packages to `pup add`
+        `site_packages`: if True, appends venv's site-packages to `sys.path`
+        `root`: if True, appends venv's root folder to `sys.path`
+            (useful for packages under development)
+        """
         pup_venvs = Pup.list_venvs_relative()
         venvs_names = [p.as_posix() for p in pup_venvs]
         Pup.log(f"🐶 virtual envs available: {venvs_names}", file=None, tee=False)
@@ -398,22 +421,30 @@ else:
             venv = click.prompt(UserInput.FetchWhat, default="", show_default=False)
         if not venv:
             return
+
         venv_sp_path = Pup.HOME / venv / Pup.SP_VENV
-        if venv_sp_path.exists():
-            if len(packages) > 0:
-                uv_add.callback(folder=venv, packages=packages)
-            if (path := str(venv_sp_path)) not in sys.path:
-                _action = "added to"
-                sys.path.append(path)
-            else:
-                _action = "already on"
-            pup_list.callback(venv)
-            Pup.log(
-                f"fetched packages from '{venv}': {venv_sp_path} {_action} `sys.path`",
-                file=None,
-                tee=False,
-            )
-        else:
+        if not venv_sp_path.exists():
+            # create/modify venv
             uv_add.callback(folder=venv, packages=packages)
-            fetch(venv)
+            fetch(venv, site_packages=site_packages, root=root)
+        else:
+            if len(packages) > 0:  # add new packages to venv
+                uv_add.callback(folder=venv, packages=packages)
+            new_paths = []
+            if site_packages:
+                new_paths.append(str(venv_sp_path))
+            if root:
+                new_paths.append(str(Pup.HOME / venv))
+            for path in new_paths:
+                if path not in sys.path:
+                    _action = "added to"
+                    sys.path.append(path)
+                else:
+                    _action = "already on"
+                Pup.log(
+                    f"fetched packages from '{venv}': {path} {_action} `sys.path`",
+                    file=None,
+                    tee=False,
+                )
+            pup_list.callback(venv)
         return

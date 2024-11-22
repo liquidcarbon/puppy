@@ -39,7 +39,7 @@ Installing puppy preps the folder to house python, in complete isolation from sy
 
 ## Using `pup` as a Module
 
-Pup can help you build python projects from interactive environments, such as (i)python shells, jupyter notebooks, or marimo notebooks.
+Pup can help you construct and activate python projects interactively, such as from (i)python shells, jupyter notebooks, or marimo notebooks.
 
 ```
 a@a-Aon-L1:~/Desktop/puppy$ .pixi/envs/default/bin/python
@@ -60,17 +60,68 @@ Choose venv to fetch: t1/web
 
 Now the "kernel" `t1/web` is activated.  In other words, packages installed `t1/web/.venv` are available on `sys.path`.
 
-The signature of `pup.fetch` is `def fetch(venv: str | None = None, *packages: str) -> None:`
-
 Need to install more packages on the go, or create a new venv?  Just provide the destination, and list of packages.
 
 ```python
 pup.fetch("t1/web", "awswrangler", "cloudpathlib")
-pup.fetch("data", "duckdb", "polars")
+pup.fetch("data", "duckdb", "polars", root=True)
+```
+
+Here is the signature of `pup.fetch()`:
+```python
+def fetch(
+    venv: str | None = None,
+    *packages: Optional[str],
+    site_packages: bool = True,
+    root: bool = False,
+) -> None:
+    """Create, modify, or fetch (activate) existing venvs.
+
+    Activating an environment means placing its site-packages folder on `sys.path`,
+    allowing to import the modules that are installed in that venv.
+
+    `venv`: folder containing `pyproject.toml` and installed packages in `.venv`
+        if venv does not exist, puppy will create it, install *packages,
+        and fetch newly created venv
+    `*packages`: names of packages to `pup add`
+    `site_packages`: if True, appends venv's site-packages to `sys.path`
+    `root`: if True, appends venv's root folder to `sys.path`
+        (useful for packages under development)
+    """
+```
+
+With `root=True`, you also add new project's root folder to your environment, making its modules available for import.
+This is useful for working with projects that themselves aren't yet packaged and built.
+You also have the option to omit the site-packages folder with `site_packages=False`.
+
+```
+pixi run python
+Python 3.12.7 | packaged by conda-forge | (main, Oct  4 2024, 16:05:46) [GCC 13.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import pup; pup.fetch("test-only-root", root=True, site_packages=False)
+[2024-11-22 13:10:49] 🐶 said: woof! run `pup.fetch()` to get started
+[2024-11-22 13:10:49] 🐶 virtual envs available: ['gr']
+[2024-11-22 13:10:49] 🐶 heard: pup new test-only-root
+[2024-11-22 13:10:49] 🐶 said: pixi run uv init /home/a/puppy/test-only-root -p /home/a/puppy/.pixi/envs/default/bin/python --no-workspace
+Initialized project `test-only-root` at `/home/a/puppy/test-only-root`
+[2024-11-22 13:10:49] 🐶 said: pixi run uv venv /home/a/puppy/test-only-root/.venv -p /home/a/puppy/.pixi/envs/default/bin/python
+Using CPython 3.12.7 interpreter at: .pixi/envs/default/bin/python
+Creating virtual environment at: test-only-root/.venv
+Activate with: source test-only-root/.venv/bin/activate
+Specify what to install: 
+[2024-11-22 13:10:50] 🐶 virtual envs available: ['gr', 'test-only-root']
+[2024-11-22 13:10:50] fetched packages from 'test-only-root': /home/a/puppy/test-only-root added to `sys.path`
+[2024-11-22 13:10:50] 🐶 heard: pup list test-only-root
+{
+  "test-only-root": []
+}
+>>> import hello; hello.main()  # `hello.py` is included in uv's project template
+Hello from test-only-root!
 ```
 
 ## Notebooks (WIP)
 
+Coming soon: templates for Jupyter and Marimo notebooks.
 `pup play --help`
 
 ## But Why
