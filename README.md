@@ -6,7 +6,7 @@ Your new best friend will help you set up and organize your python projects, wit
 
 Puppy is a transparent wrapper around [pixi](https://github.com/prefix-dev/pixi/) and [uv](https://github.com/astral-sh/uv), two widely used Rust-based tools that belong together.
 
-Puppy installs python, creates projects and virtual environments, and launches notebook properly linked to venvs.
+Puppy installs python, creates projects and virtual environments, and launches [marimo](https://github.com/marimo-team/marimo) or jupyter notebooks properly linked to venvs.
 
 ## Get started
 
@@ -39,7 +39,7 @@ Installing puppy preps the folder to house python, in complete isolation from sy
 
 ## Using `pup` as a Module
 
-Pup can help you construct and activate python projects interactively, such as from (i)python shells, jupyter notebooks, or marimo notebooks.
+Pup can help you construct and activate python projects interactively, such as from (i)python shells, jupyter notebooks, or [marimo notebooks](https://github.com/marimo-team/marimo/discussions/2994).
 
 ```
 a@a-Aon-L1:~/Desktop/puppy$ .pixi/envs/default/bin/python
@@ -108,7 +108,7 @@ Initialized project `test-only-root` at `/home/a/puppy/test-only-root`
 Using CPython 3.12.7 interpreter at: .pixi/envs/default/bin/python
 Creating virtual environment at: test-only-root/.venv
 Activate with: source test-only-root/.venv/bin/activate
-Specify what to install: 
+Specify what to install:
 [2024-11-22 13:10:50] 🐶 virtual envs available: ['gr', 'test-only-root']
 [2024-11-22 13:10:50] fetched packages from 'test-only-root': /home/a/puppy/test-only-root added to `sys.path`
 [2024-11-22 13:10:50] 🐶 heard: pup list test-only-root
@@ -122,6 +122,8 @@ Hello from test-only-root!
 ## Notebooks (WIP)
 
 Coming soon: templates for Jupyter and Marimo notebooks.
+[Unified environment management for any computational notebooks](https://github.com/marimo-team/marimo/discussions/2994) - no more Jupyter kernels!
+
 `pup play --help`
 
 ## But Why
