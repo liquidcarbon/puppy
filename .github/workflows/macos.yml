@@ -20,7 +20,7 @@ jobs:
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL
           pwd && ls -la
-          curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash
+          curl -fsSL $MAIN_BRANCH_URL/pup.sh | bash -s 3.10
       - name: new env with pup new
         run: |
           pup new t1/with/nesting

@@ -1,0 +1,25 @@
+name: Tests on Ubuntu runner
+
+on:
+  push:
+    branches:
+      - "**"
+
+env:
+  INSTALL_URL: "https://pup-py-fetch.hf.space"
+  PYTHONIOENCODING: "utf8" # https://github.com/pallets/click/issues/2121
+
+jobs:
+  puppy-from-hf:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'nogha')"
+    steps:
+      - name: Set up custom PATH
+        run: echo "PATH=$HOME/.pixi/bin:$PATH" >> $GITHUB_ENV
+      - name: Install puppy from HF spaces
+        run: |
+          curl -fsSL "$INSTALL_URL?python=3.13&pixi=pytest&t1=cowsay,httpx&t2=xmltodict" | bash
+      - name: new env with pup new
+        run: |
+          pup add t3/with/nesting "cowsay<6"
+          pup list
