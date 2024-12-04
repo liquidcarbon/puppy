@@ -36,11 +36,10 @@ jobs:
           pup list
       - name: pup clone
         run: |
-          pup clone https://github.com/liquidcarbon/affinity.git
-          git clone https://github.com/liquidcarbon/affinity.git
-          pup new affinity
-          pixi run uv sync --project affinity
+          git clone https://github.com/liquidcarbon/affinity.git@2024-11-07-90bfd62
+          pup sync affinity
           pup list
+          pup sync affinity -U
           affinity/.venv/bin/pytest -vvsx affinity/
       - name: import pup with fetch
         run: |

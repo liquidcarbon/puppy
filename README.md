@@ -31,6 +31,10 @@ The `pup-py-fetch` API accepts query parameters that allow specifying the exact 
   - `pixi`: [comma-separated list of pixi/Conda dependencies](https://pup-py-fetch.hf.space?pixi=jupyter,quarto)
   - virtual environments: [all other query parameters with comma-separated package names](https://pup-py-fetch.hf.space?env1=duckdb,pandas&env2=cowsay)
 
+> [!NOTE]
+> As of Dec 2024, many packages still do not support python 3.13; thus, the default version in puppy is 3.12.
+
+
 Visiting the URLs above returns the installation scripts.  You can mix and match query parameters, unlocking single-command recipes for complex builds:
 
 ```bash
@@ -52,7 +56,7 @@ Installing puppy preps the folder to house python, in complete isolation from sy
 2) ⚙ [Bash](https://github.com/liquidcarbon/puppy/blob/main/pup.sh) or [Powershell](https://github.com/liquidcarbon/puppy/blob/main/pup.ps1) runner/installer is placed into `~/.pixi/bin` (the only folder that goes on PATH)
 3) 🐶 `pup.py` is the python/[click](https://github.com/pallets/click) CLI that wraps pixi and uv commands
 4) 🟣 `pup new` and `pup add` use uv to handle projects, packages and virtual environments
-5) 🥳 `pup play` creates and launches notebooks (marimo or jupyter) properly linked to the virtual environments
+5) 📀 `pup clone` and `pup sync` help build environments from external `pyproject.toml` project files
 
 ## Using `pup` as a Module
 

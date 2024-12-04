@@ -4,7 +4,7 @@ __doc__ = """
 The CLI for pup, a cute python project manager.
 """
 
-__version__ = "2.3.0"
+__version__ = "2.3.1"
 
 import collections
 import json
@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 from time import strftime
-from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
 if sys.version.startswith("3.10"):
     try:
@@ -228,6 +228,7 @@ class UserInput:
         "Specify folder/venv from where to remove packages", fg=COLOR
     )
     RemoveWhat = click.style("Specify what to remove", fg=COLOR)
+    SyncWhere = click.style("Specify folder/venv to sync", fg=COLOR)
     FetchWhat = click.style("Choose venv to fetch", fg=COLOR)
 
 
@@ -326,6 +327,37 @@ def uv_remove(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
 
 
 # TODO: install and uninstall (get package bypassing pyproject.toml)
+
+
+@main.command(name="sync", context_settings={"ignore_unknown_options": True})
+@click.argument("folder", nargs=1, required=False)
+@click.argument("packages", nargs=-1, required=False)
+@click.option("--upgrade", "-U", is_flag=True, help="sync and upgrade packages")
+def uv_sync(
+    folder: str,
+    upgrade: bool = False,
+    **uv_options: Dict[str, Any],
+):
+    """Sync virtual environment to match `pyproject.toml`."""
+
+    if folder is None:
+        folder = click.prompt(UserInput.SyncWhere)
+    folder_abs_path = (Pup.HOME / folder).absolute()
+    if not folder_abs_path.exists():
+        click.secho(f"venv folder {folder} not found", fg=UserInput.COLOR_WARN)
+        exit(1)
+    elif not (folder_abs_path / "pyproject.toml").exists():
+        click.secho(f"pyproject.toml not found in {folder}", fg=UserInput.COLOR_WARN)
+        exit(1)
+    elif not (folder_abs_path / ".venv").exists():
+        Pup.do(f"pixi run uv venv {folder_abs_path}/.venv -p {Pup.PYTHON}")
+
+    Pup.hear(f"""pup sync {folder} {"-U" if upgrade else ""}""")
+
+    cmd = f"pixi run uv sync --project {folder_abs_path}"
+    if upgrade:
+        cmd += " -U"
+    Pup.do(cmd)
 
 
 @main.command(name="list")
