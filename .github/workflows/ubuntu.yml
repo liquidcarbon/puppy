@@ -34,12 +34,17 @@ jobs:
         run: |
           pup remove t1/with/nesting cowsay
           pup list
-      - name: pup clone
+      - name: pup clone and sync
         run: |
-          git clone https://github.com/liquidcarbon/affinity.git
+          pup clone https://github.com/liquidcarbon/affinity
+          # now force an older version, then sync
+          pixi run uv pip install \
+            https://github.com/liquidcarbon/affinity/releases/download/2024-11-07-90bfd62/affinity-0.7.0-py3-none-any.whl \
+            -p affinity/.venv/bin/python
+          # force an older version
           pup sync affinity
-          pup list
           pup sync affinity -U
+          pup list
           affinity/.venv/bin/pytest -vvsx affinity/
       - name: import pup with fetch
         run: |

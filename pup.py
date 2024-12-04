@@ -4,7 +4,7 @@ __doc__ = """
 The CLI for pup, a cute python project manager.
 """
 
-__version__ = "2.3.1"
+__version__ = "2.4.0"
 
 import collections
 import json
@@ -338,7 +338,12 @@ def uv_sync(
     upgrade: bool = False,
     **uv_options: Dict[str, Any],
 ):
-    """Sync virtual environment to match `pyproject.toml`."""
+    """Sync virtual environment to match `pyproject.toml`.
+
+    By default, uv uses lower bound for package version.
+    When newer versions of dependencies are released, `pup sync <venv> -U`
+    will upgrade them, but will not touch those that are pinned with "==" or "<=".
+    """
 
     if folder is None:
         folder = click.prompt(UserInput.SyncWhere)
@@ -358,6 +363,19 @@ def uv_sync(
     if upgrade:
         cmd += " -U"
     Pup.do(cmd)
+
+
+@main.command(name="clone")
+@click.argument("uri", required=True)
+@click.argument("folder", required=False)
+@click.option("--sync", is_flag=True)
+def pup_clone(uri: str, folder: str | None = None, sync: bool = False) -> None:
+    """Clone a repo and setup venv using `pyproject.toml` or `requirements.txt`."""
+
+    folder = folder or Path(uri).stem
+    Pup.hear(f"""pup clone {uri} {"--sync" if sync else ""}""")
+    Pup.do(f"git clone {uri} {(Pup.HOME / folder).as_posix()}")
+    uv_sync.callback(folder)
 
 
 @main.command(name="list")
@@ -385,19 +403,6 @@ def pup_list(venv: str | None = None, _: None = None) -> Dict[str, str]:
         json.dumps(pup_venvs_dict, indent=2, ensure_ascii=False),
         fg=Pup.COLOR,
     )
-
-
-@main.command(name="clone")
-@click.argument("uri", required=True)
-def pup_clone(uri: str) -> None:
-    """Clone a repo and setup venv using `pyproject.toml` or `requirements.txt`."""
-
-    folder = Path(uri).stem
-    Pup.hear(f"pup clone {uri}")
-    Pup.say("here's the recipe (WIP):")
-    Pup.say(f"git clone {uri}")
-    Pup.say(f"pup new {folder}")
-    Pup.say(f"pixi run uv sync --project {folder}")
 
 
 @main.command(name="play")
