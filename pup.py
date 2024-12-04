@@ -16,7 +16,11 @@ from textwrap import dedent
 from time import strftime
 from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
 
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # when python < 3.11
+    subprocess.run(["pixi add tomllib"])
+    import tomllib
 
 
 if TYPE_CHECKING:

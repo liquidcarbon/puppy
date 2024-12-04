@@ -1,10 +1,17 @@
 [project]
 name = "puppy"
-version = "2.2.1"
+version = "2.2.2"
 description = "Your new best friend in the python world."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
-
+classifiers = [
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 [tool.ruff]
 line-length=88
