@@ -393,7 +393,7 @@ if __name__ == "__main__":
     main()
 else:
     # runs on "import pup"
-    Pup.say("woof! run `pup.fetch()` to get started")
+    # Pup.say("woof! run `pup.fetch()` to get started")
 
     def fetch(
         venv: str | None = None,

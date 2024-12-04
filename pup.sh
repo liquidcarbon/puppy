@@ -1,6 +1,6 @@
 # Runner / installer / updater for puppy v2.
 
-#!/bin/bash
+#!/usr/bin/bash
 
 DEFAULT_PY_VERSION=3.12
 GH_BRANCH=main
