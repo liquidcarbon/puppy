@@ -19,7 +19,7 @@ from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
 try:
     import tomllib
 except ModuleNotFoundError:  # when python < 3.11
-    subprocess.run(["pixi add tomllib"])
+    subprocess.run(["pixi", "add", "tomllib"])
     import tomllib
 
 
