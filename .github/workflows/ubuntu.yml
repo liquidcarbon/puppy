@@ -36,7 +36,7 @@ jobs:
           pup list
       - name: pup clone
         run: |
-          git clone https://github.com/liquidcarbon/affinity.git@2024-11-07-90bfd62
+          git clone https://github.com/liquidcarbon/affinity.git
           pup sync affinity
           pup list
           pup sync affinity -U
