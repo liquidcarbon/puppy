@@ -15,13 +15,30 @@ To start, you need only `curl` / `iwr` and an empty folder; pup and friends will
 ### Linux
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh | bash
+curl -fsSL https://pup-py-fetch.hf.space | bash
 ```
 
 ### Windows
 
 ```powershell
-iex (iwr https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1).Content
+iex (iwr https://pup-py-fetch.hf.space).Content
+```
+
+### One Installer To Rule Them All
+
+The `pup-py-fetch` API accepts query parameters that allow specifying the exact environment recipe you want to build:
+  - `python`: [3.10](https://pup-py-fetch.hf.space?python=3.10) through [3.13](https://pup-py-fetch.hf.space?python=3.13)
+  - `pixi`: [comma-separated list of pixi/Conda dependencies](https://pup-py-fetch.hf.space?pixi=jupyter,quarto)
+  - virtual environments: [all other query parameters with comma-separated package names](https://pup-py-fetch.hf.space?env1=duckdb,pandas&env2=cowsay)
+
+Visiting the URLs above returns the installation scripts.  You can mix and match query parameters, unlocking single-command recipes for complex builds:
+
+```bash
+curl -fsSL "https://pup-py-fetch.hf.space?pixi=marimo&env1=duckdb,pandas&env2=cowsay" | bash
+```
+
+```powershell
+iex (iwr "https://pup-py-fetch.hf.space?python=3.11&pixi=marimo&tables=duckdb,pandas,polars").Content
 ```
 
 ## How It Works
@@ -186,6 +203,10 @@ Then came Jupyter notebooks, a wonderful tool that unlocked the floodgates of in
 
 - [v0](https://github.com/liquidcarbon/puppy/tree/b474b1cd6c63b9fc80db5d81f954536a58aeab2a) was a big Bash script
 - [v1](https://github.com/liquidcarbon/puppy/tree/v1) remains a functional CLI with `pup play` focused on Jupyter kernels
+
+## Built with Puppy
+
+See [examples](examples/README.md).
 
 ## Support
 
