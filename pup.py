@@ -17,8 +17,11 @@ from time import strftime
 from typing import Any, Dict, Optional, Tuple, TYPE_CHECKING
 
 if sys.version.startswith("3.10"):
-    subprocess.run([(Path.home() / ".pixi/bin/pixi").as_posix(), "add", "tomli"])
-    import tomli as tomllib
+    try:
+        import tomli as tomllib
+    except ModuleNotFoundError:
+        subprocess.run([(Path.home() / ".pixi/bin/pixi").as_posix(), "add", "tomli"])
+        import tomli as tomllib
 else:
     import tomllib
 
