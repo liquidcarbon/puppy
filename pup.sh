@@ -11,7 +11,9 @@ main() {
   DIR=$(pwd)
   PUP=""
   while [ "$DIR" != "/" ]; do
-    [[ -f "$DIR/pixi.toml" ]] && PIXI_TOML="$DIR/pixi.toml"
+    if [ -f "$DIR/pixi.toml" ]; then
+        PIXI_TOML="$DIR/pixi.toml"
+    fi
     if [ -f "$DIR/pup.py" ]; then
       PUP="$DIR/pup.py"
       PUP_HOME="$DIR"
@@ -55,7 +57,9 @@ install() {
   if [ "$(ls -A)" != "" ]; then
     read -ei "y" -p \
       "$(pwd) is not empty; do you want to make it puppy's home? (y/n): "
-      [[ "$REPLY" == "n" ]] && exit 1
+      if [ "$REPLY" == "n" ]; then
+        exit 1
+      fi
   fi
   get_pixi
   pixi_init
