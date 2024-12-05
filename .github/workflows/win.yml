@@ -16,12 +16,10 @@ jobs:
     runs-on: windows-latest
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
-      - name: install git
-        run: choco install git --no-progress
       - name: Install puppy from HF spaces
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL
-          iex (iwr "$INSTALL_URL?python=3.11&pixi=notebook&t1=cowsay").Content
+          iex (iwr -useb "$($env:INSTALL_URL)?python=3.11&pixi=notebook&t1=cowsay").Content
       - name: new env with pup new
         run: |
           pup new t2/with/nesting
@@ -35,6 +33,10 @@ jobs:
         run: |
           pup remove t2/with/nesting cowsay
           pup list
+      - name: install git, check PATH
+        run: |
+          choco install git --no-progress
+          echo $env:PATH
       - name: pup clone and sync
         run: |
           pup clone https://github.com/liquidcarbon/affinity
