@@ -17,11 +17,11 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
       - name: install git
-        run: choco install git
+        run: choco install git --no-progress
       - name: Install puppy from HF spaces
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL
-          iex (iwr "$env:INSTALL_URL?python=3.11&pixi=notebook&t1=cowsay").Content
+          iex (iwr "INSTALL_URL?python=3.11&pixi=notebook&t1=cowsay").Content
       - name: new env with pup new
         run: |
           pup new t2/with/nesting
