@@ -43,10 +43,11 @@ jobs:
           # now force an older version, then sync
           pixi run uv pip install \
             https://github.com/liquidcarbon/affinity/releases/download/2024-11-07-90bfd62/affinity-0.7.0-py3-none-any.whl \
-            -p affinity/.venv/bin/python
+            -p affinity/.venv/Scripts/python.exe
           pup sync affinity
+          pup sync affinity -U
           pup list
-          affinity/.venv/bin/pytest -vvsx affinity/
+          affinity/.venv/Scripts/pytest.exe -vvsx affinity/
       - name: import pup with fetch
         run: |
           pixi run python -c 'import pup; pup.fetch("t2/with/nesting", "httpx"); import httpx; print(httpx.get("https://example.com"))'
