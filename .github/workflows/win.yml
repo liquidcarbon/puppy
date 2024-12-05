@@ -6,45 +6,48 @@ on:
       - "**"
 
 env:
-  MAIN_BRANCH_URL: "https://raw.githubusercontent.com/liquidcarbon/puppy/main/"
+  INSTALL_URL: "https://pup-py-fetch.hf.space"
   PYTHONIOENCODING: "utf8" # https://github.com/pallets/click/issues/2121
-  PATH: "C:\\Users\\runneradmin\\.pixi\\bin"
+  # https://github.com/actions/runner-images/issues/10953
+  PATH: "C:\\Users\\runneradmin\\.pixi\\bin;C:\\ProgramData\\chocolatey\\bin;C:\\Program Files\\Git\\bin"
 
 jobs:
   puppy-win-311:
     runs-on: windows-latest
     if: "!contains(github.event.head_commit.message, 'nogha')"
     steps:
-      # - name: check PATH, install git
-      #   run: choco install git; echo $PATH; echo $GITHUB_ENV
-      - name: Install puppy 3.11
+      - name: install git
+        run: choco install git
+      - name: Install puppy from HF spaces
         run: |
           sleep 9;  # give it time to update MAIN_BRANCH_URL
-          & ([scriptblock]::Create((iwr -useb $env:MAIN_BRANCH_URL/pup.ps1).Content)) 3.11
+          iex (iwr "$INSTALL_URL?python=3.11&pixi=notebook&t1=cowsay").Content
       - name: new env with pup new
         run: |
-          pup new t1/with/nesting
-          pup add t1/with/nesting "cowsay<6"
+          pup new t2/with/nesting
+          pup add t2/with/nesting "cowsay<6"
       - name: new env with pup add from another folder
         run: |
-          cd t1
-          pup add t2 cowsay requests
+          cd t2
+          pup add t3 cowsay requests
           pup list
       - name: pup remove
         run: |
-          pup remove t1/with/nesting cowsay
+          pup remove t2/with/nesting cowsay
           pup list
-      # - name: pup clone
-      #   run: |
-      #     pup clone https://github.com/liquidcarbon/affinity.git
-      #     git clone https://github.com/liquidcarbon/affinity.git
-      #     pup new affinity
-      #     pixi run uv sync --project affinity
-      #     pup list
-      #     affinity/.venv/bin/pytest -vvsx affinity/
+        run: |
+          pup clone https://github.com/liquidcarbon/affinity
+          # now force an older version, then sync
+          pixi run uv pip install \
+            https://github.com/liquidcarbon/affinity/releases/download/2024-11-07-90bfd62/affinity-0.7.0-py3-none-any.whl \
+            -p affinity/.venv/bin/python
+          # force an older version
+          pup sync affinity
+          pup list
+          affinity/.venv/bin/pytest -vvsx affinity/
       - name: import pup with fetch
         run: |
-          pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "httpx"); import httpx; print(httpx.get("https://example.com"))'
+          pixi run python -c 'import pup; pup.fetch("t2/with/nesting", "httpx"); import httpx; print(httpx.get("https://example.com"))'
       - name: pup update after deleting pixi.exe
         run: |
           rm C:\\Users\\runneradmin\\.pixi\\bin\\pixi.exe
