@@ -41,7 +41,6 @@ jobs:
           pixi run uv pip install \
             https://github.com/liquidcarbon/affinity/releases/download/2024-11-07-90bfd62/affinity-0.7.0-py3-none-any.whl \
             -p affinity/.venv/bin/python
-          # force an older version
           pup sync affinity
           pup sync affinity -U
           pup list
