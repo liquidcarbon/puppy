@@ -58,6 +58,8 @@ Installing puppy preps the folder to house python, in complete isolation from sy
 4) 🟣 `pup new` and `pup add` use uv to handle projects, packages and virtual environments
 5) 📀 `pup clone` and `pup sync` help build environments from external `pyproject.toml` project files
 
+https://github.com/user-attachments/assets/9cdd5173-5358-404a-84cc-f569da9972f8 
+
 ## Using `pup` as a Module
 
 Pup can help you construct and activate python projects interactively, such as from (i)python shells, jupyter notebooks, or [marimo notebooks](https://github.com/marimo-team/marimo/discussions/2994).
