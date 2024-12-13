@@ -47,6 +47,7 @@ jobs:
           pup sync affinity
           pup sync affinity -U
           pup list
+          pup list -f
           affinity/.venv/Scripts/pytest.exe -vvsx affinity/
       - name: import pup with fetch
         run: |

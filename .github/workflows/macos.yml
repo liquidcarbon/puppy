@@ -33,7 +33,7 @@ jobs:
       - name: pup remove
         run: |
           pup remove t1/with/nesting cowsay
-          pup list
+          pup list -f
       - name: import pup with fetch
         run: |
           pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "httpx"); import httpx; print(httpx.get("https://example.com"))'

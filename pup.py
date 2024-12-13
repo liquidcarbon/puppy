@@ -55,6 +55,9 @@ class Pup:
     SP_PREFIX: str = "Lib" if PLATFORM == "Windows" else f"lib/python{PYTHON_VER}"
     SP_VENV: str = f".venv/{SP_PREFIX}/site-packages"
     VENV_MARKER: str = "pyproject.toml"
+    VENV_PYTHON: str = (
+        ".venv/Scripts/python.exe" if PLATFORM == "Windows" else ".venv/bin/python"
+    )
 
     @classmethod
     def find_home(cls, prefix: Path = Path(sys.prefix)) -> Path:
@@ -263,8 +266,7 @@ def say_hi():
 
 @main.command(name="new", context_settings={"ignore_unknown_options": True})
 @click.argument("folder", nargs=1, required=False)
-@click.argument("uv_options", nargs=-1, required=False)
-def uv_init(folder: str, **uv_options: Dict[str, Any]):
+def uv_init(folder: str):
     """Create new project and virtual environment with `uv init`."""
 
     if folder is None:
@@ -288,7 +290,7 @@ def uv_init(folder: str, **uv_options: Dict[str, Any]):
 @main.command(name="add", context_settings={"ignore_unknown_options": True})
 @click.argument("folder", nargs=1, required=False)
 @click.argument("packages", nargs=-1, required=False)
-def uv_add(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
+def uv_add(folder: str, packages: Tuple[str], uv_options: Tuple[str] = tuple()):
     """Install packages into specified venv with `uv add`."""
 
     if folder is None:
@@ -304,15 +306,16 @@ def uv_add(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
         return
 
     packages = " ".join(packages)
-    Pup.hear(f"pup add {folder} {packages}")
+    _uv_options = " ".join(uv_options)
 
-    Pup.do(f"pixi run uv add {packages} --project {folder_abs_path}")
+    Pup.hear(f"pup add {folder} {packages} {_uv_options}")
+    Pup.do(f"pixi run uv add {packages} --project {folder_abs_path} {_uv_options}")
 
 
 @main.command(name="remove")
 @click.argument("folder", nargs=1, required=False)
 @click.argument("packages", nargs=-1, required=False)
-def uv_remove(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
+def uv_remove(folder: str, packages: Tuple[str]):
     """Remove packages from specified venv with `uv remove`."""
 
     if folder is None:
@@ -321,22 +324,22 @@ def uv_remove(folder: str, packages: Tuple[str], **uv_options: Dict[str, Any]):
         packages = click.prompt(UserInput.RemoveWhat).split()
     folder_abs_path = (Pup.HOME / folder).absolute()
     packages = " ".join(packages)
-    Pup.hear(f"pup remove {folder} {packages}")
 
+    Pup.hear(f"pup remove {folder} {packages}")
     Pup.do(f"pixi run uv remove {packages} --project {folder_abs_path}")
 
 
-# TODO: install and uninstall (get package bypassing pyproject.toml)
+# TODO: uv pip install and uninstall (get/remove package bypassing pyproject.toml)
 
 
 @main.command(name="sync", context_settings={"ignore_unknown_options": True})
 @click.argument("folder", nargs=1, required=False)
-@click.argument("packages", nargs=-1, required=False)
+@click.argument("uv_options", nargs=-1, required=False)
 @click.option("--upgrade", "-U", is_flag=True, help="sync and upgrade packages")
 def uv_sync(
     folder: str,
+    uv_options: Tuple[str] = tuple(),
     upgrade: bool = False,
-    **uv_options: Dict[str, Any],
 ):
     """Sync virtual environment to match `pyproject.toml`.
 
@@ -357,9 +360,10 @@ def uv_sync(
     elif not (folder_abs_path / ".venv").exists():
         Pup.do(f"pixi run uv venv {folder_abs_path}/.venv -p {Pup.PYTHON}")
 
-    Pup.hear(f"""pup sync {folder} {"-U" if upgrade else ""}""")
+    _uv_options = " ".join(uv_options)
+    Pup.hear(f"""pup sync {folder} {"-U" if upgrade else ""} {_uv_options}""")
 
-    cmd = f"pixi run uv sync --project {folder_abs_path}"
+    cmd = f"pixi run uv sync --project {folder_abs_path} {_uv_options}"
     if upgrade:
         cmd += " -U"
     Pup.do(cmd)
@@ -380,10 +384,13 @@ def pup_clone(uri: str, folder: str | None = None, sync: bool = False) -> None:
 
 @main.command(name="list")
 @click.argument("venv", required=False)
+@click.option("--full", "-f", is_flag=True, help="List all packages with `uv pip list`")
 @click.option(
     "---", help="Use `pup list .` for root dependencies from `pixi.toml`", type=Path
 )
-def pup_list(venv: str | None = None, _: None = None) -> Dict[str, str]:
+def pup_list(
+    venv: str | None = None, full: bool = False, _: None = None
+) -> Dict[str, str]:
     """List venvs and their `pyproject.toml` dependencies."""
 
     Pup.hear(f"pup list {'' if venv is None else venv}")
@@ -399,10 +406,15 @@ def pup_list(venv: str | None = None, _: None = None) -> Dict[str, str]:
             pup_venvs_dict = {venv: pup_venvs_dict.get(venv, None)}
     else:
         pup_venvs_dict = {"🏠": Pup.load_pixi_toml().get("dependencies", {})}
-    click.secho(
-        json.dumps(pup_venvs_dict, indent=2, ensure_ascii=False),
-        fg=Pup.COLOR,
-    )
+    if full:
+        for p in pup_venvs_dict:
+            cmd = f"pixi run uv pip list -p {Pup.HOME / p / Pup.VENV_PYTHON}"
+            Pup.do(cmd)
+    else:
+        click.secho(
+            json.dumps(pup_venvs_dict, indent=2, ensure_ascii=False),
+            fg=Pup.COLOR,
+        )
 
 
 @main.command(name="play")
