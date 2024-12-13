@@ -393,7 +393,7 @@ def pup_list(
 ) -> Dict[str, str]:
     """List venvs and their `pyproject.toml` dependencies."""
 
-    Pup.hear(f"pup list {'' if venv is None else venv}")
+    Pup.hear(f"pup list {'' if venv is None else venv} {'--full' if full else ''}")
     if venv != ".":
         pup_venvs = Pup.list_venvs_relative()
         pup_venvs_dict = {
