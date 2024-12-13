@@ -4,7 +4,7 @@ __doc__ = """
 The CLI for pup, a cute python project manager.
 """
 
-__version__ = "2.4.0"
+__version__ = "2.5.0"
 
 import collections
 import json
@@ -12,7 +12,6 @@ import platform
 import subprocess
 import sys
 from pathlib import Path
-from textwrap import dedent
 from time import strftime
 from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
@@ -159,52 +158,6 @@ class Pup:
     def load_pyproject_toml(path: Path) -> Dict[str, Any]:
         """Load folder's `pyproject.toml` file."""
         return tomllib.load((path / "pyproject.toml").open("rb"))
-
-    # @staticmethod
-    # def verbose(fn: Callable) -> Callable:
-    #     click.echo("decorator for CLI commands")
-    #     return fn
-
-
-class Notebook:
-    """Notebook stuff."""
-
-    def __init__(self, engine: str):
-        return
-
-    @staticmethod
-    def install_nb_package(engine: str):
-        with open(Pup.HOME / "pixi.toml") as f:
-            pixi_toml = f.read()
-            if engine == "marimo":
-                if "marimo" not in pixi_toml:
-                    Pup.do("""pixi add "marimo>=0" """)
-            elif engine in ("lab", "notebook"):
-                if "jupyter" not in pixi_toml:
-                    Pup.do("""pixi add "jupyter>=1" """)
-            else:
-                Pup.say(f"notebook engine '{engine}' not supported")
-                exit(1)
-        return
-
-
-class Template:
-    """Templates and env managers for `pup play`."""
-
-    TIME_FORMAT: str = "%y%m%d%H%M%S"
-
-    Marimo = dedent("""
-    import marimo
-    app = marimo.App(width="full")
-
-    @app.cell
-    def __():
-        import pup; pup.fetch()
-        return (pup,)
-
-    if __name__ == "__main__":
-        app.run()
-    """)
 
 
 # prep Pup attributes and environments before setting up CLI
@@ -415,20 +368,6 @@ def pup_list(
             json.dumps(pup_venvs_dict, indent=2, ensure_ascii=False),
             fg=Pup.COLOR,
         )
-
-
-@main.command(name="play")
-@click.option(
-    "--engine",
-    "-e",
-    type=click.Choice(["marimo", "notebook", "lab"]),
-    default="marimo",
-    help="notebook engine",
-)
-def play(engine: str, kernel: str):
-    """Create a notebook in a specified environment."""
-
-    Notebook.install_nb_package(engine)
 
 
 ### Utils ###

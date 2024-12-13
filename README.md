@@ -47,20 +47,20 @@ iex (iwr "https://pup-py-fetch.hf.space?python=3.11&pixi=marimo&tables=duckdb,pa
 
 ## How It Works
 
-Puppy can be used as a CLI or as a module.
+Puppy can be used as a CLI in a Linux or Windows shell, or as a [module](#using-pup-as-a-module-pupfetch) in any python shell/script/[notebook](#puppy--environments-in-notebooks).
 
 Installing puppy preps the folder to house python, in complete isolation from system or any other python on your system:
 
 0) 🐍 this folder is home to one and only one python executable, managed by pixi
-1) ✨ pixi installs core components: python, uv, click
+1) ✨ pixi installs core components: python, uv, [click](https://github.com/pallets/click)
 2) ⚙ [Bash](https://github.com/liquidcarbon/puppy/blob/main/pup.sh) or [Powershell](https://github.com/liquidcarbon/puppy/blob/main/pup.ps1) runner/installer is placed into `~/.pixi/bin` (the only folder that goes on PATH)
-3) 🐶 `pup.py` is the python/[click](https://github.com/pallets/click) CLI that wraps pixi and uv commands
+3) 🐶 `pup.py` is the python/click CLI that wraps pixi and uv commands
 4) 🟣 `pup new` and `pup add` use uv to handle projects, packages and virtual environments
 5) 📀 `pup clone` and `pup sync` help build environments from external `pyproject.toml` project files
 
 https://github.com/user-attachments/assets/9cdd5173-5358-404a-84cc-f569da9972f8 
 
-## Using `pup` as a Module
+## Using `pup` as a Module: `pup.fetch`
 
 Pup can help you construct and activate python projects interactively, such as from (i)python shells, jupyter notebooks, or [marimo notebooks](https://github.com/marimo-team/marimo/discussions/2994).
 
@@ -142,12 +142,61 @@ Specify what to install:
 Hello from test-only-root!
 ```
 
-## Notebooks (WIP)
+## Puppy & Environments in Notebooks
 
-Coming soon: templates for Jupyter and Marimo notebooks.
-[Unified environment management for any computational notebooks](https://github.com/marimo-team/marimo/discussions/2994) - no more Jupyter kernels!
+> [!NOTE]
+> Conda or PyPI packages installed with `pixi add ...` always remain on `sys.path` and stay available across all environments.  Though one could exclude them, I have yet to find a reason to do so.
 
-`pup play --help`
+### Jupyter
+
+There's a good chance you're confused about how Jupyter kernels work and find setting up kernels with virtual environments too complicated to bother.  Puppy's [v1](https://github.com/liquidcarbon/puppy/tree/v1) was addressing that problem, but in v2 (current version) this is taken care of by `pup.fetch`.  Here's the gist:
+
+1) install ONE instance of jupyter with `pixi add jupyter` per major version of python
+2) run it with `pixi run jupyter lab` or `pixi run jupyter notebook`
+3) use `pup.fetch` to build and activate your environment - THAT'S IT!
+
+For details, scan through the [previous section](#using-pup-as-a-module-pupfetch).  In brief, `pup.fetch` creates/modifies and/or activates your venv by appending its folder to `sys.path`.  This is pretty very similar to how venvs and kernels work. A jupyter kernel is a pointer to a python executable.  Within a venv, the executable `.venv/bin/python` is just a symlink to the parent python - in our case, to pixi's python.  The activation and separation of packages is achieved by manipulating `sys.path` to include local `site-packages` folder(s).
+
+
+### Marimo
+
+With marimo, you have more options: [Unified environment management for any computational notebooks](https://github.com/marimo-team/marimo/discussions/2994) - no more Jupyter kernels!
+
+## Multi-Puppy-Verse
+
+Can I have multiple puppies?  As many as you want!  Puppy is not just a package installer, but also a system to organize multiple python projects.
+
+A pup/py home is defined by one and only one python executable, which is managed by pixi, along with tools like uv, jupyter, hatch, pytest, and conda-managed packages. We use home-specific tools through a pixi shell from anywhere within the folder, e.g. `pixi run python`, `pixi run jupyter`, or, to be explicit, by calling their absolute paths.
+
+> [!NOTE]
+> If you need a "kernel" with a different version of python, install puppy in a new folder.  **Puppy's folders are completely isolated from each other and any other python installation on your system.**  Remember, one puppy folder = one python executable, managed by Pixi.  Pup commands work the same from anywhere within a pup folder, run relative to its root, via `.pixi/envs/default/bin/python`.  Place puppy folders side-by-side, not within other puppy folders - nested puppies might misbehave.
+
+```
+# ├── puphome/  # python 3.12 lives here
+# │   ├── public-project/
+# │   │   ├── .git  # this folder may be a git repo (see pup clone)
+# │   │   ├── .venv
+# │   │   └── pyproject.toml
+# │   ├── env2/
+# │   │   ├── .venv/  # this one is in pre-git development
+# │   │   └── pyproject.toml
+# │   ├── pixi.toml
+# │   └── pup.py
+# ├── pup311torch/  # python 3.11 here
+# │   ├── env3/
+# │   ├── env4/
+# │   ├── pixi.toml
+# │   └── pup.py
+# └── pup313beta/  # 3.13 here
+#     ├── env5/
+#     ├── pixi.toml
+#     └── pup.py
+```
+
+The blueprint for a pup/py home is in `pixi.toml`; at this level, git is usually not needed.  The inner folders are git-ready project environments managed by pup and uv.  In each of the inner folders, there is a classic `.venv` folder and a `pyproject.toml` file populated by uv.  When you run `pup list`, pup scans this folder structure and looks inside each `pyproject.toml`.  The whole setup is very easy to [containerize](examples/) (command to generate `Dockerfile` coming soon!).
+
+> [!TIP]
+> Use `pup list -f` to list all dependencies spelled out in `uv.lock`.
 
 ## But Why
 
