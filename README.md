@@ -1,16 +1,16 @@
 # Puppy
 
-Your new best friend will help you set up and organize your python projects, with a little help from some powerful friends.
+Puppy helps you set up and manage your python projects.  It's the easiest way to get started with modern python on any platform, install packages in virtual environments, and contribute to external projects.
 
 <img src="https://github.com/liquidcarbon/puppy/assets/47034358/da604ebd-4ce3-4e5d-b88b-ef46de7367fc" width="270">
 
-Puppy is a transparent wrapper around [pixi](https://github.com/prefix-dev/pixi/) and [uv](https://github.com/astral-sh/uv), two widely used Rust-based tools that belong together.
-
-Puppy installs python, creates projects and virtual environments, and launches [marimo](https://github.com/marimo-team/marimo) or jupyter notebooks properly linked to venvs.
 
 ## Get started
 
-To start, you need only `curl` / `iwr` and an empty folder; pup and friends will handle the rest.
+https://github.com/user-attachments/assets/9cdd5173-5358-404a-84cc-f569da9972f8 
+
+You need only `curl` / `iwr` and an empty folder; pup will handle the rest, with a little help from its powerful friends [pixi](https://github.com/prefix-dev/pixi/) and [uv](https://github.com/astral-sh/uv).
+
 
 ### Linux
 
@@ -18,11 +18,13 @@ To start, you need only `curl` / `iwr` and an empty folder; pup and friends will
 curl -fsSL https://pup-py-fetch.hf.space | bash
 ```
 
+
 ### Windows
 
 ```powershell
 iex (iwr https://pup-py-fetch.hf.space).Content
 ```
+
 
 ### One Installer To Rule Them All
 
@@ -35,7 +37,7 @@ The `pup-py-fetch` API accepts query parameters that allow specifying the exact 
 > As of Dec 2024, many packages still do not support python 3.13; thus, the default version in puppy is 3.12.
 
 
-Visiting the URLs above returns the installation scripts.  You can mix and match query parameters, unlocking single-command recipes for complex builds:
+The URLs above return installation scripts.  You can mix and match query parameters, unlocking single-command recipes for complex builds:
 
 ```bash
 curl -fsSL "https://pup-py-fetch.hf.space?pixi=marimo&env1=duckdb,pandas&env2=cowsay" | bash
@@ -47,18 +49,20 @@ iex (iwr "https://pup-py-fetch.hf.space?python=3.11&pixi=marimo&tables=duckdb,pa
 
 ## How It Works
 
+Puppy is a transparent wrapper around [pixi](https://github.com/prefix-dev/pixi/) and [uv](https://github.com/astral-sh/uv), two widely used Rust-based tools that belong together.
+
 Puppy can be used as a CLI in a Linux or Windows shell, or as a [module](#using-pup-as-a-module-pupfetch) in any python shell/script/[notebook](#puppy--environments-in-notebooks).
 
 Installing puppy preps the folder to house python, in complete isolation from system or any other python on your system:
 
 0) 🐍 this folder is home to one and only one python executable, managed by pixi
-1) ✨ pixi installs core components: python, uv, [click](https://github.com/pallets/click)
+1) ✨ puppy installs pixi; pixi installs core components: python, uv, [click](https://github.com/pallets/click)
 2) ⚙ [Bash](https://github.com/liquidcarbon/puppy/blob/main/pup.sh) or [Powershell](https://github.com/liquidcarbon/puppy/blob/main/pup.ps1) runner/installer is placed into `~/.pixi/bin` (the only folder that goes on PATH)
 3) 🐶 `pup.py` is the python/click CLI that wraps pixi and uv commands
 4) 🟣 `pup new` and `pup add` use uv to handle projects, packages and virtual environments
 5) 📀 `pup clone` and `pup sync` help build environments from external `pyproject.toml` project files
 
-https://github.com/user-attachments/assets/9cdd5173-5358-404a-84cc-f569da9972f8 
+
 
 ## Using `pup` as a Module: `pup.fetch`
 
