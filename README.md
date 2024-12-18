@@ -2,7 +2,7 @@
 
 Puppy helps you set up and manage your python projects.  It's the easiest way to get started with modern python on any platform, install packages in virtual environments, and contribute to external projects.
 
-<img src="https://github.com/liquidcarbon/puppy/assets/47034358/da604ebd-4ce3-4e5d-b88b-ef46de7367fc" width="270">
+<img alt="Puppy Logo" src="https://github.com/liquidcarbon/puppy/assets/47034358/da604ebd-4ce3-4e5d-b88b-ef46de7367fc" width="270">
 
 
 ## Get started
@@ -31,7 +31,10 @@ iex (iwr https://pup-py-fetch.hf.space).Content
 The `pup-py-fetch` API accepts query parameters that allow specifying the exact environment recipe you want to build:
   - `python`: [3.10](https://pup-py-fetch.hf.space?python=3.10) through [3.13](https://pup-py-fetch.hf.space?python=3.13)
   - `pixi`: [comma-separated list of pixi/Conda dependencies](https://pup-py-fetch.hf.space?pixi=jupyter,quarto)
-  - virtual environments: [all other query parameters with comma-separated package names](https://pup-py-fetch.hf.space?env1=duckdb,pandas&env2=cowsay)
+  - `clone`: [comma-separated list of GitHub repos to clone and install](https://pup-py-fetch.hf.space?clone=marimo-team/marimo) (only GitHub at this time)
+  - virtual environments: [all other query parameters with comma-separated package names](https://pup-py-fetch.hf.space?env1=duckdb,pandas&env2=cowsay), including:
+    - regular PyPI packages (no support for version pinning at this time)
+    - packages from GitHub repos using <username>/<reponame>
 
 > [!NOTE]
 > As of Dec 2024, many packages still do not support python 3.13; thus, the default version in puppy is 3.12.
@@ -46,6 +49,7 @@ curl -fsSL "https://pup-py-fetch.hf.space?pixi=marimo&env1=duckdb,pandas&env2=co
 ```powershell
 iex (iwr "https://pup-py-fetch.hf.space?python=3.11&pixi=marimo&tables=duckdb,pandas,polars").Content
 ```
+
 
 ## How It Works
 
@@ -165,6 +169,18 @@ For details, scan through the [previous section](#using-pup-as-a-module-pupfetch
 ### Marimo
 
 With marimo, you have more options: [Unified environment management for any computational notebooks](https://github.com/marimo-team/marimo/discussions/2994) - no more Jupyter kernels!
+
+
+## Where Pixi Shines 🎇
+
+UV is rightfully getting much love in the community, but Pixi is indispensable for:
+
+1. Conda channels support
+2. Setting up really complex build environments for multi-language projects.  For example, try pulling together what's done here in one API call (python, NodeJS, pnpm, cloned and synced repo): 
+\
+\
+<img alt="Pixi build with python, Node, pnpm, and cloned repos" src="https://github.com/user-attachments/assets/b372b1a5-c3d6-415c-acb2-cc65d1f90572" width="480">
+
 
 ## Multi-Puppy-Verse
 
