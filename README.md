@@ -34,7 +34,7 @@ The `pup-py-fetch` API accepts query parameters that allow specifying the exact 
   - `clone`: [comma-separated list of GitHub repos to clone and install](https://pup-py-fetch.hf.space?clone=marimo-team/marimo) (only GitHub at this time)
   - virtual environments: [all other query parameters with comma-separated package names](https://pup-py-fetch.hf.space?env1=duckdb,pandas&env2=cowsay), including:
     - regular PyPI packages (no support for version pinning at this time)
-    - packages from GitHub repos using <username>/<reponame>
+    - packages from GitHub repos using `<username>/<reponame>`
 
 > [!NOTE]
 > As of Dec 2024, many packages still do not support python 3.13; thus, the default version in puppy is 3.12.
