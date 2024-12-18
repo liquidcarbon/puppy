@@ -7,7 +7,6 @@ Puppy helps you set up and manage your python projects.  It's the easiest way to
 
 ## Get started
 
-https://github.com/user-attachments/assets/9cdd5173-5358-404a-84cc-f569da9972f8 
 
 You need only `curl` / `iwr` and an empty folder; pup will handle the rest, with a little help from its powerful friends [pixi](https://github.com/prefix-dev/pixi/) and [uv](https://github.com/astral-sh/uv).
 
@@ -31,16 +30,17 @@ iex (iwr https://pup-py-fetch.hf.space).Content
 The `pup-py-fetch` API accepts query parameters that allow specifying the exact environment recipe you want to build:
   - `python`: [3.10](https://pup-py-fetch.hf.space?python=3.10) through [3.13](https://pup-py-fetch.hf.space?python=3.13)
   - `pixi`: [comma-separated list of pixi/Conda dependencies](https://pup-py-fetch.hf.space?pixi=jupyter,quarto)
-  - `clone`: [comma-separated list of GitHub repos to clone and install](https://pup-py-fetch.hf.space?clone=marimo-team/marimo) (only GitHub at this time)
+  - `clone`: [comma-separated list of GitHub repos to clone and build in a virtual environment](https://pup-py-fetch.hf.space?clone=marimo-team/marimo) 
   - virtual environments: [all other query parameters with comma-separated package names](https://pup-py-fetch.hf.space?env1=duckdb,pandas&env2=cowsay), including:
     - regular PyPI packages (no support for version pinning at this time)
-    - packages from GitHub repos using `<username>/<reponame>`
+    - packages from GitHub repos using `<username>/<reponame>` (only GitHub at this time; repo must contain must contain buildable `pyproject.toml` in its root)
 
 > [!NOTE]
 > As of Dec 2024, many packages still do not support python 3.13; thus, the default version in puppy is 3.12.
 
 
 The URLs above return installation scripts.  You can mix and match query parameters, unlocking single-command recipes for complex builds:
+
 
 ```bash
 curl -fsSL "https://pup-py-fetch.hf.space?pixi=marimo&env1=duckdb,pandas&env2=cowsay" | bash
@@ -49,6 +49,10 @@ curl -fsSL "https://pup-py-fetch.hf.space?pixi=marimo&env1=duckdb,pandas&env2=co
 ```powershell
 iex (iwr "https://pup-py-fetch.hf.space?python=3.11&pixi=marimo&tables=duckdb,pandas,polars").Content
 ```
+
+Or just grab the base build and use pup commands:
+
+https://github.com/user-attachments/assets/9cdd5173-5358-404a-84cc-f569da9972f8 
 
 
 ## How It Works
