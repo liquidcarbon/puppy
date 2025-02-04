@@ -271,7 +271,7 @@ Installed 1 package in 344ms
 
 Then came Jupyter notebooks, a wonderful tool that unlocked the floodgates of interest to python.  But the whole `import` thing remained a confusing mess.
 
-(to be continued)
+(to be continued) [[Medium article](https://medium.com/pythoneers/puppy-pythons-best-friend-c03578d9b491)]
 
 ## Future
 
