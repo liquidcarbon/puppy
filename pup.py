@@ -4,13 +4,15 @@ __doc__ = """
 The CLI for pup, a cute python project manager.
 """
 
-__version__ = "2.5.1"
+__version__ = "2.6.0"
 
 import collections
 import json
+import os
 import platform
 import subprocess
 import sys
+from contextlib import contextmanager, nullcontext
 from pathlib import Path
 from time import strftime
 from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
@@ -135,14 +137,19 @@ class Pup:
         `Pup.VENV_MARKER` file (`pyproject.toml` by default).
         """
 
-        _venvs = []
+        all_venvs = []
         for d in Pup.HOME.iterdir():
             # do not follow symlinks or hidden folders
             if d.is_symlink() or d.name.startswith(".") or not d.is_dir():
                 continue
-            _venvs.extend(d.rglob(Pup.VENV_MARKER))
+            all_venvs.extend(d.rglob(Pup.VENV_MARKER))
 
-        return [p.parent for p in _venvs if ".venv" not in str(p)]
+        # exclude files found inside .venv folders
+        _venvs = [p.parent for p in all_venvs if ".venv" not in str(p)]
+
+        # exclude folders without python executable inside .venv
+        complete_venvs = [p for p in _venvs if (p / Pup.VENV_PYTHON).exists()]
+        return complete_venvs
 
     @staticmethod
     def list_venvs_relative() -> list[Path]:
@@ -243,7 +250,7 @@ def uv_init(folder: str):
 @main.command(name="add", context_settings={"ignore_unknown_options": True})
 @click.argument("folder", nargs=1, required=False)
 @click.argument("packages", nargs=-1, required=False)
-def uv_add(folder: str, packages: Tuple[str], uv_options: Tuple[str] = tuple()):
+def uv_add(folder: str, packages: Tuple[str], uv_options: Tuple[str] = tuple()) -> bool:
     """Install packages into specified venv with `uv add`."""
 
     if folder is None:
@@ -253,16 +260,17 @@ def uv_add(folder: str, packages: Tuple[str], uv_options: Tuple[str] = tuple()):
         uv_init.callback(folder)
     if packages in (None, ()):
         packages = click.prompt(
-            UserInput.AddWhat, default="", show_default=False
+            UserInput.AddWhat, default="", show_default=False, err=True
         ).split()
-    if not packages:
-        return
+    if len(packages) == 0 or not packages[0]:
+        return False
 
     packages = " ".join(packages)
     _uv_options = " ".join(uv_options)
 
     Pup.hear(f"pup add {folder} {packages} {_uv_options}")
     Pup.do(f"pixi run uv add {packages} --project {folder_abs_path} {_uv_options}")
+    return True
 
 
 @main.command(name="remove")
@@ -381,34 +389,49 @@ def confirm(text, **kwargs) -> bool:
         return True
 
 
+@contextmanager
+def no_output():
+    with open(os.devnull, "w") as fnull:
+        stdout = sys.stdout
+        sys.stdout = fnull
+
+        try:
+            yield
+        finally:
+            sys.stdout = stdout
+
+
 ### CLI and pup-as-a-module
 
 if __name__ == "__main__":
     # CLI
     main()
-else:
-    # runs on "import pup"
-    # Pup.say("woof! run `pup.fetch()` to get started")
 
-    def fetch(
-        venv: str | None = None,
-        *packages: Optional[str],
-        site_packages: bool = True,
-        root: bool = False,
-    ) -> None:
-        """Create, modify, or fetch (activate) existing venvs.
 
-        Activating an environment means placing its site-packages folder on `sys.path`,
-        allowing to import the modules that are installed in that venv.
+# below runs on "import pup"
+def fetch(
+    venv: str | None = None,
+    *packages: Optional[str],
+    site_packages: bool = True,
+    root: bool = False,
+    quiet: bool = False,
+) -> None:
+    """Create, modify, or fetch (activate) existing venvs.
 
-        `venv`: folder containing `pyproject.toml` and installed packages in `.venv`
-            if venv does not exist, puppy will create it, install *packages,
-            and fetch newly created venv
-        `*packages`: names of packages to `pup add`
-        `site_packages`: if True, appends venv's site-packages to `sys.path`
-        `root`: if True, appends venv's root folder to `sys.path`
-            (useful for packages under development)
-        """
+    Activating an environment means placing its site-packages folder on `sys.path`,
+    allowing to import the modules that are installed in that venv.
+
+    `venv`: folder containing `pyproject.toml` and installed packages in `.venv`
+        if venv does not exist, puppy will create it, install *packages,
+        and fetch newly created venv
+    `*packages`: names of packages to `pup add`
+    `site_packages`: if True, appends venv's site-packages to `sys.path`
+    `root`: if True, appends venv's root folder to `sys.path`
+        (useful for packages under development)
+    `quiet`: suppress output
+    """
+    context = no_output() if quiet else nullcontext()
+    with context:
         pup_venvs = Pup.list_venvs_relative()
         venvs_names = [p.as_posix() for p in pup_venvs]
         Pup.log(f"🐶 virtual envs available: {venvs_names}", file=None, tee=False)
@@ -420,8 +443,8 @@ else:
         venv_sp_path = Pup.HOME / venv / Pup.SP_VENV
         if not venv_sp_path.exists():
             # create/modify venv
-            uv_add.callback(folder=venv, packages=packages)
-            fetch(venv, site_packages=site_packages, root=root)
+            if uv_add.callback(folder=venv, packages=packages):
+                fetch(venv, site_packages=site_packages, root=root)
         else:
             if len(packages) > 0:  # add new packages to venv
                 uv_add.callback(folder=venv, packages=packages)
@@ -442,4 +465,4 @@ else:
                     tee=False,
                 )
             pup_list.callback(venv)
-        return
+    return

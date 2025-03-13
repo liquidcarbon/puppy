@@ -76,6 +76,8 @@ Installing puppy preps the folder to house python, in complete isolation from sy
 
 Pup can help you construct and activate python projects interactively, such as from (i)python shells, jupyter notebooks, or [marimo notebooks](https://github.com/marimo-team/marimo/discussions/2994).
 
+Pup scans for folders containing valid `pyproject.toml` and python executable inside `.venv` folder.  If a venv does not exist, pup can create it.
+
 ```
 a@a-Aon-L1:~/Desktop/puppy$ .pixi/envs/default/bin/python
 Python 3.12.7
@@ -93,14 +95,20 @@ Choose venv to fetch: t1/web
 [2024-10-26 16:51:56] fetched packages from 't1/web': /home/a/Desktop/puppy/t1/web/.venv/lib/python3.12/site-packages added to `sys.path`
 ```
 
+
 Now the "kernel" `t1/web` is activated.  In other words, packages installed `t1/web/.venv` are available on `sys.path`.
+
+> [!NOTE]
+> Folders inside pup's home folder are scanned recursively, and nested paths are supported.  Symlinks are not followed.
 
 Need to install more packages on the go, or create a new venv?  Just provide the destination, and list of packages.
 
 ```python
-pup.fetch("t1/web", "awswrangler", "cloudpathlib")
-pup.fetch("data", "duckdb", "polars", root=True)
+pup.fetch("myenv")                  # activate existing environment
+pup.fetch("myenv", quiet=True)      # activate quietly (output suppressed)
+pup.fetch("t1/web", "awswrangler")  # create, install packages, activate on the fly
 ```
+
 
 Here is the signature of `pup.fetch()`:
 ```python
@@ -109,6 +117,7 @@ def fetch(
     *packages: Optional[str],
     site_packages: bool = True,
     root: bool = False,
+    quiet: bool = False,
 ) -> None:
     """Create, modify, or fetch (activate) existing venvs.
 
@@ -122,6 +131,7 @@ def fetch(
     `site_packages`: if True, appends venv's site-packages to `sys.path`
     `root`: if True, appends venv's root folder to `sys.path`
         (useful for packages under development)
+    `quiet`: suppress output
     """
 ```
 
