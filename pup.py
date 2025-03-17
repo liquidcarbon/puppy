@@ -267,12 +267,13 @@ def uv_add(folder: str, packages: Tuple[str], uv_options: Tuple[str] = tuple()) 
 
     packages = " ".join(packages)
     _uv_options = " ".join(uv_options)
+    _python = Pup.HOME / folder / Pup.VENV_PYTHON
 
     Pup.hear(f"pup add {folder} {packages} {_uv_options}")
     Pup.do(
         f"pixi run uv add {packages} "
         f"--project {folder_abs_path} "
-        f"{_uv_options} -p {Pup.VENV_PYTHON}"
+        f"{_uv_options} -p {_python}"
     )
     return True
 
@@ -289,12 +290,13 @@ def uv_remove(folder: str, packages: Tuple[str]):
         packages = click.prompt(UserInput.RemoveWhat).split()
     folder_abs_path = (Pup.HOME / folder).absolute()
     packages = " ".join(packages)
+    _python = Pup.HOME / folder / Pup.VENV_PYTHON
 
     Pup.hear(f"pup remove {folder} {packages}")
     Pup.do(
         f"pixi run uv remove {packages} "
         f"--project {folder_abs_path} "
-        f"-p {Pup.VENV_PYTHON}"
+        f"-p {_python}"
     )
 
 
@@ -332,10 +334,11 @@ def uv_sync(
     _uv_options = " ".join(uv_options)
     Pup.hear(f"""pup sync {folder} {"-U" if upgrade else ""} {_uv_options}""")
 
+    _python = Pup.HOME / folder / Pup.VENV_PYTHON
     cmd = (
         f"pixi run uv sync "
         f"--project {folder_abs_path} "
-        f"{_uv_options} -p {Pup.VENV_PYTHON}"
+        f"{_uv_options} -p {_python}"
     )
     if upgrade:
         cmd += " -U"
@@ -406,7 +409,6 @@ def no_output():
     with open(os.devnull, "w") as fnull:
         stdout = sys.stdout
         sys.stdout = fnull
-
         try:
             yield
         finally:
