@@ -104,9 +104,9 @@ Now the "kernel" `t1/web` is activated.  In other words, packages installed `t1/
 Need to install more packages on the go, or create a new venv?  Just provide the destination, and list of packages.
 
 ```python
-pup.fetch("myenv")                  # activate existing environment
-pup.fetch("myenv", quiet=True)      # activate quietly (output suppressed)
-pup.fetch("t1/web", "awswrangler")  # create, install packages, activate on the fly
+pup.fetch("myenv")                                 # activate existing environment
+pup.fetch("myenv", quiet=True)                     # activate quietly (output suppressed)
+pup.fetch("myenv", "duckdb", "pandas", "pyarrow")  # create/update venv, install packages, activate
 ```
 
 

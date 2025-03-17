@@ -269,7 +269,11 @@ def uv_add(folder: str, packages: Tuple[str], uv_options: Tuple[str] = tuple()) 
     _uv_options = " ".join(uv_options)
 
     Pup.hear(f"pup add {folder} {packages} {_uv_options}")
-    Pup.do(f"pixi run uv add {packages} --project {folder_abs_path} {_uv_options}")
+    Pup.do(
+        f"pixi run uv add {packages} "
+        f"--project {folder_abs_path} "
+        f"{_uv_options} -p {Pup.VENV_PYTHON}"
+    )
     return True
 
 
@@ -287,7 +291,11 @@ def uv_remove(folder: str, packages: Tuple[str]):
     packages = " ".join(packages)
 
     Pup.hear(f"pup remove {folder} {packages}")
-    Pup.do(f"pixi run uv remove {packages} --project {folder_abs_path}")
+    Pup.do(
+        f"pixi run uv remove {packages} "
+        f"--project {folder_abs_path} "
+        f"-p {Pup.VENV_PYTHON}"
+    )
 
 
 # TODO: uv pip install and uninstall (get/remove package bypassing pyproject.toml)
@@ -324,7 +332,11 @@ def uv_sync(
     _uv_options = " ".join(uv_options)
     Pup.hear(f"""pup sync {folder} {"-U" if upgrade else ""} {_uv_options}""")
 
-    cmd = f"pixi run uv sync --project {folder_abs_path} {_uv_options}"
+    cmd = (
+        f"pixi run uv sync "
+        f"--project {folder_abs_path} "
+        f"{_uv_options} -p {Pup.VENV_PYTHON}"
+    )
     if upgrade:
         cmd += " -U"
     Pup.do(cmd)
