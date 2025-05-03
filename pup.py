@@ -4,7 +4,7 @@ __doc__ = """
 The CLI for pup, a cute python project manager.
 """
 
-__version__ = "2.6.0"
+__version__ = "2.7.0"
 
 import collections
 import json
