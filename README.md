@@ -24,8 +24,11 @@ curl -fsSL https://pup-py-fetch.hf.space | bash
 iex (iwr https://pup-py-fetch.hf.space).Content
 ```
 
-
 ### One Installer To Rule Them All
+
+> [!NOTE]
+> This installer is hosted on HuggingFace.  It's been reliable for the last 8 months or so, but every now then it returns bits of broken HTML, in that case use `https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.sh` or `https://raw.githubusercontent.com/liquidcarbon/puppy/main/pup.ps1` instead.
+
 
 The `pup-py-fetch` API accepts query parameters that allow specifying the exact environment recipe you want to build:
   - `python`: [3.10](https://pup-py-fetch.hf.space?python=3.10) through [3.13](https://pup-py-fetch.hf.space?python=3.13)
