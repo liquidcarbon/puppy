@@ -1,5 +1,7 @@
 # Puppy
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/liquidcarbon/puppy)
+
 Puppy helps you set up and manage your python projects.  It's the easiest way to get started with modern python on any platform, install packages in virtual environments, and contribute to external projects.
 
 <img alt="Puppy Logo" src="https://github.com/liquidcarbon/puppy/assets/47034358/da604ebd-4ce3-4e5d-b88b-ef46de7367fc" width="270">
