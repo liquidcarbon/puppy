@@ -93,7 +93,7 @@ py_ver_prompt() {
   if [ -t 0 ]; then
     read -ei "$DEFAULT_PY_VERSION" -p "$(cat <<-EOF
 Enter desired base Python version
-(supported: 3.9|3.10|3.11|3.12|3.13; blank=3.12):$(printf '\u00A0')
+(supported: 3.10|3.11|3.12|3.13|3.14; blank=3.13):$(printf '\u00A0')
 EOF
 )" PY_VERSION
   else

@@ -1,5 +1,7 @@
 # Puppy
 
+<center>tested with: 🐍 python 3.10–3.14 | ✨pixi 0.56.0 | 🟣 uv 0.9.2</center>
+
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/liquidcarbon/puppy)
 
 Puppy helps you set up and manage your python projects.  It's the easiest way to get started with modern python on any platform, install packages in virtual environments, and contribute to external projects.

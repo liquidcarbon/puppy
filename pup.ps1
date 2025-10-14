@@ -90,7 +90,7 @@ function Pixi-Init {
 }
 
 function Py-Ver-Prompt {
-    $PromptMessage = "Enter desired base Python version (supported: 3.9|3.10|3.11|3.12|3.13; blank=3.12)"
+    $PromptMessage = "Enter desired base Python version (supported: 3.10|3.11|3.12|3.13|3.14; blank=3.13)"
     $PY_VERSION = Read-Host -Prompt $PromptMessage
     if (-not $PY_VERSION) { $PY_VERSION = $DEFAULT_PY_VERSION }
     return $PY_VERSION
