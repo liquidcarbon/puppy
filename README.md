@@ -1,6 +1,6 @@
 # Puppy
 
-<center>tested with: 🐍 python 3.10–3.14 | ✨pixi 0.62.0 | 🟣 uv 0.9.18</center>
+<center>tested with: 🐍 python 3.10–3.14 | ✨pixi 0.63.2 | 🟣 uv 0.9.27</center>
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/liquidcarbon/puppy)
 
