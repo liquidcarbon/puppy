@@ -46,14 +46,9 @@ jobs:
           pup list
           pup list -f
           affinity/.venv/bin/pytest -vvsx affinity/
-      - name: Install CA certificates for next step
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ca-certificates
-          sudo update-ca-certificates
       - name: import pup with fetch
         run: |
-          pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "httpx"); import httpx; httpx.get("https://example.com")'
+          pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "httpx"); import httpx; httpx.get("https://example.com", verify=False)'
       - name: pup update after deleting local pixi files
         run: |
           rm -rf .pixi pixi.toml && pup update

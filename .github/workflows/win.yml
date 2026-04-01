@@ -51,7 +51,7 @@ jobs:
           affinity/.venv/Scripts/pytest.exe -vvsx affinity/
       - name: import pup with fetch
         run: |
-          pixi run python -c 'import pup; pup.fetch("t2/with/nesting", "httpx"); import httpx; print(httpx.get("https://example.com"))'
+          pixi run python -c 'import pup; pup.fetch("t2/with/nesting", "httpx"); import httpx; print(httpx.get("https://example.com", verify=False))'
       - name: pup update after deleting pixi.exe
         run: |
           rm C:\\Users\\runneradmin\\.pixi\\bin\\pixi.exe
