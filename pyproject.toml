@@ -1,6 +1,6 @@
 [project]
 name = "puppy"
-version = "2.7.0"
+version = "2.8.0"
 description = "Your new best friend in the python world."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -12,6 +12,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 [tool.ruff]
 line-length=88

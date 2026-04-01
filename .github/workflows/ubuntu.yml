@@ -48,7 +48,7 @@ jobs:
           affinity/.venv/bin/pytest -vvsx affinity/
       - name: import pup with fetch
         run: |
-          pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "httpx"); import httpx; print(httpx.get("https://example.com"))'
+          pixi run python -c 'import pup; pup.fetch("t1/with/nesting", "httpx"); import certifi, httpx; httpx.get("https://example.com", verify=certifi.where())'
       - name: pup update after deleting local pixi files
         run: |
           rm -rf .pixi pixi.toml && pup update
